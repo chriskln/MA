@@ -16,7 +16,7 @@ import pandas as pd
 df_flow = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dailyflow_0117_1220.csv", sep = ";", dtype = {"Name": str, "Fund Legal Name": str, "FundId": str, "SecId": str, "ISIN": str})
 df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\static_var.csv", sep= ";")
 df_return = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dailyreturn_0117_1220.csv", sep= ";", dtype = {"Name": str, "Fund Legal Name": str, "FundId": str, "SecId": str, "ISIN": str})
-df_tna = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\monthlyTNA_012017_122020.csv", sep= ";", dtype = {"Name": str, "Fund Legal Name": str, "FundId": str, "SecId": str, "ISIN": str})
+df_tna = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\monthlyTNA_0117_1220.csv", sep= ";")
 
 
 ##############################################
@@ -68,17 +68,21 @@ df_return_weekly.insert(2, "FundId", FundId)
 df_return_weekly.insert(3, "SecId", SecId)
 df_return_weekly.insert(4, "ISIN", ISIN)
 
-print(df_return_weekly.iloc[:, :6])
-
+#print(df_return_weekly.iloc[:, :6])
+#print(df_flow_weekly.iloc[:, :6])
 
 ##############################################
 # Aggregate from monthly to weekly TNA
 ##############################################
 
-#df_tna_weekly = df_tna[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]].copy()
-#forthweek = (df_tna["Net Assets - share class (Monthly) 2017-04 EUR"] - df_tna.merge(df_flow_weekly, on="SecId")["3"]) / (1 + df_tna.merge(df_return_weekly, on="SecId")["3"])
-#df_tna_weekly.insert(5, "Jan-4-2017", forthweek)
-#print(df_tna_weekly)
+df_tna = df_tna.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
+df_tna.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
+
+def tna_weekly(x):
+    return x[i + 1 for i in range(0,48)]
+
+tna_weekly = df_flow_weekly["January 04, 2017"] + (1 + df_return_weekly["January 04, 2017"]) * df_tna["January, 2017"]
+#print(tna_weekly)
 
 ##############################################
 # Data Trimming
