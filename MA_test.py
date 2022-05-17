@@ -17,7 +17,11 @@ df_flow = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv
 df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\static_var.csv", sep= ";")
 df_return = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dailyreturn_0117_1220.csv", sep= ";", dtype = {"Name": str, "Fund Legal Name": str, "FundId": str, "SecId": str, "ISIN": str})
 df_tna = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\monthlyTNA_0117_1220.csv", sep= ";")
-df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\sutainability_data_012017_122020.csv", sep= ";")
+df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\sus_rating_abs.csv", sep= ";")
+df_env = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_env_score.csv", sep= ";")
+df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_soc_score.csv", sep= ";")
+df_gov = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_gov_score.csv", sep= ";")
+df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\car_risk_score.csv", sep= ";")
 
 
 ##############################################
@@ -43,11 +47,13 @@ share_class_count = df_static.groupby("Investment Area")["count"].count()
 df_static["count"] = 1
 insti_count = df_static.groupby(["Institutional"])["count"].count()
 #print(insti_count)
+df_static = df_static.drop(["count"], axis=1)
 
 # number of share classes having certain sustainability ratings as of 12/2020
 df_sus["count"] = 1
 sus_count = df_sus.groupby(["Morningstar Sustainability Rating™ 2020-12"])["count"].count()
 #print(sus_count)
+df_sus = df_sus.drop(["count"], axis=1)
 
 # check for duplicates
 df_static = df_static.drop_duplicates(subset = "ISIN", keep = "last")
@@ -110,8 +116,45 @@ df_tna.insert(3, "SecId", SecId)
 df_tna.insert(4, "ISIN", ISIN)
 
 # sustainability ratings
-df_sus = pd.melt(df_sus, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_sus")
-print(df_sus.tail(10000))
+df_sus = df_sus.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
+df_sus.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
+df_sus.insert(0, "Name", name) # add back necessary columns
+df_sus.insert(1, "Fund Legal Name", Fund_Legal_Name)
+df_sus.insert(2, "FundId", FundId)
+df_sus.insert(3, "SecId", SecId)
+df_sus.insert(4, "ISIN", ISIN)
+
+df_env = df_env.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
+df_env.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
+df_env.insert(0, "Name", name) # add back necessary columns
+df_env.insert(1, "Fund Legal Name", Fund_Legal_Name)
+df_env.insert(2, "FundId", FundId)
+df_env.insert(3, "SecId", SecId)
+df_env.insert(4, "ISIN", ISIN)
+
+df_soc = df_soc.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
+df_soc.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
+df_soc.insert(0, "Name", name) # add back necessary columns
+df_soc.insert(1, "Fund Legal Name", Fund_Legal_Name)
+df_soc.insert(2, "FundId", FundId)
+df_soc.insert(3, "SecId", SecId)
+df_soc.insert(4, "ISIN", ISIN)
+
+df_gov = df_gov.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
+df_gov.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
+df_gov.insert(0, "Name", name) # add back necessary columns
+df_gov.insert(1, "Fund Legal Name", Fund_Legal_Name)
+df_gov.insert(2, "FundId", FundId)
+df_gov.insert(3, "SecId", SecId)
+df_gov.insert(4, "ISIN", ISIN)
+
+df_car = df_car.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
+df_car.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
+df_car.insert(0, "Name", name) # add back necessary columns
+df_car.insert(1, "Fund Legal Name", Fund_Legal_Name)
+df_car.insert(2, "FundId", FundId)
+df_car.insert(3, "SecId", SecId)
+df_car.insert(4, "ISIN", ISIN)
 
 ##############################################
 # Data Trimming
@@ -129,17 +172,9 @@ df_return_weekly = df_return_weekly.dropna(axis="index", how="all", thresh=6)
 df_tna.replace(0, np.nan, inplace=True)
 df_tna = df_tna.dropna(axis="index", how="all", thresh=6)
 
-# delete all weeks with no flow data
-df_flow_weekly = df_flow_weekly.dropna(axis="columns", how= "all")
-# nothing has changed, all weeks have at least one flow datapoint
-
-# delete all weeks with no return data
-df_return_weekly = df_return_weekly.dropna(axis="columns", how="all")
-# nothing has changed, all weeks have at least one return datapoint
-
-# delete all months with no tna data
-df_tna = df_tna.dropna(axis="columns", how="all")
-# nothing has changed, all months have at least one tna datapoint
+# delete all share classes with no sustainability rating
+df_sus.replace(0, np.nan, inplace=True)
+df_sus = df_sus.dropna(axis="index", how="all", thresh=6)
 
 
 ##############################################
@@ -155,7 +190,6 @@ df_tna = pd.melt(df_tna, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", 
 #print(df_tna.iloc[:, -2:])
 
 df_sus = pd.melt(df_sus, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_sus")
-df_sus["Date"] = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
 #print(df_sus.tail(10000))
 
 ##############################################
