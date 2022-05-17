@@ -62,7 +62,7 @@ sus_count = df_sus.groupby(["Morningstar Sustainability Rating™ 2020-12"])["co
 df_sus = df_sus.drop(["count"], axis=1)
 
 # check for duplicates
-df_static = df_static.drop_duplicates(subset = "ISIN", keep = "last")
+df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
 #print(share_class_count)
 # no duplicates in dataframe
 
@@ -71,64 +71,45 @@ df_static = df_static.drop_duplicates(subset = "ISIN", keep = "last")
 # Flows
 ##############################################
 
-# aggregate from daily to weekly data
-df_flow = df_flow.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Estimated Share Class Net Flow (Daily) 2017-01-01 EUR", "Estimated Share Class Net Flow (Daily) 2017-01-02 EUR", "Estimated Share Class Net Flow (Daily) 2017-01-03 EUR", "Estimated Share Class Net Flow (Daily) 2020-12-31 EUR", "Estimated Share Class Net Flow (Daily) 2020-12-30 EUR"]) # dropping str columns to calculate and dropping columns so that start is on Wednesday
-df_flow_weekly = df_flow.groupby([i//7 for i in range(0,1456)], axis = 1).sum()
-
-# change column headers to date format
-df_flow_weekly.columns = pd.date_range(start="2017-01-04", end="2020-12-23", periods=208).strftime("%B %d, %Y") # change column headers to datetime
-
-name = df_static["Name"] # add back necessary columns
-Fund_Legal_Name = df_static["Fund Legal Name"]
-FundId = df_static["FundId"]
-SecId = df_static["SecId"]
-ISIN = df_static["ISIN"]
-
-df_flow_weekly.insert(0, "Name", name)
-df_flow_weekly.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_flow_weekly.insert(2, "FundId", FundId)
-df_flow_weekly.insert(3, "SecId", SecId)
-df_flow_weekly.insert(4, "ISIN", ISIN)
-
 # data trimming
-#df_flow_weekly.replace(0, np.nan, inplace=True)
-#df_flow_weekly = df_flow_weekly.dropna(axis="index", how="any", thresh= 6)
+df_flow.replace(0, np.nan, inplace=True)
+df_flow = df_flow.dropna(axis="index", how="any", thresh=6)
 
-# re-format dataframe
-df_flow_weekly = pd.melt(df_flow_weekly, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="weekly_flow")
+# change headers to date format
+df_flow = pd.melt(df_flow, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_flow")
+df_flow["Date"] = df_flow["Date"].str.slice(39, 49, 1)
+df_flow["Date"] = pd.to_datetime(df_flow["Date"], format="%Y-%m-%d")
+
+# aggregate from daily to weekly data
+df_flow_weekly = df_flow.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("W", on="Date").sum().reset_index()
+df_flow_weekly = df_flow_weekly.rename(columns={"daily_flow": "weekly_flow"})
+#print(df_flow_weekly)
 
 
 ##############################################
 # Returns
 ##############################################
 
-# aggregate from daily to weekly data
-df_return = df_return.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Return (Day to Day) 2017-01-01 to 2017-01-01 EUR", "Return (Day to Day) 2017-01-02 to 2017-01-02 EUR", "Return (Day to Day) 2017-01-03 to 2017-01-03 EUR", "Return (Day to Day) 2020-12-31 to 2020-12-31 EUR", "Return (Day to Day) 2020-12-30 to 2020-12-30 EUR"]) # dropping str columns to calculate and dropping columns so that start is on Wednesday
-df_return = df_return.div(100)
-df_return = df_return.add(1)
-df_return_weekly = df_return.groupby([i//7 for i in range(0,1456)], axis = 1).prod()
-df_return_weekly = df_return_weekly.sub(1)
-df_return_weekly = df_return_weekly.mul(100)
+# data trimming
+df_return.replace(0, np.nan, inplace=True)
+df_return = df_return.dropna(axis="index", how="any", thresh=6)
 
 # change column headers to date format
-df_return_weekly.columns = pd.date_range(start="2017-01-04", end="2020-12-23", periods=208).strftime("%B %d, %Y") # change column headers to datetime
+df_return = pd.melt(df_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_return")
+df_return["Date"] = df_return["Date"].str.slice(20, 30, 1)
+df_return["Date"] = pd.to_datetime(df_return["Date"], format="%Y-%m-%d")
 
-df_return_weekly.insert(0, "Name", name) # add back necessary columns
-df_return_weekly.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_return_weekly.insert(2, "FundId", FundId)
-df_return_weekly.insert(3, "SecId", SecId)
-df_return_weekly.insert(4, "ISIN", ISIN)
-
-# delete all share classes with no return data
-#df_return_weekly.replace(0, np.nan, inplace=True)
-#df_return_weekly = df_return_weekly.dropna(axis="index", how="all", thresh=6)
-
-# re-format dataframe
-df_return_weekly = pd.melt(df_return_weekly, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="weekly_return")
+# aggregate from daily to weekly data
+df_return["daily_return"] = df_return["daily_return"].div(100)
+df_return["daily_return"] = df_return["daily_return"].add(1)
+df_return_weekly = df_return.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("W", on="Date").prod().reset_index()
+df_return_weekly["daily_return"] = df_return_weekly["daily_return"].sub(1)
+df_return_weekly["daily_return"] = df_return_weekly["daily_return"].mul(100)
+df_return_weekly = df_return_weekly.rename(columns={"daily_return": "weekly_return"})
 
 # calculate prior months' return
 
-#print(df_return_weekly.iloc[:, -2:])
+#print(df_return_weekly.iloc[:, -3:])
 
 
 ##############################################
@@ -136,20 +117,13 @@ df_return_weekly = pd.melt(df_return_weekly, id_vars=["Name", "Fund Legal Name",
 ##############################################
 
 # change column headers to date format
-df_tna = df_tna.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_tna.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_tna.insert(0, "Name", name) # add back necessary columns
-df_tna.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_tna.insert(2, "FundId", FundId)
-df_tna.insert(3, "SecId", SecId)
-df_tna.insert(4, "ISIN", ISIN)
+df_tna = pd.melt(df_tna, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_tna")
+df_tna["Date"] = df_tna["Date"].str.slice(35, 42, 1)
+df_tna["Date"] = pd.to_datetime(df_tna["Date"], format="%Y-%m-%d")
 
 # delete all share classes with no tna data
 #df_tna.replace(0, np.nan, inplace=True)
 #df_tna = df_tna.dropna(axis="index", how="all", thresh=6)
-
-# re-format dataframe
-#df_tna = pd.melt(df_tna, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date_tna", value_name="monthly_tna")
 
 # delete all share classes with less than $5m tna in previous week
 
@@ -160,45 +134,25 @@ df_tna.insert(4, "ISIN", ISIN)
 ##############################################
 
 # change column headers to date format
-df_sus = df_sus.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_sus.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_sus.insert(0, "Name", name) # add back necessary columns
-df_sus.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_sus.insert(2, "FundId", FundId)
-df_sus.insert(3, "SecId", SecId)
-df_sus.insert(4, "ISIN", ISIN)
+df_sus = pd.melt(df_sus, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_sus")
+df_sus["Date"] = df_sus["Date"].str.slice(35, 42, 1)
+df_sus["Date"] = pd.to_datetime(df_sus["Date"], format="%Y-%m-%d")
 
-df_env = df_env.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_env.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_env.insert(0, "Name", name) # add back necessary columns
-df_env.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_env.insert(2, "FundId", FundId)
-df_env.insert(3, "SecId", SecId)
-df_env.insert(4, "ISIN", ISIN)
+df_env = pd.melt(df_env, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_env")
+df_env["Date"] = df_env["Date"].str.slice(35, 42, 1)
+df_env["Date"] = pd.to_datetime(df_env["Date"], format="%Y-%m-%d")
 
-df_soc = df_soc.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_soc.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_soc.insert(0, "Name", name) # add back necessary columns
-df_soc.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_soc.insert(2, "FundId", FundId)
-df_soc.insert(3, "SecId", SecId)
-df_soc.insert(4, "ISIN", ISIN)
+df_soc = pd.melt(df_soc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_soc")
+df_soc["Date"] = df_soc["Date"].str.slice(28, 35, 1)
+df_soc["Date"] = pd.to_datetime(df_soc["Date"], format="%Y-%m-%d")
 
-df_gov = df_gov.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_gov.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_gov.insert(0, "Name", name) # add back necessary columns
-df_gov.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_gov.insert(2, "FundId", FundId)
-df_gov.insert(3, "SecId", SecId)
-df_gov.insert(4, "ISIN", ISIN)
+df_gov = pd.melt(df_gov, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_gov")
+df_gov["Date"] = df_gov["Date"].str.slice(32, 39, 1)
+df_gov["Date"] = pd.to_datetime(df_gov["Date"], format="%Y-%m-%d")
 
-df_car = df_car.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_car.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_car.insert(0, "Name", name) # add back necessary columns
-df_car.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_car.insert(2, "FundId", FundId)
-df_car.insert(3, "SecId", SecId)
-df_car.insert(4, "ISIN", ISIN)
+df_car = pd.melt(df_car, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_car")
+df_car["Date"] = df_car["Date"].str.slice(18, 25, 1)
+df_car["Date"] = pd.to_datetime(df_car["Date"], format="%Y-%m-%d")
 
 # delete all share classes with no sustainability rating
 df_sus.replace(0, np.nan, inplace=True)
@@ -218,13 +172,9 @@ df_static["Age"] = df_static["d_end"] - df_static["Inception Date"] # calculatio
 df_static["Age"] = df_static["Age"] / np.timedelta64(1, "Y") # convert to years
 
 # star rating
-df_star = df_star.drop(columns=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]) # dropping str columns to calculate
-df_star.columns = pd.date_range(start="2017-01-01", end="2020-12-31", periods=48).strftime("%B, %Y")
-df_star.insert(0, "Name", name) # add back necessary columns
-df_star.insert(1, "Fund Legal Name", Fund_Legal_Name)
-df_star.insert(2, "FundId", FundId)
-df_star.insert(3, "SecId", SecId)
-df_star.insert(4, "ISIN", ISIN)
+df_star = pd.melt(df_star, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_star")
+df_star["Date"] = df_star["Date"].str.slice(15, 22, 1)
+df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
 
 df_star = df_star.dropna(axis="index", how="all")
 
@@ -233,16 +183,16 @@ df_star = df_star.dropna(axis="index", how="all")
 ##############################################
 
 # obtain weekly tna
-df_calc_tna = pd.merge(df_flow_weekly, df_return_weekly, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+#df_calc_tna = pd.merge(df_flow_weekly, df_return_weekly, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
 
-df_tna = df_tna.rename(columns={"January, 2017": "January 04, 2017", "February, 2017": "February 01, 2017"})
-df_tna = pd.melt(df_tna, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_tna")
+#df_tna = df_tna.rename(columns={"January, 2017": "January 04, 2017", "February, 2017": "February 01, 2017"})
+#df_tna = pd.melt(df_tna, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_tna")
 
-df_calc_tna = pd.merge(df_calc_tna, df_tna, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+#df_calc_tna = pd.merge(df_calc_tna, df_tna, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
 
-group = df_calc_tna.groupby("ISIN")
-df_calc_tna["monthly_tna_lag1"] = group["monthly_tna"].shift(1)
-print(df_calc_tna.iloc[:6000, -3:]) # python kennt den 01.01.17 nicht und daher alle lagged tna's nan
+#group = df_calc_tna.groupby("ISIN")
+#df_calc_tna["monthly_tna_lag1"] = group["monthly_tna"].shift(1)
+#print(df_calc_tna.iloc[:6000, -3:]) # python kennt den 01.01.17 nicht und daher alle lagged tna's nan
 
 #df_calc_tna["monthly_tna"].fillna(0, inplace=True)
 #group = df_calc_tna.groupby("ISIN")
