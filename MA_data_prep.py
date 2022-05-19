@@ -9,7 +9,7 @@
 import numpy as np
 import pandas as pd
 from datetime import date
-from dateutil.relativedelta import relativedelta
+from scipy.stats.mstats import winsorize
 
 ##############################################
 # Loading Data
@@ -63,7 +63,6 @@ df_sus = df_sus.drop(["count"], axis=1)
 
 # check for duplicates
 df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
-#print(share_class_count)
 # no duplicates in dataframe
 
 
@@ -72,8 +71,8 @@ df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
 ##############################################
 
 # data trimming
-#df_flow.replace(0, np.nan, inplace=True)
-#df_flow = df_flow.dropna(axis="index", how="any", thresh=6)
+df_flow.replace(0, np.nan, inplace=True)
+df_flow = df_flow.dropna(axis="index", how="any", thresh=6)
 
 # change headers to date format
 df_flow = pd.melt(df_flow, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_flow")
@@ -83,16 +82,20 @@ df_flow["Date"] = pd.to_datetime(df_flow["Date"], format="%Y-%m-%d")
 # aggregate from daily to weekly data
 df_flow_weekly = df_flow.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("W", on="Date").sum().reset_index()
 df_flow_weekly = df_flow_weekly.rename(columns={"daily_flow": "weekly_flow"})
-#print(df_flow_weekly)
 
+# winsorize data at 99% and 1% level
+df_flow_weekly["weekly_flow_w"] = winsorize(df_flow_weekly["weekly_flow"], limits=(0.01, 0.01))
+flow_win_check = df_flow_weekly[["weekly_flow_w","weekly_flow"]].describe() # winsorizing worked
+df_flow_weekly = df_flow_weekly.drop(["weekly_flow"], axis=1)
+df_flow_weekly = df_flow_weekly.rename(columns={"weekly_flow_w": "weekly_flow"})
 
 ##############################################
 # Returns
 ##############################################
 
 # data trimming
-#df_return.replace(0, np.nan, inplace=True) # an der stelle kontraproduktiv weil 01.01.2017 wird gebraucht für tna weekly berechnung
-#df_return = df_return.dropna(axis="index", how="any", thresh=6)
+df_return.replace(0, np.nan, inplace=True) # an der stelle kontraproduktiv weil 01.01.2017 wird gebraucht für tna weekly berechnung
+df_return = df_return.dropna(axis="index", how="any", thresh=6)
 
 # change column headers to date format
 df_return = pd.melt(df_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_return")
@@ -106,6 +109,12 @@ df_return_weekly = df_return.groupby(["Name", "Fund Legal Name", "FundId", "SecI
 df_return_weekly["daily_return"] = df_return_weekly["daily_return"].sub(1)
 #df_return_weekly["daily_return"] = df_return_weekly["daily_return"].mul(100)
 df_return_weekly = df_return_weekly.rename(columns={"daily_return": "weekly_return"})
+
+# winsorize data at 99% and 1% level
+df_return_weekly["weekly_return_w"] = winsorize(df_return_weekly["weekly_return"], limits=(0.01, 0.01))
+return_win_check = df_return_weekly[["weekly_return_w","weekly_return"]].describe() # winsorizing worked
+df_return_weekly = df_return_weekly.drop(["weekly_return"], axis=1)
+df_return_weekly = df_return_weekly.rename(columns={"weekly_return_w": "weekly_return"})
 
 # calculate prior months' return
 
@@ -122,17 +131,24 @@ df_tna["Date"] = df_tna["Date"].str.slice(35, 42, 1)
 df_tna["Date"] = pd.to_datetime(df_tna["Date"], format="%Y-%m-%d")
 df_tna["month_year"] = pd.to_datetime(df_tna["Date"]).dt.to_period("M")
 
+# delete all share classes with no tna data
+df_tna.replace(0, np.nan, inplace=True)
+df_tna = df_tna.dropna(axis="index", how="all", thresh=6)
+
+# winsorize data at 99% and 1% level
+df_tna.replace(0, np.nan, inplace=True)
+df_tna["monthly_tna_w"] = winsorize(df_tna["monthly_tna"], limits=(0.01, 0.01), nan_policy="omit")
+tna_win_check = df_tna[["monthly_tna_w","monthly_tna"]].describe() # winsorizing worked
+
 # get lagged tna
 group = df_tna.groupby("ISIN")
-df_tna["monthly_tna_lag1"] = group["monthly_tna"].shift(1)
+df_tna["monthly_tna_lag1"] = group["monthly_tna_w"].shift(1)
 
 #print(df_tna.iloc[:,-3:])
 
 #print(df_tna.iloc[:,-2:])
 
-# delete all share classes with no tna data
-#df_tna.replace(0, np.nan, inplace=True)
-#df_tna = df_tna.dropna(axis="index", how="all", thresh=6)
+
 
 # delete all share classes with less than $5m tna in previous week
 
@@ -188,47 +204,46 @@ df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
 df_star = df_star.dropna(axis="index", how="all")
 
 ##############################################
-# Merge
+# Obtain weekly TNA
 ##############################################
 
-# obtain weekly tna
+# merge all necessary data
 df_calc_tna = pd.merge(df_flow_weekly, df_return_weekly, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
-
 df_calc_tna["month_year"] = pd.to_datetime(df_calc_tna["Date"]).dt.to_period("M")
 df_calc_tna = pd.merge(df_calc_tna, df_tna, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "month_year"], how="left")
+df_calc_tna = df_calc_tna.fillna(0)
 
-df_calc_tna["weekly_tna_start"] = df_calc_tna["weekly_flow"] + (1 + df_calc_tna["weekly_return"]) * df_calc_tna["monthly_tna_lag1"]
+# identifier for first nonempty row grouped by ISIN
+df_calc_tna["count"] = 0
+df_calc_tna.loc[df_calc_tna.monthly_tna_lag1.ne(0).groupby(df_calc_tna["ISIN"]).idxmax(), "count"] = 1
+df_calc_tna["weekly_tna"] = np.where(df_calc_tna["count"] == 1, df_calc_tna["weekly_flow"] + (1 + df_calc_tna["weekly_return"]) * df_calc_tna["monthly_tna_lag1"], 0)
 
-#print(df_calc_tna)
+# calculation of weekly TNA
+df_calc_tna.loc[0, "weekly_tna"] = 0
+for i in range(0, len(df_calc_tna)):
+    if df_calc_tna.loc[i, "count"] == 1:
+        df_calc_tna.loc[i, "weekly_tna"] = df_calc_tna.loc[i, "weekly_flow"] + (1 + df_calc_tna.loc[i, "weekly_return"]) * df_calc_tna.loc[i, "monthly_tna_lag1"]
+    elif df_calc_tna.loc[i, "monthly_tna_lag1"] != 0 and df_calc_tna.loc[i, "count"] != 1:
+        df_calc_tna.loc[i, "weekly_tna"] = df_calc_tna.loc[i, "weekly_flow"] + (1 + df_calc_tna.loc[i, "weekly_return"]) * df_calc_tna.loc[i - 1, "weekly_tna"]
+    else:
+        df_calc_tna.loc[i, "weekly_tna"] = 0
 
-
-df_calc_tna["monthly_tna_lag1"] = df_calc_tna["monthly_tna_lag1"].fillna(0)
-
-for index, row in df_calc_tna.iterrows():
-    if row["monthly_tna_lag1"]
-
-
-
-
-
-#for row in df_calc_tna.itertuples(index=True, name= "Pandas"):
-#    if getattr(row, "monthly_tna_lag1") >= 0 and getattr((row - 1), ["monthly_tna_lag1"]) == 0:
-#        df_calc_tna["weekly_tna_start"][ind] = df_calc_tna["weekly_flow"][ind] + (1 + df_calc_tna["weekly_return"][ind]) * df_calc_tna["monthly_tna_lag1"][ind]
-#    else:
-#        df_calc_tna["weekly_tna_start"][ind] = df_calc_tna["weekly_flow"][ind] + (1 + df_calc_tna["weekly_return"][ind]) * df_calc_tna["weekly_tna_start"][ind - 1]
-#df_calc_tna["weekly_tna_start"] = 0
-#if df_calc_tna["monthly_tna_lag1"] == 0:
-#    df_calc_tna["weekly_tna_start"] = 0
-#elif df_calc_tna["monthly_tna_lag1"] >= 0:
-#    df_calc_tna["weekly_tna_start"] = df_calc_tna["weekly_flow"] + (1 + df_calc_tna["weekly_return"]) * df_calc_tna["monthly_tna_lag1"]
-
-#print(df_calc_tna.iloc[:,-5:])
-df_calc_tna.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_calc_tna_2.csv")
+df_tna_weekly = df_calc_tna[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date_x", "weekly_tna"]].copy()
+df_tna_weekly = df_tna_weekly.rename(columns={"Date_x": "Date"})
+#print(df_tna_weekly.iloc[:, -3:])
+#df_calc_tna.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_calc_tna_w.csv")
 
 
-#print(df_calc_tna.iloc[:6000, -3:]) # python kennt den 01.01.17 nicht und daher alle lagged tna's nan
+##############################################
+# Translate all data from share class to fund level
+##############################################
 
-#df_calc_tna["monthly_tna"].fillna(0, inplace=True)
+df_tna_weekly_fundlevel = df_tna_weekly.groupby(["Fund Legal Name", "FundId", "Date"]).sum()
+df_flow_weekly_fundlevel = df_flow_weekly.groupby(["Fund Legal Name", "FundId", "Date"]).sum()
 
+df_return_weekly_fundlevel = pd.merge(df_return_weekly, df_tna_weekly, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+df_return_weekly_fundlevel = pd.merge(df_return_weekly_fundlevel, df_tna_weekly_fundlevel, on=["Fund Legal Name", "FundId", "Date"], how="left")
+
+print(df_return_weekly_fundlevel.iloc[:, -4:])
 
 
