@@ -226,15 +226,17 @@ for j in range(1, len(df_calc_tna)):
     else:
         df_calc_tna.loc[j, "count"] = 0
 
+# assume datapoint in 2017-01 being equal to the one of the same month
+df_calc_tna["monthly_tna_lag1"] = np.where(df_calc_tna["monthly_tna_lag1"] == 0, df_calc_tna["monthly_tna"], df_calc_tna["monthly_tna_lag1"])
+
 # calculation of weekly TNA
-df_calc_tna.loc[0, "weekly_tna"] = 0
 for i in range(0, len(df_calc_tna)):
-    if df_calc_tna.loc[i, "count"] == 1:
+    if df_calc_tna.loc[i, "monthly_tna"] == 0:
+        df_calc_tna.loc[i, "weekly_tna"] = 0
+    elif df_calc_tna.loc[i, "count"] == 1:
         df_calc_tna.loc[i, "weekly_tna"] = df_calc_tna.loc[i, "weekly_flow"] + (1 + df_calc_tna.loc[i, "weekly_return"]) * df_calc_tna.loc[i, "monthly_tna_lag1"]
     elif df_calc_tna.loc[i, "monthly_tna_lag1"] != 0 and df_calc_tna.loc[i, "count"] != 1:
         df_calc_tna.loc[i, "weekly_tna"] = df_calc_tna.loc[i, "weekly_flow"] + (1 + df_calc_tna.loc[i, "weekly_return"]) * df_calc_tna.loc[i - 1, "weekly_tna"]
-    elif df_calc_tna.loc[i, "monthly_tna"] == 0:
-        df_calc_tna.loc[i, "weekly_tna"] = 0
     else:
         df_calc_tna.loc[i, "weekly_tna"] = 0
 
@@ -258,6 +260,7 @@ df_return_weekly_fundlevel["return_tna"] = df_return_weekly_fundlevel["weekly_re
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna", "weekly_return"])
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
 df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["return_tna"] / df_return_weekly_fundlevel["weekly_tna_lag1"] # calculate final weigthed average
+df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna_lag1", "return_tna"])
 
 # tna
 df_tna_weekly = df_tna_weekly.drop(columns="weekly_tna_lag1")
@@ -271,6 +274,9 @@ df_flow_weekly_fundlevel = pd.merge(df_flow_weekly, df_static, on=["Fund Legal N
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
 
+#df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv")
+#df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv")
+#df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv")
 #print(df_return_weekly_fundlevel.iloc[:,-3:])
 #print(df_return_weekly_fundlevel.iloc[:, -4:])
 #df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel.csv")
@@ -280,16 +286,14 @@ df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", 
 ##############################################
 #df_tna.replace(0, np.nan, inplace=True)
 #df_tna = df_tna.dropna(axis="index", how="all", thresh=6)
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.replace(0, np.nan)
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna_lag1", "return_tna"])
+#df_return_weekly_fundlevel = df_return_weekly_fundlevel.replace(0, np.nan)
 #df_return_weekly_fundlevel = df_return_weekly_fundlevel.dropna(axis="index", how="all", subset=["weekly_return_fundlevel"], thresh=5)
-df_return_weekly_fundlevel = df_return_weekly_fundlevel["weekly_return_fundlevel"].isna()
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.groupby("FundId").transform("all")
 
-df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_weekly_fundlevel.csv")
+#df_return_weekly_fundlevel = df_return_weekly_fundlevel.loc[~df_return_weekly_fundlevel.FundId.isin(df_return_weekly_fundlevel.loc[df_return_weekly_fundlevel[["weekly_return_fundlevel"]].isna().any(axis=1), "FundId"])]
+#df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_weekly_fundlevel.csv")
 
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.replace(0, np.nan)
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.dropna(axis="index", how="all", subset=["weekly_tna_fundlevel"], thresh=6)
+#df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.replace(0, np.nan)
+#df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.dropna(axis="index", how="all", subset=["weekly_tna_fundlevel"], thresh=6)
 
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.replace(0, np.nan)
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.dropna(axis="index", how="all", subset=["weekly_flow"], thresh=6)
+#df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.replace(0, np.nan)
+#df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.dropna(axis="index", how="all", subset=["weekly_flow"], thresh=6)
