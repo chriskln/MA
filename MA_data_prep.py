@@ -71,8 +71,8 @@ df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
 ##############################################
 
 # data trimming
-#df_flow.replace(0, np.nan, inplace=True)
-#df_flow = df_flow.dropna(axis="index", how="any", thresh=6)
+df_flow.replace(0, np.nan, inplace=True)
+df_flow = df_flow.dropna(axis="index", how="any", thresh=6) # require at least one non-missing flow datapoint
 
 # change headers to date format
 df_flow = pd.melt(df_flow, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_flow")
@@ -94,8 +94,8 @@ df_flow_weekly = df_flow_weekly.rename(columns={"weekly_flow_w": "weekly_flow"})
 ##############################################
 
 # data trimming
-#df_return.replace(0, np.nan, inplace=True) # an der stelle kontraproduktiv weil 01.01.2017 wird gebraucht für tna weekly berechnung
-#df_return = df_return.dropna(axis="index", how="any", thresh=6)
+#df_return.replace(0, np.nan, inplace=True)
+#df_return = df_return.dropna(axis="index", how="any", thresh=6) # require at least one non-missing return datapoint
 
 # change column headers to date format
 df_return = pd.melt(df_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_return")
@@ -253,7 +253,7 @@ df_tna_weekly = df_tna_weekly.rename(columns={"Date_x": "Date"})
 # returns
 group1 = df_tna_weekly.groupby("ISIN")
 df_tna_weekly["weekly_tna_lag1"] = group1["weekly_tna"].shift(1) # compute lagged weekly tna as weight for weekly return
-df_return_weekly_fundlevel = pd.merge(df_return_weekly, df_tna_weekly, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+df_return_weekly_fundlevel = pd.merge(df_return_weekly, df_tna_weekly, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="outer")
 df_return_weekly_fundlevel = pd.merge(df_return_weekly_fundlevel, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
 df_return_weekly_fundlevel["return_tna"] = df_return_weekly_fundlevel["weekly_return"] * df_return_weekly_fundlevel["weekly_tna_lag1"]
@@ -274,9 +274,9 @@ df_flow_weekly_fundlevel = pd.merge(df_flow_weekly, df_static, on=["Fund Legal N
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
 
-#df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv")
-#df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv")
-#df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv")
+df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_trimmed\\df_return_weekly_fundlevel.csv")
+df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_trimmed\\df_tna_weekly_fundlevel.csv")
+df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_trimmed\\df_flow_weekly_fundlevel.csv")
 #print(df_return_weekly_fundlevel.iloc[:,-3:])
 #print(df_return_weekly_fundlevel.iloc[:, -4:])
 #df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel.csv")
