@@ -24,6 +24,7 @@ df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.loc[:, ~df_flow_weekly_fundl
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.loc[:, ~df_return_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.loc[:, ~df_tna_weekly_fundlevel.columns.str.contains("^Unnamed")]
 
+
 ##############################################
 # Calculate flow variables
 ##############################################
@@ -39,16 +40,22 @@ df_flow_weekly_fundlevel["fund_flows"] = df_flow_weekly_fundlevel["weekly_flow"]
 df_flow_weekly_fundlevel["Decile_Rank"] = df_flow_weekly_fundlevel.groupby("Date").weekly_tna_fundlevel.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
 df_flow_weekly_fundlevel["normalized_flows"] = df_flow_weekly_fundlevel.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
-print(df_flow_weekly_fundlevel.iloc[:, -3:])
+#print(df_flow_weekly_fundlevel.iloc[:, -3:])
 #df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel.csv")
 
+
 ##############################################
-# Delete nan columns
+# Calculate prior month's return
 ##############################################
 
-#df_return_weekly_fundlevel = df_return_weekly_fundlevel.replace(0, np.nan)
-#df_return_weekly_fundlevel = df_return_weekly_fundlevel.dropna(axis=0, how="any")
+group1 = df_return_weekly_fundlevel.groupby(["FundId", "Institutional"])
+df_return_weekly_fundlevel["prior_months_return"] = group1["weekly_return_fundlevel"].shift(1)
+#print(df_return_weekly_fundlevel.iloc[:, -4:])
 
-#df_return_clear = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Institutional"]).sum().reset_index()
-#df_return_clear = df_return_clear.replace(0, np.nan)
-#df_return_clear = df_return_clear.dropna(axis=0, how="any")
+
+##############################################
+# Add restriction on at least $5m. tna by end of 2020
+##############################################
+
+df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.set_index("FundId")[df_tna_weekly_fundlevel.groupby("FundId").apply(lambda x: all([set(x["weekly_tna_fundlevel"]) > {5000000}]))]
+print(df_tna_weekly_fundlevel)
