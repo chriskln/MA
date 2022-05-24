@@ -19,13 +19,13 @@ df_flow = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv
 df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\static_var.csv", sep= ";")
 df_return = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dailyreturn_0117_1220.csv", sep= ";", dtype = {"Name": str, "Fund Legal Name": str, "FundId": str, "SecId": str, "ISIN": str})
 df_tna = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\monthlyTNA_0117_1220.csv", sep= ";")
+df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\annual_expense_ratio.csv", sep= ";")
+df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\star_rating.csv", sep= ";")
 df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\sus_rating_abs.csv", sep= ";")
 df_env = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_env_score.csv", sep= ";")
 df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_soc_score.csv", sep= ";")
 df_gov = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_gov_score.csv", sep= ";")
 df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\car_risk_score.csv", sep= ";")
-df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\annual_expense_ratio.csv", sep= ";")
-df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\star_rating.csv", sep= ";")
 
 
 ##############################################
@@ -71,8 +71,8 @@ df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
 ##############################################
 
 # data trimming
-df_flow.replace(0, np.nan, inplace=True)
-df_flow = df_flow.dropna(axis="index", how="any", thresh=6) # require at least one non-missing flow datapoint
+#df_flow.replace(0, np.nan, inplace=True)
+#df_flow = df_flow.dropna(axis="index", how="any", thresh=6) # require at least one non-missing flow datapoint
 
 # change headers to date format
 df_flow = pd.melt(df_flow, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_flow")
@@ -133,37 +133,6 @@ df_tna = df_tna.rename(columns={"monthly_tna_w": "monthly_tna"})
 # get lagged tna
 group = df_tna.groupby("ISIN")
 df_tna["monthly_tna_lag1"] = group["monthly_tna"].shift(1)
-
-# delete all share classes with less than $5m tna in previous week
-
-##############################################
-# Sustainability Measures
-##############################################
-
-# change column headers to date format
-df_sus = pd.melt(df_sus, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_sus")
-df_sus["Date"] = df_sus["Date"].str.slice(35, 42, 1)
-df_sus["Date"] = pd.to_datetime(df_sus["Date"], format="%Y-%m-%d")
-
-df_env = pd.melt(df_env, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_env")
-df_env["Date"] = df_env["Date"].str.slice(35, 42, 1)
-df_env["Date"] = pd.to_datetime(df_env["Date"], format="%Y-%m-%d")
-
-df_soc = pd.melt(df_soc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_soc")
-df_soc["Date"] = df_soc["Date"].str.slice(28, 35, 1)
-df_soc["Date"] = pd.to_datetime(df_soc["Date"], format="%Y-%m-%d")
-
-df_gov = pd.melt(df_gov, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_gov")
-df_gov["Date"] = df_gov["Date"].str.slice(32, 39, 1)
-df_gov["Date"] = pd.to_datetime(df_gov["Date"], format="%Y-%m-%d")
-
-df_car = pd.melt(df_car, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_car")
-df_car["Date"] = df_car["Date"].str.slice(18, 25, 1)
-df_car["Date"] = pd.to_datetime(df_car["Date"], format="%Y-%m-%d")
-
-# delete all share classes with no sustainability rating
-df_sus.replace(0, np.nan, inplace=True)
-df_sus = df_sus.dropna(axis="index", how="all", thresh=6)
 
 
 ##############################################
@@ -237,7 +206,7 @@ for i in range(0, len(df_merged)):
 #df_merged["ISIN"] = np.where(df_merged["counter"] == 1, df_merged.drop(["ISIN"]), )
 
 df_tna_weekly = df_merged[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "weekly_tna"]].copy()
-
+print(df_merged.columns)
 ##############################################
 # Translate all data from share class to fund level
 ##############################################
@@ -266,7 +235,7 @@ df_flow_weekly_fundlevel = pd.merge(df_flow_weekly, df_static, on=["Fund Legal N
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
 
-df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_trimmed\\df_return_weekly_fundlevel.csv")
-df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_trimmed\\df_tna_weekly_fundlevel.csv")
-df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_trimmed\\df_flow_weekly_fundlevel.csv")
+df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv")
+df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv")
+df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv")
 
