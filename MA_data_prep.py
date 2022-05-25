@@ -134,6 +134,43 @@ df_tna = df_tna.rename(columns={"monthly_tna_w": "monthly_tna"})
 group = df_tna.groupby("ISIN")
 df_tna["monthly_tna_lag1"] = group["monthly_tna"].shift(1)
 
+# get tna from next month
+ggroup = df_tna.groupby("ISIN")
+df_tna["monthly_tna_lag-1"] = ggroup["monthly_tna"].shift(-1)
+
+# control for extreme reversal pattern in tna data (as in Pastor Appendix)
+df_tna["d_assets"] = (df_tna["monthly_tna"] - df_tna["monthly_tna_lag1"]) / df_tna["monthly_tna_lag1"]
+df_tna["rev_pattern"] = (df_tna["monthly_tna_lag-1"] - df_tna["monthly_tna"]) / (df_tna["monthly_tna"] - df_tna["monthly_tna_lag1"])
+
+#df_tna["rev_indicator"] = 0
+#df_tna = df_tna.groupby("ISIN")["rev_indicator"].apply(lambda x: 1 if np.logical_and((abs(df_tna["d_assets"]) >= 0.5, -0.75 > df_tna["rev_pattern"] > -1.25, df_tna["monthly_tna_lag1"] >= 10000000)) else 0)
+
+#df_tna_grouped = df_tna.groupby("ISIN")
+#for name, group in df_tna_grouped:
+#    if abs(df_tna_grouped["d_assets"]) >= 0.5 and -0.75 > df_tna_grouped["rev_pattern"] > -1.25 and df_tna_grouped["monthly_tna_lag1"] >= 10000000:
+#        df_tna_grouped["rev_indicator"] = 1
+#    else:
+#        df_tna_grouped["rev_indicator"] = 0
+
+#def revpattern(x, v1, v2, v3, v4):
+#    if abs(x[v1]) >= 0.5 and -0.75 > x[v2] > -1.25 and x[v3] >= 10000000:
+#        x[v4] = 1
+#    else:3
+#        x[v4] = 0
+#    return x
+
+#df_tna = df_tna.groupby(["ISIN"]).apply(lambda x: revpattern(x, "d_assets", "rev_pattern", "monthly_tna_lag1", "rev_indicator"))
+
+#df_tna_grouped = df_tna.sortby(["ISIN"])
+#df_tna = np.where(abs(df_tna["d_assets"]) >= 0.5 and -0.75 > df_tna["rev_pattern"] > -1.25 and df_tna["monthly_tna_lag1"] >= 10000000, df_tna["rev_indicator"] = 1, df_tna["rev_indicator"] = 0)
+
+#for q in range(0, len(df_tna_grouped)):
+#    if abs(df_tna_grouped.loc[q, "d_assets"]) >= 0.5 and -0.75 > df_tna_grouped.loc[q, "rev_pattern"] > -1.25 and df_tna_grouped.loc[q, "monthly_tna_lag1"] >= 10000000:
+#        df_tna_grouped.loc[q, "rev_indicator"] = 1
+#    else:
+#        df_tna_grouped.loc[q, "rev_indicator"] = 0
+#print(df_tna.iloc[:, -4:])
+#df_tna.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna.csv")
 
 ##############################################
 # Controls
@@ -191,22 +228,9 @@ for i in range(0, len(df_merged)):
     else:
         df_merged.loc[i, "weekly_tna"] = 0
 
-# add restriction on tna retaining observation with lager than $5m. tna by previous week
-#grp = df_merged.groupby("ISIN")
-#df_merged["weekly_tna_lag1"] = grp["weekly_tna"].shift(1)
-#df_merged["counter"] = 0
-
-#for n in range(0, len(df_merged)):
-#    if df_merged.loc[n, "Date"] == date(2017, 12, 27) and df_merged.loc[n, "weekly_tna_lag1"] <= 5000000:
-#        df_merged["counter"] = 1
-#    else:
-#        df_merged["counter"] = 0
-#print(df_merged.columns)
-
-#df_merged["ISIN"] = np.where(df_merged["counter"] == 1, df_merged.drop(["ISIN"]), )
-
 df_tna_weekly = df_merged[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "weekly_tna"]].copy()
-print(df_merged.columns)
+df_merged.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_merged.csv")
+
 ##############################################
 # Translate all data from share class to fund level
 ##############################################
