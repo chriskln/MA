@@ -142,54 +142,22 @@ df_tna["monthly_tna_lag-1"] = ggroup["monthly_tna"].shift(-1)
 df_tna["d_assets"] = (df_tna["monthly_tna"] - df_tna["monthly_tna_lag1"]) / df_tna["monthly_tna_lag1"]
 df_tna["rev_pattern"] = (df_tna["monthly_tna_lag-1"] - df_tna["monthly_tna"]) / (df_tna["monthly_tna"] - df_tna["monthly_tna_lag1"])
 
-#df_tna["rev_indicator"] = 0
-#df_tna = df_tna.groupby("ISIN")["rev_indicator"].apply(lambda x: 1 if np.logical_and((abs(df_tna["d_assets"]) >= 0.5, -0.75 > df_tna["rev_pattern"] > -1.25, df_tna["monthly_tna_lag1"] >= 10000000)) else 0)
+for q in range(0, len(df_tna)):
+    if abs(df_tna.loc[q, "d_assets"]) >= 0.5 and -0.75 > df_tna.loc[q, "rev_pattern"] > -1.25 and df_tna.loc[q, "monthly_tna_lag1"] >= 10000000:
+        df_tna.loc[q, "rev_indicator"] = 1
+    else:
+        df_tna.loc[q, "rev_indicator"] = 0
+# results in 22 cases of extreme reversal pattern
 
-#df_tna_grouped = df_tna.groupby("ISIN")
-#for name, group in df_tna_grouped:
-#    if abs(df_tna_grouped["d_assets"]) >= 0.5 and -0.75 > df_tna_grouped["rev_pattern"] > -1.25 and df_tna_grouped["monthly_tna_lag1"] >= 10000000:
-#        df_tna_grouped["rev_indicator"] = 1
-#    else:
-#        df_tna_grouped["rev_indicator"] = 0
+# in these cases, set monthly tna to missing
+for p in range(0, len(df_tna)):
+    if df_tna.loc[p, "rev_indicator"] == 1:
+        df_tna.loc[p, "monthly_tna"] = 0
+    else:
+        continue
 
-#def revpattern(x, v1, v2, v3, v4):
-#    if abs(x[v1]) >= 0.5 and -0.75 > x[v2] > -1.25 and x[v3] >= 10000000:
-#        x[v4] = 1
-#    else:3
-#        x[v4] = 0
-#    return x
+df_tna = df_tna.drop(columns=["d_assets", "rev_pattern", "monthly_tna_lag-1", "rev_indicator"])
 
-#df_tna = df_tna.groupby(["ISIN"]).apply(lambda x: revpattern(x, "d_assets", "rev_pattern", "monthly_tna_lag1", "rev_indicator"))
-
-#df_tna_grouped = df_tna.sortby(["ISIN"])
-#df_tna = np.where(abs(df_tna["d_assets"]) >= 0.5 and -0.75 > df_tna["rev_pattern"] > -1.25 and df_tna["monthly_tna_lag1"] >= 10000000, df_tna["rev_indicator"] = 1, df_tna["rev_indicator"] = 0)
-
-#for q in range(0, len(df_tna_grouped)):
-#    if abs(df_tna_grouped.loc[q, "d_assets"]) >= 0.5 and -0.75 > df_tna_grouped.loc[q, "rev_pattern"] > -1.25 and df_tna_grouped.loc[q, "monthly_tna_lag1"] >= 10000000:
-#        df_tna_grouped.loc[q, "rev_indicator"] = 1
-#    else:
-#        df_tna_grouped.loc[q, "rev_indicator"] = 0
-#print(df_tna.iloc[:, -4:])
-#df_tna.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna.csv")
-
-##############################################
-# Controls
-##############################################
-
-# age
-df_static = df_static.dropna(axis="index", how="all")
-df_static["Inception Date"] = pd.to_datetime(df_static["Inception Date"], format= "%d.%m.%Y") # dtype
-df_static["d_end"] = date(2020, 12, 31)
-df_static["d_end"] = pd.to_datetime(df_static["d_end"], format="%Y-%m-%d") # dtype
-df_static["Age"] = df_static["d_end"] - df_static["Inception Date"] # calculation
-df_static["Age"] = df_static["Age"] / np.timedelta64(1, "Y") # convert to years
-
-# star rating
-df_star = pd.melt(df_star, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_star")
-df_star["Date"] = df_star["Date"].str.slice(15, 22, 1)
-df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
-
-df_star = df_star.dropna(axis="index", how="all")
 
 ##############################################
 # Obtain weekly TNA
@@ -227,6 +195,13 @@ for i in range(0, len(df_merged)):
         df_merged.loc[i, "weekly_tna"] = df_merged.loc[i, "weekly_flow"] + (1 + df_merged.loc[i, "weekly_return"]) * df_merged.loc[i - 1, "weekly_tna"]
     else:
         df_merged.loc[i, "weekly_tna"] = 0
+
+# policy / assumption for negative weekly tna: weekly tna should equal monthly tna
+for t in range(0, len(df_merged)):
+    if df_merged.loc[t, "weekly_tna"] < 0:
+        df_merged.loc[t, "weekly_tna"] = df_merged.loc[t, "monthly_tna"]
+    else:
+        continue
 
 df_tna_weekly = df_merged[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "weekly_tna"]].copy()
 df_merged.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_merged.csv")

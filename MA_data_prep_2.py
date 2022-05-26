@@ -25,16 +25,93 @@ df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_
 df_gov = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_gov_score.csv", sep= ";")
 df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\car_risk_score.csv", sep= ";")
 df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\static_var.csv", sep= ";")
+df_static_add = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\controls_add.csv", sep= ";")
+df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\star_rating.csv", sep= ";")
+df_div = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dividend.csv", sep= ";")
 
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.loc[:, ~df_flow_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.loc[:, ~df_return_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.loc[:, ~df_tna_weekly_fundlevel.columns.str.contains("^Unnamed")]
 
+
 ##############################################
-# Obtain prior month's and rolling 12 months return
+# Controls
 ##############################################
 
-# prior month
+################################
+# Index Fund Check
+################################
+
+# index fund indicator
+df_static = pd.merge(df_static, df_static_add, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_index_fund = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional", "Index Fund"]].copy()
+df_index_fund["name_check"] = df_index_fund["Name"].str.contains("Index", na=False)
+
+for f in range(0, len(df_index_fund)):
+    if df_index_fund.loc[f, "name_check"] == True or df_index_fund.loc[f, "Index Fund"] == "Yes":
+        df_index_fund.loc[f, "index_indicator"] = 1
+    else:
+        df_index_fund.loc[f, "index_indicator"] = 0
+
+df_index_fund = df_index_fund.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"index_indicator": "max"}).reset_index()
+
+
+################################
+# Dividend
+################################
+
+df_div = pd.merge(df_div, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_div = df_div.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+
+df_div = pd.melt(df_div, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="monthly_div")
+df_div["Date"] = df_div["Date"].str.slice(17, 24, 1)
+df_div["Date"] = pd.to_datetime(df_div["Date"], format="%Y-%m-%d")
+df_div = df_div.groupby(["Fund Legal Name", "FundId", "Institutional", "Date"]).agg({"monthly_div": "sum"}).reset_index()
+
+
+################################
+# Firm Name
+################################
+
+df_firm_name = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional", "Firm Name"]].copy()
+df_firm_name = df_firm_name.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Firm Name": "first"}).reset_index()
+
+
+################################
+# Age
+################################
+
+# aggregate inception date from share class to fund level (minimum value)
+df_age = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional", "Inception Date"]].copy()
+df_age_fundlevel = df_age.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Inception Date": "min"}).reset_index()
+
+# obtain age of fund taking 31.12.2020 as reference
+df_age_fundlevel["Inception Date"] = pd.to_datetime(df_age_fundlevel["Inception Date"], format= "%d.%m.%Y") # dtype
+df_age_fundlevel["d_end"] = date(2020, 12, 31)
+df_age_fundlevel["d_end"] = pd.to_datetime(df_age_fundlevel["d_end"], format="%Y-%m-%d") # dtype
+df_age_fundlevel["Age"] = df_age_fundlevel["d_end"] - df_age_fundlevel["Inception Date"] # calculation
+df_age_fundlevel["Age"] = df_age_fundlevel["Age"] / np.timedelta64(1, "Y") # convert to years
+
+
+################################
+# Star Rating
+################################
+
+# star rating
+df_star = pd.melt(df_star, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_star")
+df_star["Date"] = df_star["Date"].str.slice(15, 22, 1)
+df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
+df_star = df_star.fillna(6)
+df_star_fundlevel = pd.merge(df_star, df_static, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
+df_star_fundlevel = df_star_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_star": "min"}).reset_index()
+df_star_fundlevel = df_star_fundlevel.replace(6, np.nan)
+
+
+################################
+# Past Returns
+################################
+
+# prior month return
 df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].add(1)
 df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("datetime64[ns]")
 df_return_monthly_fundlevel = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Institutional"]).resample("M", on="Date").mean().reset_index()
