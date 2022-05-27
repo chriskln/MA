@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn import preprocessing
 from datetime import date
 from scipy.stats.mstats import winsorize
+from functools import reduce
 
 ##############################################
 # Loading Data
@@ -28,6 +29,36 @@ df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\c
 df_static_add = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\controls_add.csv", sep= ";")
 df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\star_rating.csv", sep= ";")
 df_div = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dividend.csv", sep= ";")
+df_fix = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects.csv", sep= ";")
+df_rank = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\annual_rank_category.csv", sep= ";")
+df_size = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\daily_fund_size.csv", sep= ";")
+df_exl = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\exclusions_screening.csv", sep= ";")
+
+# style fixed effects
+df_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\growth.csv", sep= ";")
+df_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\value.csv", sep= ";")
+df_large = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap.csv", sep= ";")
+df_mid = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap.csv", sep= ";")
+df_small = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap.csv", sep= ";")
+df_large_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap_growth.csv", sep= ";")
+df_large_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap_value.csv", sep= ";")
+df_mid_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap_growth.csv", sep= ";")
+df_mid_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap_value.csv", sep= ";")
+df_small_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap_growth.csv", sep= ";")
+df_small_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap_value.csv", sep= ";")
+
+# industry controls
+df_bm = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\basicmaterials.csv", sep= ";")
+df_cs = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\communicationservices.csv", sep= ";")
+df_cc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\consumercyclical.csv", sep= ";")
+df_en = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\energy.csv", sep= ";")
+df_cd = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\consumerdefensive.csv", sep= ";")
+df_fs = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\financialservices.csv", sep= ";")
+df_hc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\healthcare.csv", sep= ";")
+df_in = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\industrials.csv", sep= ";")
+df_re = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\realestate.csv", sep= ";")
+df_tc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\technology.csv", sep= ";")
+df_ut = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\utilities.csv", sep= ";")
 
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.loc[:, ~df_flow_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.loc[:, ~df_return_weekly_fundlevel.columns.str.contains("^Unnamed")]
@@ -54,6 +85,177 @@ for f in range(0, len(df_index_fund)):
         df_index_fund.loc[f, "index_indicator"] = 0
 
 df_index_fund = df_index_fund.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"index_indicator": "max"}).reset_index()
+
+
+################################
+# Style-Fixed Effects
+################################
+
+df_growth = pd.merge(df_growth, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_growth = df_growth.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_growth = pd.melt(df_growth, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="growth")
+df_growth["Date"] = df_growth["Date"].str.slice(29, 36, 1)
+df_growth["Date"] = pd.to_datetime(df_growth["Date"], format="%Y-%m-%d")
+df_growth = df_growth.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"growth": "first"}).reset_index()
+
+df_value = pd.merge(df_value, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_value = df_value.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_value = pd.melt(df_value, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="value")
+df_value["Date"] = df_value["Date"].str.slice(28, 35, 1)
+df_value["Date"] = pd.to_datetime(df_value["Date"], format="%Y-%m-%d")
+df_value = df_value.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"value": "first"}).reset_index()
+
+df_large = pd.merge(df_large, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_large = df_large.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_large = pd.melt(df_large, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="large_cap")
+df_large["Date"] = df_large["Date"].str.slice(32, 39, 1)
+df_large["Date"] = pd.to_datetime(df_large["Date"], format="%Y-%m-%d")
+df_large = df_large.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"large_cap": "first"}).reset_index()
+
+df_mid = pd.merge(df_mid, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_mid = df_mid.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_mid = pd.melt(df_mid, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="mid_cap")
+df_mid["Date"] = df_mid["Date"].str.slice(30, 37, 1)
+df_mid["Date"] = pd.to_datetime(df_mid["Date"], format="%Y-%m-%d")
+df_mid = df_mid.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"mid_cap": "first"}).reset_index()
+
+df_small = pd.merge(df_small, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_small = df_small.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_small = pd.melt(df_small, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="small_cap")
+df_small["Date"] = df_small["Date"].str.slice(32, 39, 1)
+df_small["Date"] = pd.to_datetime(df_small["Date"], format="%Y-%m-%d")
+df_small = df_small.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"small_cap": "first"}).reset_index()
+
+df_large_growth = pd.merge(df_large_growth, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_large_growth = df_large_growth.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_large_growth = pd.melt(df_large_growth, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="large_growth")
+df_large_growth["Date"] = df_large_growth["Date"].str.slice(35, 42, 1)
+df_large_growth["Date"] = pd.to_datetime(df_large_growth["Date"], format="%Y-%m-%d")
+df_large_growth = df_large_growth.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"large_growth": "first"}).reset_index()
+
+df_large_value = pd.merge(df_large_value, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_large_value = df_large_value.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_large_value = pd.melt(df_large_value, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="large_value")
+df_large_value["Date"] = df_large_value["Date"].str.slice(34, 41, 1)
+df_large_value["Date"] = pd.to_datetime(df_large_value["Date"], format="%Y-%m-%d")
+df_large_value = df_large_value.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"large_value": "first"}).reset_index()
+
+df_mid_growth = pd.merge(df_mid_growth, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_mid_growth = df_mid_growth.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_mid_growth = pd.melt(df_mid_growth, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="mid_growth")
+df_mid_growth["Date"] = df_mid_growth["Date"].str.slice(33, 40, 1)
+df_mid_growth["Date"] = pd.to_datetime(df_mid_growth["Date"], format="%Y-%m-%d")
+df_mid_growth = df_mid_growth.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"mid_growth": "first"}).reset_index()
+
+df_mid_value = pd.merge(df_mid_value, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_mid_value = df_mid_value.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_mid_value = pd.melt(df_mid_value, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="mid_value")
+df_mid_value["Date"] = df_mid_value["Date"].str.slice(32, 39, 1)
+df_mid_value["Date"] = pd.to_datetime(df_mid_value["Date"], format="%Y-%m-%d")
+df_mid_value = df_mid_value.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"mid_value": "first"}).reset_index()
+
+df_small_growth = pd.merge(df_small_growth, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_small_growth = df_small_growth.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_small_growth = pd.melt(df_small_growth, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="small_growth")
+df_small_growth["Date"] = df_small_growth["Date"].str.slice(35, 42, 1)
+df_small_growth["Date"] = pd.to_datetime(df_small_growth["Date"], format="%Y-%m-%d")
+df_small_growth = df_small_growth.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"small_growth": "first"}).reset_index()
+
+df_small_value = pd.merge(df_small_value, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_small_value = df_small_value.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_small_value = pd.melt(df_small_value, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="small_value")
+df_small_value["Date"] = df_small_value["Date"].str.slice(34, 41, 1)
+df_small_value["Date"] = pd.to_datetime(df_small_value["Date"], format="%Y-%m-%d")
+df_small_value = df_small_value.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"small_value": "first"}).reset_index()
+
+style_fixed_effects = [df_growth, df_value, df_large, df_mid, df_small, df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value]
+df_fixed = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), style_fixed_effects)
+
+df_fixed.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_fixed.csv")
+
+################################
+# Industry Controls
+################################
+
+df_bm = pd.merge(df_bm, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_bm = df_bm.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_bm = pd.melt(df_bm, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="basic_materials")
+df_bm["Date"] = df_bm["Date"].str.slice(44, 51, 1)
+df_bm["Date"] = pd.to_datetime(df_bm["Date"], format="%Y-%m-%d")
+df_bm = df_bm.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"basic_materials": "first"}).reset_index()
+
+df_cs = pd.merge(df_cs, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_cs = df_cs.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_cs = pd.melt(df_cs, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="communication_services")
+df_cs["Date"] = df_cs["Date"].str.slice(51, 58, 1)
+df_cs["Date"] = pd.to_datetime(df_cs["Date"], format="%Y-%m-%d")
+df_cs = df_cs.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"communication_services": "first"}).reset_index()
+
+df_cc = pd.merge(df_cc, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_cc = df_cc.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_cc = pd.melt(df_cc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="consumer_cyclical")
+df_cc["Date"] = df_cc["Date"].str.slice(46, 53, 1)
+df_cc["Date"] = pd.to_datetime(df_cc["Date"], format="%Y-%m-%d")
+df_cc = df_cc.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"consumer_cyclical": "first"}).reset_index()
+
+df_en = pd.merge(df_en, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_en = df_en.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_en = pd.melt(df_en, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="energy")
+df_en["Date"] = df_en["Date"].str.slice(35, 42, 1)
+df_en["Date"] = pd.to_datetime(df_en["Date"], format="%Y-%m-%d")
+df_en = df_en.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"energy": "first"}).reset_index()
+
+df_cd = pd.merge(df_cd, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_cd = df_cd.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_cd = pd.melt(df_cd, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="consumer_defensive")
+df_cd["Date"] = df_cd["Date"].str.slice(47, 54, 1)
+df_cd["Date"] = pd.to_datetime(df_cd["Date"], format="%Y-%m-%d")
+df_cd = df_cd.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"consumer_defensive": "first"}).reset_index()
+
+df_fs = pd.merge(df_fs, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_fs = df_fs.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_fs = pd.melt(df_fs, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="financial_services")
+df_fs["Date"] = df_fs["Date"].str.slice(47, 54, 1)
+df_fs["Date"] = pd.to_datetime(df_fs["Date"], format="%Y-%m-%d")
+df_fs = df_fs.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"financial_services": "first"}).reset_index()
+
+df_hc = pd.merge(df_hc, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_hc = df_hc.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_hc = pd.melt(df_hc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="healthcare")
+df_hc["Date"] = df_hc["Date"].str.slice(39, 46, 1)
+df_hc["Date"] = pd.to_datetime(df_hc["Date"], format="%Y-%m-%d")
+df_hc = df_hc.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"healthcare": "first"}).reset_index()
+
+df_in = pd.merge(df_in, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_in = df_in.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_in = pd.melt(df_in, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="industrials")
+df_in["Date"] = df_in["Date"].str.slice(40, 47, 1)
+df_in["Date"] = pd.to_datetime(df_in["Date"], format="%Y-%m-%d")
+df_in = df_in.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"industrials": "first"}).reset_index()
+
+df_re = pd.merge(df_re, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_re = df_re.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_re = pd.melt(df_re, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="real_estate")
+df_re["Date"] = df_re["Date"].str.slice(40, 47, 1)
+df_re["Date"] = pd.to_datetime(df_re["Date"], format="%Y-%m-%d")
+df_re = df_re.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"real_estate": "first"}).reset_index()
+
+df_tc = pd.merge(df_tc, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_tc = df_tc.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_tc = pd.melt(df_tc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="technology")
+df_tc["Date"] = df_tc["Date"].str.slice(39, 46, 1)
+df_tc["Date"] = pd.to_datetime(df_tc["Date"], format="%Y-%m-%d")
+df_tc = df_tc.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"technology": "first"}).reset_index()
+
+df_ut = pd.merge(df_ut, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_ut = df_ut.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_ut = pd.melt(df_ut, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="utilities")
+df_ut["Date"] = df_ut["Date"].str.slice(38, 45, 1)
+df_ut["Date"] = pd.to_datetime(df_ut["Date"], format="%Y-%m-%d")
+df_ut = df_ut.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"utilities": "first"}).reset_index()
+
+industry_controls = [df_ut, df_in, df_bm, df_cc, df_re, df_tc, df_hc, df_cd, df_cs, df_fs, df_en]
+df_ind = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), industry_controls)
 
 
 ################################
@@ -227,6 +429,6 @@ df_flow_weekly_fundlevel["Decile_Rank"] = df_flow_weekly_fundlevel.groupby("Date
 df_flow_weekly_fundlevel["normalized_flows"] = df_flow_weekly_fundlevel.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
 #print(df_flow_weekly_fundlevel.iloc[:, -3:])
-#df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel.csv")
+df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel.csv")
 
 
