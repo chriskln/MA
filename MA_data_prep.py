@@ -70,10 +70,6 @@ df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
 # Flows
 ##############################################
 
-# data trimming
-#df_flow.replace(0, np.nan, inplace=True)
-#df_flow = df_flow.dropna(axis="index", how="any", thresh=6) # require at least one non-missing flow datapoint
-
 # change headers to date format
 df_flow = pd.melt(df_flow, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_flow")
 df_flow["Date"] = df_flow["Date"].str.slice(39, 49, 1)
@@ -166,7 +162,7 @@ df_tna = df_tna.drop(columns=["d_assets", "rev_pattern", "monthly_tna_lag-1", "r
 # merge all necessary data
 df_merged = pd.merge(df_flow_weekly, df_return_weekly, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="outer")
 df_merged["month_year"] = pd.to_datetime(df_merged["Date"]).dt.to_period("M")
-df_merged = pd.merge(df_merged, df_tna, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "month_year"], how="left")
+df_merged = pd.merge(df_merged, df_tna, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "month_year"], how="outer")
 df_merged = df_merged.fillna(0)
 df_merged = df_merged.rename(columns={"Date_x": "Date", "weekly_flow_x": "weekly_flow"})
 df_merged = df_merged.drop(columns=["Date_y"])
@@ -204,7 +200,7 @@ for t in range(0, len(df_merged)):
         continue
 
 df_tna_weekly = df_merged[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "weekly_tna"]].copy()
-df_merged.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_merged.csv")
+#df_merged.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_merged.csv")
 
 ##############################################
 # Translate all data from share class to fund level

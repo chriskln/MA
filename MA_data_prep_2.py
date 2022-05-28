@@ -12,6 +12,7 @@ from sklearn import preprocessing
 from datetime import date
 from scipy.stats.mstats import winsorize
 from functools import reduce
+import math
 
 ##############################################
 # Loading Data
@@ -60,6 +61,7 @@ df_re = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2
 df_tc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\technology.csv", sep= ";")
 df_ut = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\utilities.csv", sep= ";")
 
+# delete unnamed columns
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.loc[:, ~df_flow_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.loc[:, ~df_return_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.loc[:, ~df_tna_weekly_fundlevel.columns.str.contains("^Unnamed")]
@@ -84,6 +86,7 @@ for f in range(0, len(df_index_fund)):
     else:
         df_index_fund.loc[f, "index_indicator"] = 0
 
+# if one share class is index, keep this indicator for FundId
 df_index_fund = df_index_fund.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"index_indicator": "max"}).reset_index()
 
 
@@ -171,7 +174,6 @@ df_small_value = df_small_value.groupby(["Fund Legal Name", "FundId", "Date", "I
 style_fixed_effects = [df_growth, df_value, df_large, df_mid, df_small, df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value]
 df_fixed = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), style_fixed_effects)
 
-df_fixed.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_fixed.csv")
 
 ################################
 # Industry Controls
@@ -293,6 +295,7 @@ df_age_fundlevel["d_end"] = date(2020, 12, 31)
 df_age_fundlevel["d_end"] = pd.to_datetime(df_age_fundlevel["d_end"], format="%Y-%m-%d") # dtype
 df_age_fundlevel["Age"] = df_age_fundlevel["d_end"] - df_age_fundlevel["Inception Date"] # calculation
 df_age_fundlevel["Age"] = df_age_fundlevel["Age"] / np.timedelta64(1, "Y") # convert to years
+df_age_fundlevel = df_age_fundlevel.drop(columns=["Inception Date", "d_end"])
 
 
 ################################
@@ -327,30 +330,86 @@ df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fund
 
 
 ##############################################
-# Retain those funds having at least one non-missing flow datapoint
+# Fund Size
 ##############################################
 
-df_flow_weekly_fundlevel["nan_indicator"] = df_flow_weekly_fundlevel.groupby(["FundId", "Institutional"])["weekly_flow"].transform(lambda x: x.head(210).sum())
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(df_flow_weekly_fundlevel[(df_flow_weekly_fundlevel.nan_indicator == 0)].index)
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns="nan_indicator")
+# delete unnecessary columns and data
+df_size = df_size.drop(columns=["Name"])
+df_size = df_size.drop_duplicates(subset="FundId", keep="first")
+
+# change column headers to date format
+df_size = pd.melt(df_size, id_vars=["Fund Legal Name", "FundId"], var_name="Date", value_name="daily_size")
+df_size["Date"] = df_size["Date"].str.slice(44, 54, 1)
+df_size["Date"] = pd.to_datetime(df_size["Date"], format="%Y-%m-%d")
+
+# aggregate from daily to weekly size data
+df_size_weekly = df_size.groupby(["Fund Legal Name", "FundId"]).resample("W", on="Date").agg({"daily_size": "last"}).reset_index()
+df_size_weekly = df_size_weekly.rename(columns={"daily_size": "weekly_size"})
 
 
 ##############################################
-# Add restriction on at least $1m. tna by previous week (Hartzmark and Sussman)
+# Compare Fund Size and TNA
 ##############################################
 
-group = df_tna_weekly_fundlevel.groupby(["FundId", "Institutional"])
-df_tna_weekly_fundlevel["weekly_tna_lag1"] = group["weekly_tna_fundlevel"].shift(1)
+df_tna_weekly_fundlevel["Date"] = df_tna_weekly_fundlevel["Date"].astype("datetime64[ns]")
 
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(df_tna_weekly_fundlevel[(df_tna_weekly_fundlevel.weekly_tna_lag1 < 1000000)].index)
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(columns="weekly_tna_lag1")
+df_tna_weekly_fundlevel = pd.merge(df_tna_weekly_fundlevel, df_size_weekly, on=["Fund Legal Name", "FundId", "Date"], how="left")
+
+# replace nan and zero values in tna by fund size under certain conditions
+for k in range(1, len(df_tna_weekly_fundlevel) - 1):
+    if (math.isnan(df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"]) == True or df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == 0) and (df_tna_weekly_fundlevel.loc[k, "Institutional"] == "Yes" and df_tna_weekly_fundlevel.loc[k, "Institutional"] != df_tna_weekly_fundlevel.loc[k - 1, "Institutional"] and df_tna_weekly_fundlevel.loc[k, "Date"] == df_tna_weekly_fundlevel.loc[k - 1, "Date"]) and df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == df_tna_weekly_fundlevel.loc[k + 1, "weekly_tna_fundlevel"]:
+        continue
+    elif (math.isnan(df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"]) == True or df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == 0) and (df_tna_weekly_fundlevel.loc[k, "Institutional"] == "No" and df_tna_weekly_fundlevel.loc[k, "Institutional"] != df_tna_weekly_fundlevel.loc[k + 1, "Institutional"] and df_tna_weekly_fundlevel.loc[k, "Date"] == df_tna_weekly_fundlevel.loc[k + 1, "Date"]) and df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == df_tna_weekly_fundlevel.loc[k + 1, "weekly_tna_fundlevel"]:
+        continue
+    elif (math.isnan(df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"]) == True or df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == 0) and (df_tna_weekly_fundlevel.loc[k, "Institutional"] == "Yes" and df_tna_weekly_fundlevel.loc[k, "Institutional"] != df_tna_weekly_fundlevel.loc[k - 1, "Institutional"] and df_tna_weekly_fundlevel.loc[k, "Date"] == df_tna_weekly_fundlevel.loc[k - 1, "Date"]) and df_tna_weekly_fundlevel.loc[k, "weekly_size"] >= df_tna_weekly_fundlevel.loc[k - 1, "weekly_tna_fundlevel"]:
+        df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] = df_tna_weekly_fundlevel.loc[k, "weekly_size"] - df_tna_weekly_fundlevel.loc[k - 1, "weekly_tna_fundlevel"]
+    elif (math.isnan(df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"]) == True or df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == 0) and (df_tna_weekly_fundlevel.loc[k, "Institutional"] == "No" and df_tna_weekly_fundlevel.loc[k, "Institutional"] != df_tna_weekly_fundlevel.loc[k + 1, "Institutional"] and df_tna_weekly_fundlevel.loc[k, "Date"] == df_tna_weekly_fundlevel.loc[k + 1, "Date"]) and df_tna_weekly_fundlevel.loc[k, "weekly_size"] >= df_tna_weekly_fundlevel.loc[k + 1, "weekly_tna_fundlevel"]:
+        df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] = df_tna_weekly_fundlevel.loc[k, "weekly_size"] - df_tna_weekly_fundlevel.loc[k + 1, "weekly_tna_fundlevel"]
+    elif (math.isnan(df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"]) == True or df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == 0) and df_tna_weekly_fundlevel.loc[k, "Institutional"] == df_tna_weekly_fundlevel.loc[k - 1, "Institutional"]:
+        df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] = df_tna_weekly_fundlevel.loc[k, "weekly_size"]
+    else:
+        continue
+
+
+##############################################
+# Retain those funds having at least one non-missing flow datapoint (AT THE END WHEN EVERYTHING IS MERGED !!!!)
+##############################################
+
+#df_flow_weekly_fundlevel["nan_indicator"] = df_flow_weekly_fundlevel.groupby(["FundId", "Institutional"])["weekly_flow"].transform(lambda x: x.head(210).sum())
+#df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(df_flow_weekly_fundlevel[(df_flow_weekly_fundlevel.nan_indicator == 0)].index)
+#df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns="nan_indicator")
+
+
+##############################################
+# Add restriction on at least $1m. fund size by previous week (Hartzmark and Sussman) (AT THE END WHEN EVERYTHING IS MERGED !!!!)
+##############################################
+
+#group = df_size_weekly.groupby(["FundId"])
+#df_size_weekly["weekly_size_lag1"] = group["weekly_size"].shift(1)
+
+#for f in range(0, len(df_size_weekly)):
+#    if df_size_weekly.loc[f, "weekly_size_lag1"] < 1000000:
+#        df_size_weekly.loc[f, "size_indicator"] = 1
+#    else:
+#        continue
+
+#df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(df_tna_weekly_fundlevel[(df_tna_weekly_fundlevel.weekly_tna_lag1 < 1000000)].index)
+#df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(columns="weekly_tna_lag1")
 
 
 ##############################################
 # Calculate log of tna
 ##############################################
 
-df_tna_weekly_fundlevel["log_tna"] = np.log(df_tna_weekly_fundlevel["weekly_tna_fundlevel"])
+#print(df_tna_weekly_fundlevel)
+
+#df_tna_weekly_fundlevel = df_tna_weekly_fundlevel["weekly_tna_fundlevel"].fillna(0)
+
+for d in range(0, len(df_tna_weekly_fundlevel)):
+    if df_tna_weekly_fundlevel.loc[d, "weekly_tna_fundlevel"] == 0 or math.isnan(df_tna_weekly_fundlevel.loc[d, "weekly_tna_fundlevel"]) == True:
+        continue
+    else:
+        df_tna_weekly_fundlevel.loc[d, "log_tna"] = np.log(df_tna_weekly_fundlevel.loc[d, "weekly_tna_fundlevel"])
 
 
 ##############################################
@@ -406,9 +465,26 @@ df_sus_fundlevel = df_sus_fundlevel.replace(6, np.nan)
 ##############################################
 # Merge datasets
 ##############################################
+df_flow_weekly_fundlevel["Date"] = df_flow_weekly_fundlevel["Date"].astype("datetime64[ns]")
+df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("datetime64[ns]")
 
-df_final = pd.merge(df_flow_weekly_fundlevel, df_tna_weekly_fundlevel, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner")
-#print(df_final)
+all_weekly_dataframes = [df_flow_weekly_fundlevel, df_return_weekly_fundlevel, df_tna_weekly_fundlevel]
+all_monthly_dataframes = [df_sus_fundlevel, df_star_fundlevel, df_fixed, df_ind, df_div, df_return_monthly_fundlevel] # why this empty?
+all_fixed_dataframes = [df_index_fund, df_firm_name, df_age_fundlevel]
+
+df_weekly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), all_weekly_dataframes)
+df_monthly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), all_monthly_dataframes)
+df_fixed_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Institutional"], how="inner"), all_fixed_dataframes)
+
+print(df_monthly_final)
+
+df_weekly_final["month_year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("M")
+df_monthly_final["month_year"] = pd.to_datetime(df_monthly_final["Date"]).dt.to_period("M")
+df_monthly_final = df_monthly_final.drop(columns=["Date"])
+
+df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
+
+#df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_final.csv")
 
 # number of funds in dataset
 #print(df_final["FundId"].nunique())
@@ -416,6 +492,7 @@ df_final = pd.merge(df_flow_weekly_fundlevel, df_tna_weekly_fundlevel, on=["Fund
 ##############################################
 # Calculate flow variables
 ##############################################
+df_flow_weekly_fundlevel["Date"] = df_flow_weekly_fundlevel["Date"].astype("datetime64[ns]")
 
 df_flow_weekly_fundlevel = pd.merge(df_flow_weekly_fundlevel, df_tna_weekly_fundlevel, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="left")
 
@@ -429,6 +506,6 @@ df_flow_weekly_fundlevel["Decile_Rank"] = df_flow_weekly_fundlevel.groupby("Date
 df_flow_weekly_fundlevel["normalized_flows"] = df_flow_weekly_fundlevel.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
 #print(df_flow_weekly_fundlevel.iloc[:, -3:])
-df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel.csv")
+#df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel_new.csv")
 
 
