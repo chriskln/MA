@@ -9,6 +9,7 @@
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
+import datetime
 from datetime import date
 from scipy.stats.mstats import winsorize
 from functools import reduce
@@ -285,9 +286,9 @@ df_firm_name = df_firm_name.groupby(["Fund Legal Name", "FundId", "Institutional
 # Age
 ################################
 
-# aggregate inception date from share class to fund level (minimum value)
+# aggregate inception date from share class to fund level (maximum value)
 df_age = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional", "Inception Date"]].copy()
-df_age_fundlevel = df_age.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Inception Date": "min"}).reset_index()
+df_age_fundlevel = df_age.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Inception Date": "max"}).reset_index()
 
 # obtain age of fund taking 31.12.2020 as reference
 df_age_fundlevel["Inception Date"] = pd.to_datetime(df_age_fundlevel["Inception Date"], format= "%d.%m.%Y") # dtype
@@ -296,6 +297,14 @@ df_age_fundlevel["d_end"] = pd.to_datetime(df_age_fundlevel["d_end"], format="%Y
 df_age_fundlevel["Age"] = df_age_fundlevel["d_end"] - df_age_fundlevel["Inception Date"] # calculation
 df_age_fundlevel["Age"] = df_age_fundlevel["Age"] / np.timedelta64(1, "Y") # convert to years
 df_age_fundlevel = df_age_fundlevel.drop(columns=["Inception Date", "d_end"])
+
+
+################################
+# Other static controls
+################################
+
+df_static_control = df_static.drop(columns=["Global Broad Category Group", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Index Fund", "Inception Date", "Valuation Country"])
+df_static_control = df_static_control.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Global Category": "first"}, {"Investment Area": "first"}).reset_index()
 
 
 ################################
@@ -327,6 +336,17 @@ df_return_monthly_fundlevel["prior_month_return"] = group1["monthly_return_fundl
 
 # rolling 12 months return
 df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel.groupby(["FundId", "Institutional"])["monthly_return_fundlevel"].transform(lambda x: x.rolling(12).mean())
+
+# back to decimal format
+df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel["rolling_12_months_return"].sub(1)
+df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].sub(1)
+df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].sub(1)
+
+# change date format for later merging
+df_return_monthly_fundlevel["month_year"] = pd.to_datetime(df_return_monthly_fundlevel["Date"]).dt.to_period("M")
+df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["Date"])
+df_return_monthly_fundlevel["Date"] = df_return_monthly_fundlevel["month_year"].astype("datetime64[ns]")
+df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["month_year"])
 
 
 ##############################################
@@ -456,10 +476,26 @@ for i in range(0, len(df_sus_fundlevel)):
 df_sus_fundlevel["monthly_sus"] = pd.to_numeric(df_sus_fundlevel["monthly_sus"])
 
 # aggregate from share class to fundlevel (retaining minimum rating)
-df_sus_fundlevel = df_sus_fundlevel.drop(df_sus_fundlevel[(df_sus_fundlevel.Date < pd.to_datetime("08.01.2018"))].index) # no sus rating in dataframe before august 2018
+#df_sus_fundlevel = df_sus_fundlevel.drop(df_sus_fundlevel[(df_sus_fundlevel.Date < pd.to_datetime("08.01.2018"))].index) # no sus rating in dataframe before august 2018
 df_sus_fundlevel = df_sus_fundlevel.fillna(6)
 df_sus_fundlevel = df_sus_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_sus": "min"}).reset_index()
 df_sus_fundlevel = df_sus_fundlevel.replace(6, np.nan)
+
+df_env_fundlevel = pd.merge(df_env, df_static, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
+df_env_fundlevel = df_env_fundlevel.drop(columns=["Name", "Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
+df_env_fundlevel = df_env_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_env": "max"}).reset_index()
+
+df_soc_fundlevel = pd.merge(df_soc, df_static, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
+df_soc_fundlevel = df_soc_fundlevel.drop(columns=["Name", "Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
+df_soc_fundlevel = df_soc_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_soc": "max"}).reset_index()
+
+df_gov_fundlevel = pd.merge(df_gov, df_static, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
+df_gov_fundlevel = df_gov_fundlevel.drop(columns=["Name", "Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
+df_gov_fundlevel = df_gov_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_gov": "max"}).reset_index()
+
+df_car_fundlevel = pd.merge(df_car, df_static, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
+df_car_fundlevel = df_car_fundlevel.drop(columns=["Name", "Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
+df_car_fundlevel = df_car_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_car": "max"}).reset_index()
 
 
 ##############################################
@@ -469,43 +505,25 @@ df_flow_weekly_fundlevel["Date"] = df_flow_weekly_fundlevel["Date"].astype("date
 df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("datetime64[ns]")
 
 all_weekly_dataframes = [df_flow_weekly_fundlevel, df_return_weekly_fundlevel, df_tna_weekly_fundlevel]
-all_monthly_dataframes = [df_sus_fundlevel, df_star_fundlevel, df_fixed, df_ind, df_div, df_return_monthly_fundlevel] # why this empty?
-all_fixed_dataframes = [df_index_fund, df_firm_name, df_age_fundlevel]
+all_monthly_dataframes = [df_sus_fundlevel, df_env_fundlevel, df_soc_fundlevel, df_gov_fundlevel, df_car_fundlevel, df_star_fundlevel, df_fixed, df_ind, df_div, df_return_monthly_fundlevel]
+all_fixed_dataframes = [df_index_fund, df_firm_name, df_age_fundlevel, df_static_control]
 
-df_weekly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), all_weekly_dataframes)
-df_monthly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), all_monthly_dataframes)
-df_fixed_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Institutional"], how="inner"), all_fixed_dataframes)
-
-print(df_monthly_final)
+df_weekly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="outer"), all_weekly_dataframes)
+df_monthly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="outer"), all_monthly_dataframes)
+df_fixed_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Institutional"], how="outer"), all_fixed_dataframes)
 
 df_weekly_final["month_year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("M")
 df_monthly_final["month_year"] = pd.to_datetime(df_monthly_final["Date"]).dt.to_period("M")
 df_monthly_final = df_monthly_final.drop(columns=["Date"])
 
 df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
+df_final = pd.merge(df_final, df_fixed_final, on=["Fund Legal Name", "FundId", "Institutional"], how="left")
 
-#df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_final.csv")
+df_weekly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_weekly_final.csv")
+df_monthly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_monthly_final.csv")
+df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_final.csv")
 
 # number of funds in dataset
-#print(df_final["FundId"].nunique())
-
-##############################################
-# Calculate flow variables
-##############################################
-df_flow_weekly_fundlevel["Date"] = df_flow_weekly_fundlevel["Date"].astype("datetime64[ns]")
-
-df_flow_weekly_fundlevel = pd.merge(df_flow_weekly_fundlevel, df_tna_weekly_fundlevel, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="left")
-
-# 1: fund flows (See Hartzmark and Sussma, p. 2798)
-group = df_flow_weekly_fundlevel.groupby(["FundId", "Institutional"])
-df_flow_weekly_fundlevel["weekly_tna_fundlevel_lag1"] = group["weekly_tna_fundlevel"].shift(1)
-df_flow_weekly_fundlevel["fund_flows"] = df_flow_weekly_fundlevel["weekly_flow"] / df_flow_weekly_fundlevel["weekly_tna_fundlevel_lag1"]
-
-# 2: normalized flows (See Hartzmark and Sussma, p. 2798)
-df_flow_weekly_fundlevel["Decile_Rank"] = df_flow_weekly_fundlevel.groupby("Date").weekly_tna_fundlevel.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
-df_flow_weekly_fundlevel["normalized_flows"] = df_flow_weekly_fundlevel.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
-
-#print(df_flow_weekly_fundlevel.iloc[:, -3:])
-#df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_flow_weekly_fundlevel_new.csv")
-
+print(df_final["FundId"].nunique())
+# 1119
 
