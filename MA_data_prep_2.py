@@ -11,6 +11,7 @@ import pandas as pd
 from sklearn import preprocessing
 import datetime
 from datetime import date
+from datetime import datetime
 from scipy.stats.mstats import winsorize
 from functools import reduce
 import math
@@ -35,6 +36,7 @@ df_fix = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_
 df_rank = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\annual_rank_category.csv", sep= ";")
 df_size = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\daily_fund_size.csv", sep= ";")
 df_exl = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\exclusions_screening.csv", sep= ";")
+df_eff = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\Europe_5_Factors_Daily.csv", sep= ",")
 
 # style fixed effects
 df_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\growth.csv", sep= ";")
@@ -89,6 +91,49 @@ for f in range(0, len(df_index_fund)):
 
 # if one share class is index, keep this indicator for FundId
 df_index_fund = df_index_fund.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"index_indicator": "max"}).reset_index()
+
+
+################################
+# Fama and French 5 Factor Europe Returns
+################################
+
+# data prep
+df_eff["Date"] = pd.to_datetime(df_eff["Date"], format="%Y%m%d")
+start = pd.to_datetime("2017-01-01", format="%Y-%m-%d")
+end = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
+df_eff = df_eff[df_eff["Date"].between(start, end)].reset_index()
+df_eff = df_eff.drop(columns=["index"])
+
+# from daily to weekly data by taking means
+df_eff["Mkt-RF"] = df_eff["Mkt-RF"].div(100)
+df_eff["SMB"] = df_eff["SMB"].div(100)
+df_eff["HML"] = df_eff["HML"].div(100)
+df_eff["RMW"] = df_eff["RMW"].div(100)
+df_eff["CMA"] = df_eff["CMA"].div(100)
+df_eff["RF"] = df_eff["RF"].div(100)
+
+df_eff["Mkt-RF"] = df_eff["Mkt-RF"].add(1)
+df_eff["SMB"] = df_eff["SMB"].add(1)
+df_eff["HML"] = df_eff["HML"].add(1)
+df_eff["RMW"] = df_eff["RMW"].add(1)
+df_eff["CMA"] = df_eff["CMA"].add(1)
+df_eff["RF"] = df_eff["RF"].add(1)
+
+df_eff_weekly = df_eff.resample("W", on="Date").prod().reset_index()
+
+df_eff_weekly["Mkt-RF"] = df_eff_weekly["Mkt-RF"].sub(1)
+df_eff_weekly["SMB"] = df_eff_weekly["SMB"].sub(1)
+df_eff_weekly["HML"] = df_eff_weekly["HML"].sub(1)
+df_eff_weekly["RMW"] = df_eff_weekly["RMW"].sub(1)
+df_eff_weekly["CMA"] = df_eff_weekly["CMA"].sub(1)
+df_eff_weekly["RF"] = df_eff_weekly["RF"].sub(1)
+
+df_eff_weekly["Mkt-RF"] = df_eff_weekly["Mkt-RF"].mul(100)
+df_eff_weekly["SMB"] = df_eff_weekly["SMB"].mul(100)
+df_eff_weekly["HML"] = df_eff_weekly["HML"].mul(100)
+df_eff_weekly["RMW"] = df_eff_weekly["RMW"].mul(100)
+df_eff_weekly["CMA"] = df_eff_weekly["CMA"].mul(100)
+df_eff_weekly["RF"] = df_eff_weekly["RF"].mul(100)
 
 
 ################################
@@ -175,6 +220,19 @@ df_small_value = df_small_value.groupby(["Fund Legal Name", "FundId", "Date", "I
 style_fixed_effects = [df_growth, df_value, df_large, df_mid, df_small, df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value]
 df_fixed = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), style_fixed_effects)
 
+# winsorize data at 99% and 1% level
+df_fixed["growth"] = winsorize(df_fixed["growth"], limits=(0.01, 0.01))
+df_fixed["value"] = winsorize(df_fixed["value"], limits=(0.01, 0.01))
+df_fixed["large_cap"] = winsorize(df_fixed["large_cap"], limits=(0.01, 0.01))
+df_fixed["mid_cap"] = winsorize(df_fixed["mid_cap"], limits=(0.01, 0.01))
+df_fixed["small_cap"] = winsorize(df_fixed["small_cap"], limits=(0.01, 0.01))
+df_fixed["large_growth"] = winsorize(df_fixed["large_growth"], limits=(0.01, 0.01))
+df_fixed["large_value"] = winsorize(df_fixed["large_value"], limits=(0.01, 0.01))
+df_fixed["mid_growth"] = winsorize(df_fixed["mid_growth"], limits=(0.01, 0.01))
+df_fixed["mid_value"] = winsorize(df_fixed["mid_value"], limits=(0.01, 0.01))
+df_fixed["small_growth"] = winsorize(df_fixed["small_growth"], limits=(0.01, 0.01))
+df_fixed["small_value"] = winsorize(df_fixed["small_value"], limits=(0.01, 0.01))
+
 
 ################################
 # Industry Controls
@@ -260,6 +318,19 @@ df_ut = df_ut.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).ag
 industry_controls = [df_ut, df_in, df_bm, df_cc, df_re, df_tc, df_hc, df_cd, df_cs, df_fs, df_en]
 df_ind = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), industry_controls)
 
+# winsorize data at 99% and 1% level
+df_ind["basic_materials"] = winsorize(df_ind["basic_materials"], limits=(0.01, 0.01))
+df_ind["communication_services"] = winsorize(df_ind["communication_services"], limits=(0.01, 0.01))
+df_ind["consumer_cyclical"] = winsorize(df_ind["consumer_cyclical"], limits=(0.01, 0.01))
+df_ind["energy"] = winsorize(df_ind["energy"], limits=(0.01, 0.01))
+df_ind["consumer_defensive"] = winsorize(df_ind["consumer_defensive"], limits=(0.01, 0.01))
+df_ind["financial_services"] = winsorize(df_ind["financial_services"], limits=(0.01, 0.01))
+df_ind["healthcare"] = winsorize(df_ind["healthcare"], limits=(0.01, 0.01))
+df_ind["industrials"] = winsorize(df_ind["industrials"], limits=(0.01, 0.01))
+df_ind["real_estate"] = winsorize(df_ind["real_estate"], limits=(0.01, 0.01))
+df_ind["technology"] = winsorize(df_ind["technology"], limits=(0.01, 0.01))
+df_ind["utilities"] = winsorize(df_ind["utilities"], limits=(0.01, 0.01))
+
 
 ################################
 # Dividend
@@ -273,6 +344,8 @@ df_div["Date"] = df_div["Date"].str.slice(17, 24, 1)
 df_div["Date"] = pd.to_datetime(df_div["Date"], format="%Y-%m-%d")
 df_div = df_div.groupby(["Fund Legal Name", "FundId", "Institutional", "Date"]).agg({"monthly_div": "sum"}).reset_index()
 
+# winsorize data at 99% and 1% level
+df_div["monthly_div"] = winsorize(df_div["monthly_div"], limits=(0.01, 0.01))
 
 ################################
 # Firm Name
@@ -286,17 +359,17 @@ df_firm_name = df_firm_name.groupby(["Fund Legal Name", "FundId", "Institutional
 # Age
 ################################
 
-# aggregate inception date from share class to fund level (maximum value)
-df_age = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional", "Inception Date"]].copy()
-df_age_fundlevel = df_age.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Inception Date": "max"}).reset_index()
-
 # obtain age of fund taking 31.12.2020 as reference
-df_age_fundlevel["Inception Date"] = pd.to_datetime(df_age_fundlevel["Inception Date"], format= "%d.%m.%Y") # dtype
-df_age_fundlevel["d_end"] = date(2020, 12, 31)
-df_age_fundlevel["d_end"] = pd.to_datetime(df_age_fundlevel["d_end"], format="%Y-%m-%d") # dtype
-df_age_fundlevel["Age"] = df_age_fundlevel["d_end"] - df_age_fundlevel["Inception Date"] # calculation
-df_age_fundlevel["Age"] = df_age_fundlevel["Age"] / np.timedelta64(1, "Y") # convert to years
-df_age_fundlevel = df_age_fundlevel.drop(columns=["Inception Date", "d_end"])
+df_age = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional", "Inception Date"]].copy()
+df_age["Inception Date"] = pd.to_datetime(df_age["Inception Date"], format= "%d.%m.%Y") # dtype
+df_age["d_end"] = date(2020, 12, 31)
+df_age["d_end"] = pd.to_datetime(df_age["d_end"], format="%Y-%m-%d") # dtype
+df_age["Age"] = df_age["d_end"] - df_age["Inception Date"] # calculation
+df_age["Age"] = df_age["Age"] / np.timedelta64(1, "Y") # convert to years
+df_age = df_age.drop(columns=["Inception Date", "d_end"])
+
+# aggregate Age from share class to fund level (oldest share class)
+df_age_fundlevel = df_age.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Age": "max"}).reset_index()
 
 
 ################################
@@ -342,6 +415,11 @@ df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fund
 df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].sub(1)
 df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].sub(1)
 
+# convert to % values
+df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel["rolling_12_months_return"].mul(100)
+df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].mul(100)
+df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].mul(100)
+
 # change date format for later merging
 df_return_monthly_fundlevel["month_year"] = pd.to_datetime(df_return_monthly_fundlevel["Date"]).dt.to_period("M")
 df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["Date"])
@@ -366,6 +444,8 @@ df_size["Date"] = pd.to_datetime(df_size["Date"], format="%Y-%m-%d")
 df_size_weekly = df_size.groupby(["Fund Legal Name", "FundId"]).resample("W", on="Date").agg({"daily_size": "last"}).reset_index()
 df_size_weekly = df_size_weekly.rename(columns={"daily_size": "weekly_size"})
 
+# winsorize data at 99% and 1% level
+df_size_weekly["weekly_size"] = winsorize(df_size_weekly["weekly_size"], limits=(0.01, 0.01))
 
 ##############################################
 # Compare Fund Size and TNA
@@ -497,6 +577,12 @@ df_car_fundlevel = pd.merge(df_car, df_static, on=["Name", "Fund Legal Name", "F
 df_car_fundlevel = df_car_fundlevel.drop(columns=["Name", "Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_car_fundlevel = df_car_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_car": "max"}).reset_index()
 
+# winsorize data at 99% and 1% level
+df_env_fundlevel["monthly_env"] = winsorize(df_env_fundlevel["monthly_env"], limits=(0.01, 0.01))
+df_soc_fundlevel["monthly_soc"] = winsorize(df_soc_fundlevel["monthly_soc"], limits=(0.01, 0.01))
+df_gov_fundlevel["monthly_gov"] = winsorize(df_gov_fundlevel["monthly_gov"], limits=(0.01, 0.01))
+df_car_fundlevel["monthly_car"] = winsorize(df_car_fundlevel["monthly_car"], limits=(0.01, 0.01))
+
 
 ##############################################
 # Merge datasets
@@ -504,21 +590,26 @@ df_car_fundlevel = df_car_fundlevel.groupby(["Fund Legal Name", "FundId", "Date"
 df_flow_weekly_fundlevel["Date"] = df_flow_weekly_fundlevel["Date"].astype("datetime64[ns]")
 df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("datetime64[ns]")
 
+# list all dataframes
 all_weekly_dataframes = [df_flow_weekly_fundlevel, df_return_weekly_fundlevel, df_tna_weekly_fundlevel]
 all_monthly_dataframes = [df_sus_fundlevel, df_env_fundlevel, df_soc_fundlevel, df_gov_fundlevel, df_car_fundlevel, df_star_fundlevel, df_fixed, df_ind, df_div, df_return_monthly_fundlevel]
 all_fixed_dataframes = [df_index_fund, df_firm_name, df_age_fundlevel, df_static_control]
 
+# merge dataframes with respect to their timeframe
 df_weekly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="outer"), all_weekly_dataframes)
 df_monthly_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="outer"), all_monthly_dataframes)
 df_fixed_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Institutional"], how="outer"), all_fixed_dataframes)
 
+# merge all
 df_weekly_final["month_year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("M")
 df_monthly_final["month_year"] = pd.to_datetime(df_monthly_final["Date"]).dt.to_period("M")
 df_monthly_final = df_monthly_final.drop(columns=["Date"])
 
 df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
 df_final = pd.merge(df_final, df_fixed_final, on=["Fund Legal Name", "FundId", "Institutional"], how="left")
+df_final = pd.merge(df_final, df_eff_weekly, on=["Date"], how="left")
 
+# store in csv
 df_weekly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_weekly_final.csv")
 df_monthly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_monthly_final.csv")
 df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_final.csv")
