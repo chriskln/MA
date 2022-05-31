@@ -584,6 +584,64 @@ df_gov_fundlevel["monthly_gov"] = winsorize(df_gov_fundlevel["monthly_gov"], lim
 df_car_fundlevel["monthly_car"] = winsorize(df_car_fundlevel["monthly_car"], limits=(0.01, 0.01))
 
 
+################################
+# Fill NaN's in columns with most actual value
+################################
+# star rating
+for c in range(2, len(df_star_fundlevel)):
+    if math.isnan(df_star_fundlevel.loc[c, "monthly_star"]) == True and df_star_fundlevel.loc[c, "FundId"] == df_star_fundlevel.loc[c - 1, "FundId"] and df_star_fundlevel.loc[c, "Institutional"] == df_star_fundlevel.loc[c - 1, "Institutional"]:
+        df_star_fundlevel.loc[c, "monthly_star"] = df_star_fundlevel.loc[c - 1, "monthly_star"]
+    elif math.isnan(df_star_fundlevel.loc[c, "monthly_star"]) == True and df_star_fundlevel.loc[c, "FundId"] == df_star_fundlevel.loc[c - 2, "FundId"] and df_star_fundlevel.loc[c, "Institutional"] == df_star_fundlevel.loc[c - 2, "Institutional"]:
+        df_star_fundlevel.loc[c, "monthly_star"] = df_star_fundlevel.loc[c - 2, "monthly_star"]
+    else:
+        continue
+
+# carbon designation
+for c in range(2, len(df_car_fundlevel)):
+    if math.isnan(df_car_fundlevel.loc[c, "monthly_car"]) == True and df_car_fundlevel.loc[c, "FundId"] == df_car_fundlevel.loc[c - 1, "FundId"] and df_car_fundlevel.loc[c, "Institutional"] == df_car_fundlevel.loc[c - 1, "Institutional"]:
+        df_car_fundlevel.loc[c, "monthly_car"] = df_car_fundlevel.loc[c - 1, "monthly_car"]
+    elif math.isnan(df_car_fundlevel.loc[c, "monthly_car"]) == True and df_car_fundlevel.loc[c, "FundId"] == df_car_fundlevel.loc[c - 2, "FundId"] and df_car_fundlevel.loc[c, "Institutional"] == df_car_fundlevel.loc[c - 2, "Institutional"]:
+        df_car_fundlevel.loc[c, "monthly_car"] = df_car_fundlevel.loc[c - 2, "monthly_car"]
+    else:
+        continue
+
+# sustainability rating
+for c in range(2, len(df_sus_fundlevel)):
+    if math.isnan(df_sus_fundlevel.loc[c, "monthly_sus"]) == True and df_sus_fundlevel.loc[c, "FundId"] == df_sus_fundlevel.loc[c - 1, "FundId"] and df_sus_fundlevel.loc[c, "Institutional"] == df_sus_fundlevel.loc[c - 1, "Institutional"]:
+        df_sus_fundlevel.loc[c, "monthly_sus"] = df_sus_fundlevel.loc[c - 1, "monthly_sus"]
+    elif math.isnan(df_sus_fundlevel.loc[c, "monthly_sus"]) == True and df_sus_fundlevel.loc[c, "FundId"] == df_sus_fundlevel.loc[c - 2, "FundId"] and df_sus_fundlevel.loc[c, "Institutional"] == df_sus_fundlevel.loc[c - 2, "Institutional"]:
+        df_sus_fundlevel.loc[c, "monthly_sus"] = df_sus_fundlevel.loc[c - 2, "monthly_sus"]
+    else:
+        continue
+
+# environmental risk score
+for c in range(2, len(df_env_fundlevel)):
+    if math.isnan(df_env_fundlevel.loc[c, "monthly_env"]) == True and df_env_fundlevel.loc[c, "FundId"] == df_env_fundlevel.loc[c - 1, "FundId"] and df_env_fundlevel.loc[c, "Institutional"] == df_env_fundlevel.loc[c - 1, "Institutional"]:
+        df_env_fundlevel.loc[c, "monthly_env"] = df_env_fundlevel.loc[c - 1, "monthly_env"]
+    elif math.isnan(df_env_fundlevel.loc[c, "monthly_env"]) == True and df_env_fundlevel.loc[c, "FundId"] == df_env_fundlevel.loc[c - 2, "FundId"] and df_env_fundlevel.loc[c, "Institutional"] == df_env_fundlevel.loc[c - 2, "Institutional"]:
+        df_env_fundlevel.loc[c, "monthly_env"] = df_env_fundlevel.loc[c - 2, "monthly_env"]
+    else:
+        continue
+
+# social risk score
+for c in range(2, len(df_soc_fundlevel)):
+    if math.isnan(df_soc_fundlevel.loc[c, "monthly_soc"]) == True and df_soc_fundlevel.loc[c, "FundId"] == df_soc_fundlevel.loc[c - 1, "FundId"] and df_soc_fundlevel.loc[c, "Institutional"] == df_soc_fundlevel.loc[c - 1, "Institutional"]:
+        df_soc_fundlevel.loc[c, "monthly_soc"] = df_soc_fundlevel.loc[c - 1, "monthly_soc"]
+    elif math.isnan(df_soc_fundlevel.loc[c, "monthly_soc"]) == True and df_soc_fundlevel.loc[c, "FundId"] == df_soc_fundlevel.loc[c - 2, "FundId"] and df_soc_fundlevel.loc[c, "Institutional"] == df_soc_fundlevel.loc[c - 2, "Institutional"]:
+        df_soc_fundlevel.loc[c, "monthly_soc"] = df_soc_fundlevel.loc[c - 2, "monthly_soc"]
+    else:
+        continue
+
+# governance risk score
+for c in range(2, len(df_gov_fundlevel)):
+    if math.isnan(df_gov_fundlevel.loc[c, "monthly_gov"]) == True and df_gov_fundlevel.loc[c, "FundId"] == df_gov_fundlevel.loc[c - 1, "FundId"] and df_gov_fundlevel.loc[c, "Institutional"] == df_gov_fundlevel.loc[c - 1, "Institutional"]:
+        df_gov_fundlevel.loc[c, "monthly_gov"] = df_gov_fundlevel.loc[c - 1, "monthly_gov"]
+    elif math.isnan(df_gov_fundlevel.loc[c, "monthly_gov"]) == True and df_gov_fundlevel.loc[c, "FundId"] == df_gov_fundlevel.loc[c - 2, "FundId"] and df_gov_fundlevel.loc[c, "Institutional"] == df_gov_fundlevel.loc[c - 2, "Institutional"]:
+        df_gov_fundlevel.loc[c, "monthly_gov"] = df_gov_fundlevel.loc[c - 2, "monthly_gov"]
+    else:
+        continue
+
+
 ##############################################
 # Merge datasets
 ##############################################
