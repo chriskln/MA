@@ -3,7 +3,7 @@
 ##############################################
 
 ##############################################
-# Data Analysis
+# Summary Statistics
 ##############################################
 
 import numpy as np
@@ -26,7 +26,6 @@ import math
 ##############################################
 
 df_final = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_final.csv", sep= ",")
-
 
 # delete unnamed columns
 df_final = df_final.loc[:, ~df_final.columns.str.contains("^Unnamed")]
@@ -96,6 +95,9 @@ df_final["fund_flows"] = df_final["fund_flows"].mul(100) # values in percent
 df_final["Decile_Rank"] = df_final.groupby("Date").weekly_tna_fundlevel.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
 df_final["normalized_flows"] = df_final.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
+# to csv
+df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_final_trimmed.csv")
+
 
 ##############################################
 # Basic Summary Statistic (01/2019 - 12/2020)
@@ -131,7 +133,7 @@ summary.rename(columns={"index": "Variable", "count": "N", "mean": "Mean", "std"
                         "25%": "P25", "50%": "P50", "75%": "P75", "90%": "P90", "max": "Max"}, inplace=True)
 
 # to excel
-summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\tables\\summary.xlsx", index=False)
+summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
 
 
 ##############################################
