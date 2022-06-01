@@ -672,7 +672,7 @@ df_weekly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\c
 df_monthly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_monthly_final.csv")
 df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_final.csv")
 
-# number of funds in dataset
+# number of funds in dataset before overall trimming
 print(df_final["FundId"].nunique())
 # 1119
 
