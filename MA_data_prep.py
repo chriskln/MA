@@ -79,11 +79,6 @@ df_flow["Date"] = pd.to_datetime(df_flow["Date"], format="%Y-%m-%d")
 df_flow_weekly = df_flow.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("W", on="Date").sum().reset_index()
 df_flow_weekly = df_flow_weekly.rename(columns={"daily_flow": "weekly_flow"})
 
-# winsorize data at 99% and 1% level
-df_flow_weekly["weekly_flow_w"] = winsorize(df_flow_weekly["weekly_flow"], limits=(0.01, 0.01))
-flow_win_check = df_flow_weekly[["weekly_flow_w","weekly_flow"]].describe() # winsorizing worked
-df_flow_weekly = df_flow_weekly.drop(["weekly_flow"], axis=1)
-df_flow_weekly = df_flow_weekly.rename(columns={"weekly_flow_w": "weekly_flow"})
 
 ##############################################
 # Returns
@@ -102,12 +97,6 @@ df_return_weekly["daily_return"] = df_return_weekly["daily_return"].sub(1)
 #df_return_weekly["daily_return"] = df_return_weekly["daily_return"].mul(100)
 df_return_weekly = df_return_weekly.rename(columns={"daily_return": "weekly_return"})
 
-# winsorize data at 99% and 1% level
-df_return_weekly["weekly_return_w"] = winsorize(df_return_weekly["weekly_return"], limits=(0.01, 0.01))
-return_win_check = df_return_weekly[["weekly_return_w","weekly_return"]].describe() # winsorizing worked
-df_return_weekly = df_return_weekly.drop(["weekly_return"], axis=1)
-df_return_weekly = df_return_weekly.rename(columns={"weekly_return_w": "weekly_return"})
-
 
 ##############################################
 # TNA
@@ -118,13 +107,6 @@ df_tna = pd.melt(df_tna, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", 
 df_tna["Date"] = df_tna["Date"].str.slice(35, 42, 1)
 df_tna["Date"] = pd.to_datetime(df_tna["Date"], format="%Y-%m-%d")
 df_tna["month_year"] = pd.to_datetime(df_tna["Date"]).dt.to_period("M")
-
-# winsorize data at 99% and 1% level
-df_tna.replace(0, np.nan, inplace=True)
-df_tna["monthly_tna_w"] = winsorize(df_tna["monthly_tna"], limits=(0.01, 0.01), nan_policy="omit")
-tna_win_check = df_tna[["monthly_tna_w", "monthly_tna"]].describe() # winsorizing worked
-df_tna = df_tna.drop(columns="monthly_tna")
-df_tna = df_tna.rename(columns={"monthly_tna_w": "monthly_tna"})
 
 # get lagged tna
 group = df_tna.groupby("ISIN")
@@ -211,7 +193,7 @@ group1 = df_tna_weekly.groupby("ISIN")
 df_tna_weekly["weekly_tna_lag1"] = group1["weekly_tna"].shift(1) # compute lagged weekly tna as weight for weekly return
 df_return_weekly_fundlevel = pd.merge(df_return_weekly, df_tna_weekly, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
 df_return_weekly_fundlevel = pd.merge(df_return_weekly_fundlevel, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
+df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_return_weekly_fundlevel["return_tna"] = df_return_weekly_fundlevel["weekly_return"] * df_return_weekly_fundlevel["weekly_tna_lag1"]
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna", "weekly_return"])
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
@@ -221,13 +203,13 @@ df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tn
 # tna
 df_tna_weekly = df_tna_weekly.drop(columns="weekly_tna_lag1")
 df_tna_weekly_fundlevel = pd.merge(df_tna_weekly, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
+df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index() # calculate weekly tna at fund level by summing all ISIN's within a FundId
 df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.rename(columns={"weekly_tna": "weekly_tna_fundlevel"})
 
 # flows
 df_flow_weekly_fundlevel = pd.merge(df_flow_weekly, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date", "d_end", "Age"])
+df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
 
 df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv")

@@ -258,18 +258,94 @@ df_small_value = df_small_value.groupby(["Fund Legal Name", "FundId", "Date", "I
 style_fixed_effects = [df_growth, df_value, df_large, df_mid, df_small, df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value]
 df_fixed = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), style_fixed_effects)
 
-# winsorize data at 99% and 1% level
-df_fixed["growth"] = winsorize(df_fixed["growth"], limits=(0.01, 0.01))
-df_fixed["value"] = winsorize(df_fixed["value"], limits=(0.01, 0.01))
-df_fixed["large_cap"] = winsorize(df_fixed["large_cap"], limits=(0.01, 0.01))
-df_fixed["mid_cap"] = winsorize(df_fixed["mid_cap"], limits=(0.01, 0.01))
-df_fixed["small_cap"] = winsorize(df_fixed["small_cap"], limits=(0.01, 0.01))
-df_fixed["large_growth"] = winsorize(df_fixed["large_growth"], limits=(0.01, 0.01))
-df_fixed["large_value"] = winsorize(df_fixed["large_value"], limits=(0.01, 0.01))
-df_fixed["mid_growth"] = winsorize(df_fixed["mid_growth"], limits=(0.01, 0.01))
-df_fixed["mid_value"] = winsorize(df_fixed["mid_value"], limits=(0.01, 0.01))
-df_fixed["small_growth"] = winsorize(df_fixed["small_growth"], limits=(0.01, 0.01))
-df_fixed["small_value"] = winsorize(df_fixed["small_value"], limits=(0.01, 0.01))
+# fill nan values with most actual value
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "growth"] = df_fixed.loc[c - 1, "growth"]
+    elif math.isnan(df_fixed.loc[c, "growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "growth"] = df_fixed.loc[c - 2, "growth"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "value"] = df_fixed.loc[c - 1, "value"]
+    elif math.isnan(df_fixed.loc[c, "value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "value"] = df_fixed.loc[c - 2, "value"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "large_cap"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "large_cap"] = df_fixed.loc[c - 1, "large_cap"]
+    elif math.isnan(df_fixed.loc[c, "large_cap"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "large_cap"] = df_fixed.loc[c - 2, "large_cap"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "mid_cap"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "mid_cap"] = df_fixed.loc[c - 1, "mid_cap"]
+    elif math.isnan(df_fixed.loc[c, "mid_cap"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "mid_cap"] = df_fixed.loc[c - 2, "mid_cap"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "small_cap"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "small_cap"] = df_fixed.loc[c - 1, "small_cap"]
+    elif math.isnan(df_fixed.loc[c, "small_cap"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "small_cap"] = df_fixed.loc[c - 2, "small_cap"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "large_growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "large_growth"] = df_fixed.loc[c - 1, "large_growth"]
+    elif math.isnan(df_fixed.loc[c, "large_growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "large_growth"] = df_fixed.loc[c - 2, "large_growth"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "large_value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "large_value"] = df_fixed.loc[c - 1, "large_value"]
+    elif math.isnan(df_fixed.loc[c, "large_value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "large_value"] = df_fixed.loc[c - 2, "large_value"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "mid_growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "mid_growth"] = df_fixed.loc[c - 1, "mid_growth"]
+    elif math.isnan(df_fixed.loc[c, "mid_growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "mid_growth"] = df_fixed.loc[c - 2, "mid_growth"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "mid_value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "mid_value"] = df_fixed.loc[c - 1, "mid_value"]
+    elif math.isnan(df_fixed.loc[c, "mid_value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "mid_value"] = df_fixed.loc[c - 2, "mid_value"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "small_growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "small_growth"] = df_fixed.loc[c - 1, "small_growth"]
+    elif math.isnan(df_fixed.loc[c, "small_growth"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "small_growth"] = df_fixed.loc[c - 2, "small_growth"]
+    else:
+        continue
+
+for c in range(2, len(df_fixed)):
+    if math.isnan(df_fixed.loc[c, "small_value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 1, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 1, "Institutional"]:
+        df_fixed.loc[c, "small_value"] = df_fixed.loc[c - 1, "small_value"]
+    elif math.isnan(df_fixed.loc[c, "small_value"]) == True and df_fixed.loc[c, "FundId"] == df_fixed.loc[c - 2, "FundId"] and df_fixed.loc[c, "Institutional"] == df_fixed.loc[c - 2, "Institutional"]:
+        df_fixed.loc[c, "small_value"] = df_fixed.loc[c - 2, "small_value"]
+    else:
+        continue
 
 
 ################################
@@ -356,18 +432,94 @@ df_ut = df_ut.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).ag
 industry_controls = [df_ut, df_in, df_bm, df_cc, df_re, df_tc, df_hc, df_cd, df_cs, df_fs, df_en]
 df_ind = reduce(lambda left, right: pd.merge(left, right, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="inner"), industry_controls)
 
-# winsorize data at 99% and 1% level
-df_ind["basic_materials"] = winsorize(df_ind["basic_materials"], limits=(0.01, 0.01))
-df_ind["communication_services"] = winsorize(df_ind["communication_services"], limits=(0.01, 0.01))
-df_ind["consumer_cyclical"] = winsorize(df_ind["consumer_cyclical"], limits=(0.01, 0.01))
-df_ind["energy"] = winsorize(df_ind["energy"], limits=(0.01, 0.01))
-df_ind["consumer_defensive"] = winsorize(df_ind["consumer_defensive"], limits=(0.01, 0.01))
-df_ind["financial_services"] = winsorize(df_ind["financial_services"], limits=(0.01, 0.01))
-df_ind["healthcare"] = winsorize(df_ind["healthcare"], limits=(0.01, 0.01))
-df_ind["industrials"] = winsorize(df_ind["industrials"], limits=(0.01, 0.01))
-df_ind["real_estate"] = winsorize(df_ind["real_estate"], limits=(0.01, 0.01))
-df_ind["technology"] = winsorize(df_ind["technology"], limits=(0.01, 0.01))
-df_ind["utilities"] = winsorize(df_ind["utilities"], limits=(0.01, 0.01))
+# fill nan values with most actual value
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "basic_materials"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "basic_materials"] = df_ind.loc[c - 1, "basic_materials"]
+    elif math.isnan(df_ind.loc[c, "basic_materials"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "basic_materials"] = df_ind.loc[c - 2, "basic_materials"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "communication_services"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "communication_services"] = df_ind.loc[c - 1, "communication_services"]
+    elif math.isnan(df_ind.loc[c, "communication_services"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "communication_services"] = df_ind.loc[c - 2, "communication_services"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "consumer_cyclical"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "consumer_cyclical"] = df_ind.loc[c - 1, "consumer_cyclical"]
+    elif math.isnan(df_ind.loc[c, "consumer_cyclical"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "consumer_cyclical"] = df_ind.loc[c - 2, "consumer_cyclical"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "energy"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "energy"] = df_ind.loc[c - 1, "energy"]
+    elif math.isnan(df_ind.loc[c, "energy"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "energy"] = df_ind.loc[c - 2, "energy"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "consumer_defensive"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "consumer_defensive"] = df_ind.loc[c - 1, "consumer_defensive"]
+    elif math.isnan(df_ind.loc[c, "consumer_defensive"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "consumer_defensive"] = df_ind.loc[c - 2, "consumer_defensive"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "financial_services"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "financial_services"] = df_ind.loc[c - 1, "financial_services"]
+    elif math.isnan(df_ind.loc[c, "financial_services"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "financial_services"] = df_ind.loc[c - 2, "financial_services"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "healthcare"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "healthcare"] = df_ind.loc[c - 1, "healthcare"]
+    elif math.isnan(df_ind.loc[c, "healthcare"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "healthcare"] = df_ind.loc[c - 2, "healthcare"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "industrials"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "industrials"] = df_ind.loc[c - 1, "industrials"]
+    elif math.isnan(df_ind.loc[c, "industrials"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "industrials"] = df_ind.loc[c - 2, "industrials"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "real_estate"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "real_estate"] = df_ind.loc[c - 1, "real_estate"]
+    elif math.isnan(df_ind.loc[c, "real_estate"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "real_estate"] = df_ind.loc[c - 2, "real_estate"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "technology"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "technology"] = df_ind.loc[c - 1, "technology"]
+    elif math.isnan(df_ind.loc[c, "technology"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "technology"] = df_ind.loc[c - 2, "technology"]
+    else:
+        continue
+
+for c in range(2, len(df_ind)):
+    if math.isnan(df_ind.loc[c, "utilities"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 1, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 1, "Institutional"]:
+        df_ind.loc[c, "utilities"] = df_ind.loc[c - 1, "utilities"]
+    elif math.isnan(df_ind.loc[c, "utilities"]) == True and df_ind.loc[c, "FundId"] == df_ind.loc[c - 2, "FundId"] and df_ind.loc[c, "Institutional"] == df_ind.loc[c - 2, "Institutional"]:
+        df_ind.loc[c, "utilities"] = df_ind.loc[c - 2, "utilities"]
+    else:
+        continue
 
 
 ################################
@@ -382,8 +534,16 @@ df_div["Date"] = df_div["Date"].str.slice(17, 24, 1)
 df_div["Date"] = pd.to_datetime(df_div["Date"], format="%Y-%m-%d")
 df_div = df_div.groupby(["Fund Legal Name", "FundId", "Institutional", "Date"]).agg({"monthly_div": "sum"}).reset_index()
 
-# winsorize data at 99% and 1% level
-df_div["monthly_div"] = winsorize(df_div["monthly_div"], limits=(0.01, 0.01))
+# solution for nan values
+df_div["year"] = pd.to_datetime(df_div["Date"]).dt.to_period("Y")
+df_div["monthly_div"] = df_div["monthly_div"].replace(0, np.nan)
+df_div = df_div.dropna(axis=0, how="any", thresh=6)
+df_div = df_div.drop(columns=["Date"])
+df_div = df_div.groupby(["Fund Legal Name", "FundId", "Institutional", "year"]).agg({"monthly_div": "sum"}).reset_index()
+df_div = df_div.rename(columns={"monthly_div": "yearly_div"})
+df_div["weekly_div"] = df_div["yearly_div"] / 52
+df_div = df_div.drop(columns=["yearly_div"])
+
 
 ################################
 # Firm Name
@@ -482,15 +642,16 @@ df_size["Date"] = pd.to_datetime(df_size["Date"], format="%Y-%m-%d")
 df_size_weekly = df_size.groupby(["Fund Legal Name", "FundId"]).resample("W", on="Date").agg({"daily_size": "last"}).reset_index()
 df_size_weekly = df_size_weekly.rename(columns={"daily_size": "weekly_size"})
 
-# winsorize data at 99% and 1% level
-df_size_weekly["weekly_size"] = winsorize(df_size_weekly["weekly_size"], limits=(0.01, 0.01))
 
 ##############################################
 # Compare Fund Size and TNA
 ##############################################
 
+# format change
 df_tna_weekly_fundlevel["Date"] = df_tna_weekly_fundlevel["Date"].astype("datetime64[ns]")
-
+# drop year 2016 from TNA dataframe
+df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.groupby(["FundId", "Institutional"]).filter(lambda x: (x["Date"] >= pd.to_datetime("2017-01-01", format="%Y-%m-%d")).all())
+# merging
 df_tna_weekly_fundlevel = pd.merge(df_tna_weekly_fundlevel, df_size_weekly, on=["Fund Legal Name", "FundId", "Date"], how="left")
 
 # replace nan and zero values in tna by fund size under certain conditions
@@ -505,6 +666,13 @@ for k in range(1, len(df_tna_weekly_fundlevel) - 1):
         df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] = df_tna_weekly_fundlevel.loc[k, "weekly_size"] - df_tna_weekly_fundlevel.loc[k + 1, "weekly_tna_fundlevel"]
     elif (math.isnan(df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"]) == True or df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] == 0) and df_tna_weekly_fundlevel.loc[k, "Institutional"] == df_tna_weekly_fundlevel.loc[k - 1, "Institutional"]:
         df_tna_weekly_fundlevel.loc[k, "weekly_tna_fundlevel"] = df_tna_weekly_fundlevel.loc[k, "weekly_size"]
+    else:
+        continue
+
+# replace missing size values by tna
+for s in range(0, len(df_tna_weekly_fundlevel)):
+    if math.isnan(df_tna_weekly_fundlevel.loc[s, "weekly_size"]) == True:
+        df_tna_weekly_fundlevel.loc[s, "weekly_size"] = df_tna_weekly_fundlevel.loc[s, "weekly_tna_fundlevel"]
     else:
         continue
 
@@ -615,22 +783,25 @@ df_car_fundlevel = pd.merge(df_car, df_static, on=["Name", "Fund Legal Name", "F
 df_car_fundlevel = df_car_fundlevel.drop(columns=["Name", "Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_car_fundlevel = df_car_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_car": "max"}).reset_index()
 
-# winsorize data at 99% and 1% level
-df_env_fundlevel["monthly_env"] = winsorize(df_env_fundlevel["monthly_env"], limits=(0.01, 0.01))
-df_soc_fundlevel["monthly_soc"] = winsorize(df_soc_fundlevel["monthly_soc"], limits=(0.01, 0.01))
-df_gov_fundlevel["monthly_gov"] = winsorize(df_gov_fundlevel["monthly_gov"], limits=(0.01, 0.01))
-df_car_fundlevel["monthly_car"] = winsorize(df_car_fundlevel["monthly_car"], limits=(0.01, 0.01))
-
 
 ################################
-# Fill NaN's in columns with most actual value
+# Fill NaN's in columns with most actual value OR assume that first available datapoint is also valid in the past
 ################################
+
 # star rating
 for c in range(2, len(df_star_fundlevel)):
     if math.isnan(df_star_fundlevel.loc[c, "monthly_star"]) == True and df_star_fundlevel.loc[c, "FundId"] == df_star_fundlevel.loc[c - 1, "FundId"] and df_star_fundlevel.loc[c, "Institutional"] == df_star_fundlevel.loc[c - 1, "Institutional"]:
         df_star_fundlevel.loc[c, "monthly_star"] = df_star_fundlevel.loc[c - 1, "monthly_star"]
     elif math.isnan(df_star_fundlevel.loc[c, "monthly_star"]) == True and df_star_fundlevel.loc[c, "FundId"] == df_star_fundlevel.loc[c - 2, "FundId"] and df_star_fundlevel.loc[c, "Institutional"] == df_star_fundlevel.loc[c - 2, "Institutional"]:
         df_star_fundlevel.loc[c, "monthly_star"] = df_star_fundlevel.loc[c - 2, "monthly_star"]
+    else:
+        continue
+
+for c in range(len(df_star_fundlevel) - 2, 0, -1):
+    if math.isnan(df_star_fundlevel.loc[c, "monthly_star"]) == True and df_star_fundlevel.loc[c, "FundId"] == df_star_fundlevel.loc[c + 1, "FundId"] and df_star_fundlevel.loc[c, "Institutional"] == df_star_fundlevel.loc[c + 1, "Institutional"]:
+        df_star_fundlevel.loc[c, "monthly_star"] = df_star_fundlevel.loc[c + 1, "monthly_star"]
+    elif math.isnan(df_star_fundlevel.loc[c, "monthly_star"]) == True and df_star_fundlevel.loc[c, "FundId"] == df_star_fundlevel.loc[c + 2, "FundId"] and df_star_fundlevel.loc[c, "Institutional"] == df_star_fundlevel.loc[c + 2, "Institutional"]:
+        df_star_fundlevel.loc[c, "monthly_star"] = df_star_fundlevel.loc[c + 2, "monthly_star"]
     else:
         continue
 
@@ -643,12 +814,28 @@ for c in range(2, len(df_car_fundlevel)):
     else:
         continue
 
+for c in range(len(df_car_fundlevel) - 2, 0, -1):
+    if math.isnan(df_car_fundlevel.loc[c, "monthly_car"]) == True and df_car_fundlevel.loc[c, "FundId"] == df_car_fundlevel.loc[c + 1, "FundId"] and df_car_fundlevel.loc[c, "Institutional"] == df_car_fundlevel.loc[c + 1, "Institutional"]:
+        df_car_fundlevel.loc[c, "monthly_car"] = df_car_fundlevel.loc[c + 1, "monthly_car"]
+    elif math.isnan(df_car_fundlevel.loc[c, "monthly_car"]) == True and df_car_fundlevel.loc[c, "FundId"] == df_car_fundlevel.loc[c + 2, "FundId"] and df_car_fundlevel.loc[c, "Institutional"] == df_car_fundlevel.loc[c + 2, "Institutional"]:
+        df_car_fundlevel.loc[c, "monthly_car"] = df_car_fundlevel.loc[c + 2, "monthly_car"]
+    else:
+        continue
+
 # sustainability rating
 for c in range(2, len(df_sus_fundlevel)):
     if math.isnan(df_sus_fundlevel.loc[c, "monthly_sus"]) == True and df_sus_fundlevel.loc[c, "FundId"] == df_sus_fundlevel.loc[c - 1, "FundId"] and df_sus_fundlevel.loc[c, "Institutional"] == df_sus_fundlevel.loc[c - 1, "Institutional"]:
         df_sus_fundlevel.loc[c, "monthly_sus"] = df_sus_fundlevel.loc[c - 1, "monthly_sus"]
     elif math.isnan(df_sus_fundlevel.loc[c, "monthly_sus"]) == True and df_sus_fundlevel.loc[c, "FundId"] == df_sus_fundlevel.loc[c - 2, "FundId"] and df_sus_fundlevel.loc[c, "Institutional"] == df_sus_fundlevel.loc[c - 2, "Institutional"]:
         df_sus_fundlevel.loc[c, "monthly_sus"] = df_sus_fundlevel.loc[c - 2, "monthly_sus"]
+    else:
+        continue
+
+for c in range(len(df_sus_fundlevel) - 2, 0, -1):
+    if math.isnan(df_sus_fundlevel.loc[c, "monthly_sus"]) == True and df_sus_fundlevel.loc[c, "FundId"] == df_sus_fundlevel.loc[c + 1, "FundId"] and df_sus_fundlevel.loc[c, "Institutional"] == df_sus_fundlevel.loc[c + 1, "Institutional"]:
+        df_sus_fundlevel.loc[c, "monthly_sus"] = df_sus_fundlevel.loc[c + 1, "monthly_sus"]
+    elif math.isnan(df_sus_fundlevel.loc[c, "monthly_sus"]) == True and df_sus_fundlevel.loc[c, "FundId"] == df_sus_fundlevel.loc[c + 2, "FundId"] and df_sus_fundlevel.loc[c, "Institutional"] == df_sus_fundlevel.loc[c + 2, "Institutional"]:
+        df_sus_fundlevel.loc[c, "monthly_sus"] = df_sus_fundlevel.loc[c + 2, "monthly_sus"]
     else:
         continue
 
@@ -661,12 +848,28 @@ for c in range(2, len(df_env_fundlevel)):
     else:
         continue
 
+for c in range(len(df_env_fundlevel) - 2, 0, -1):
+    if math.isnan(df_env_fundlevel.loc[c, "monthly_env"]) == True and df_env_fundlevel.loc[c, "FundId"] == df_env_fundlevel.loc[c + 1, "FundId"] and df_env_fundlevel.loc[c, "Institutional"] == df_env_fundlevel.loc[c + 1, "Institutional"]:
+        df_env_fundlevel.loc[c, "monthly_env"] = df_env_fundlevel.loc[c + 1, "monthly_env"]
+    elif math.isnan(df_env_fundlevel.loc[c, "monthly_env"]) == True and df_env_fundlevel.loc[c, "FundId"] == df_env_fundlevel.loc[c + 2, "FundId"] and df_env_fundlevel.loc[c, "Institutional"] == df_env_fundlevel.loc[c + 2, "Institutional"]:
+        df_env_fundlevel.loc[c, "monthly_env"] = df_env_fundlevel.loc[c + 2, "monthly_env"]
+    else:
+        continue
+
 # social risk score
 for c in range(2, len(df_soc_fundlevel)):
     if math.isnan(df_soc_fundlevel.loc[c, "monthly_soc"]) == True and df_soc_fundlevel.loc[c, "FundId"] == df_soc_fundlevel.loc[c - 1, "FundId"] and df_soc_fundlevel.loc[c, "Institutional"] == df_soc_fundlevel.loc[c - 1, "Institutional"]:
         df_soc_fundlevel.loc[c, "monthly_soc"] = df_soc_fundlevel.loc[c - 1, "monthly_soc"]
     elif math.isnan(df_soc_fundlevel.loc[c, "monthly_soc"]) == True and df_soc_fundlevel.loc[c, "FundId"] == df_soc_fundlevel.loc[c - 2, "FundId"] and df_soc_fundlevel.loc[c, "Institutional"] == df_soc_fundlevel.loc[c - 2, "Institutional"]:
         df_soc_fundlevel.loc[c, "monthly_soc"] = df_soc_fundlevel.loc[c - 2, "monthly_soc"]
+    else:
+        continue
+
+for c in range(len(df_soc_fundlevel) - 2, 0, -1):
+    if math.isnan(df_soc_fundlevel.loc[c, "monthly_soc"]) == True and df_soc_fundlevel.loc[c, "FundId"] == df_soc_fundlevel.loc[c + 1, "FundId"] and df_soc_fundlevel.loc[c, "Institutional"] == df_soc_fundlevel.loc[c + 1, "Institutional"]:
+        df_soc_fundlevel.loc[c, "monthly_soc"] = df_soc_fundlevel.loc[c + 1, "monthly_soc"]
+    elif math.isnan(df_soc_fundlevel.loc[c, "monthly_soc"]) == True and df_soc_fundlevel.loc[c, "FundId"] == df_soc_fundlevel.loc[c + 2, "FundId"] and df_soc_fundlevel.loc[c, "Institutional"] == df_soc_fundlevel.loc[c + 2, "Institutional"]:
+        df_soc_fundlevel.loc[c, "monthly_soc"] = df_soc_fundlevel.loc[c + 2, "monthly_soc"]
     else:
         continue
 
@@ -679,6 +882,14 @@ for c in range(2, len(df_gov_fundlevel)):
     else:
         continue
 
+for c in range(len(df_gov_fundlevel) - 2, 0, -1):
+    if math.isnan(df_gov_fundlevel.loc[c, "monthly_gov"]) == True and df_gov_fundlevel.loc[c, "FundId"] == df_gov_fundlevel.loc[c + 1, "FundId"] and df_gov_fundlevel.loc[c, "Institutional"] == df_gov_fundlevel.loc[c + 1, "Institutional"]:
+        df_gov_fundlevel.loc[c, "monthly_gov"] = df_gov_fundlevel.loc[c + 1, "monthly_gov"]
+    elif math.isnan(df_gov_fundlevel.loc[c, "monthly_gov"]) == True and df_gov_fundlevel.loc[c, "FundId"] == df_gov_fundlevel.loc[c + 2, "FundId"] and df_gov_fundlevel.loc[c, "Institutional"] == df_gov_fundlevel.loc[c + 2, "Institutional"]:
+        df_gov_fundlevel.loc[c, "monthly_gov"] = df_gov_fundlevel.loc[c + 2, "monthly_gov"]
+    else:
+        continue
+
 
 ##############################################
 # Merge datasets
@@ -688,7 +899,7 @@ df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("
 
 # list all dataframes
 all_weekly_dataframes = [df_flow_weekly_fundlevel, df_return_weekly_fundlevel, df_tna_weekly_fundlevel]
-all_monthly_dataframes = [df_sus_fundlevel, df_env_fundlevel, df_soc_fundlevel, df_gov_fundlevel, df_car_fundlevel, df_star_fundlevel, df_fixed, df_ind, df_div, df_return_monthly_fundlevel]
+all_monthly_dataframes = [df_sus_fundlevel, df_env_fundlevel, df_soc_fundlevel, df_gov_fundlevel, df_car_fundlevel, df_star_fundlevel, df_fixed, df_ind, df_return_monthly_fundlevel]
 all_fixed_dataframes = [df_index_fund, df_firm_name, df_age_fundlevel, df_static_control]
 
 # merge dataframes with respect to their timeframe
@@ -698,10 +909,12 @@ df_fixed_final = reduce(lambda left, right: pd.merge(left, right, on=["Fund Lega
 
 # merge all
 df_weekly_final["month_year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("M")
+df_weekly_final["year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("Y")
 df_monthly_final["month_year"] = pd.to_datetime(df_monthly_final["Date"]).dt.to_period("M")
 df_monthly_final = df_monthly_final.drop(columns=["Date"])
 
 df_monthly_final = pd.merge(df_monthly_final, df_exp_fundlevel, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
+df_weekly_final = pd.merge(df_weekly_final, df_div, on=["Fund Legal Name", "FundId", "year", "Institutional"], how="left")
 df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
 df_final = pd.merge(df_final, df_fixed_final, on=["Fund Legal Name", "FundId", "Institutional"], how="left")
 df_final = pd.merge(df_final, df_eff_weekly, on=["Date"], how="left")

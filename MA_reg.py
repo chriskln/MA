@@ -26,7 +26,7 @@ from scipy import stats
 from functools import reduce
 import math
 import stargazer
-from stargazer.stargazer import Stargazer
+from stargazer.stargazer import Stargazer, LineLocation
 
 ##############################################
 # Loading Data
@@ -134,12 +134,12 @@ df_mod1 = df_mod1[df_mod1["Date"].between(start_mod1, end_mod1)].reset_index()
 df_mod1 = df_mod1.drop(columns=["index"])
 
 fom1 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + log_tna + monthly_star" \
-       "+ Star_COV + monthly_div + Age + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ Star_COV + weekly_div + Age + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
        "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
 fom2 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + log_tna + monthly_star" \
-       "+ Star_COV + monthly_div + Age + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ Star_COV + weekly_div + Age + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
        "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
@@ -160,7 +160,7 @@ reg2 = sm.ols(formula=fom2, data=df_mod1).fit()
 results = summary_col([reg1, reg2], stars=True, float_format="%0.2f", model_names=["Reg\n(1)", "Reg\n(2)"],
                       info_dict={"N": lambda x: "{0:d}".format(int(x.nobs)), "R^2": lambda x: "{:.2f}".format(x.rsquared)},
                       regressor_order=["High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "weekly_return_fundlevel",
-                                       "log_tna", "monthly_star", "Star_COV", "monthly_div", "Age", ])
+                                       "log_tna", "monthly_star", "Star_COV", "weekly_div", "Age", ])
 
 #print(results)
 ##############################################
@@ -177,35 +177,35 @@ df_mod2 = df_mod2[df_mod2["Date"].between(start_mod2, end_mod2)].reset_index()
 df_mod2 = df_mod2.drop(columns=["index"])
 
 # reg3
-fom3 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + log_tna + monthly_star" \
+fom3 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom4 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Ret_COV + log_tna + monthly_star" \
+fom4 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Ret_COV + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom5 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Ret_COV + log_tna + monthly_star" \
+fom5 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Ret_COV + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom6 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Ret_COV + log_tna + monthly_star" \
+fom6 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Ret_COV + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom7 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + prior_month_return + One_M_RET_COV + log_tna + monthly_star" \
+fom7 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + prior_month_return + One_M_RET_COV + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom8 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + prior_month_return + One_M_RET_COV + log_tna + monthly_star" \
+fom8 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + prior_month_return + One_M_RET_COV + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom9 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + Twelve_M_RET_COV + rolling_12_months_return + log_tna + monthly_star" \
+fom9 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + Twelve_M_RET_COV + rolling_12_months_return + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom10= "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + Twelve_M_RET_COV + rolling_12_months_return + log_tna + monthly_star" \
+fom10= "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + Twelve_M_RET_COV + rolling_12_months_return + log_tna + weekly_div + monthly_star" \
        "+ Star_COV + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
@@ -221,13 +221,19 @@ reg10 = sm.ols(formula=fom10, data=df_mod2).fit()
 
 
 stargazer = Stargazer([reg1, reg3, reg5, reg7, reg9])
-stargazer.dependent_variable = "Net Flow"
+stargazer.rename_covariates({"High_ESG_COV": "High ESG  x  COV", "Low_ESG_COV": "Low ESG  x  COV", "High_ESG": "High ESG", "weekly_div": "Dividends",
+                             "Low_ESG": "Low ESG", "Ret_COV": "Return  x  COV", "weekly_return_fundlevel": "Return",
+                             "One_M_RET_COV": "Prior Month Return  x  COV", "Twelve_M_RET_COV": "Prior 12 Months' Return  x  COV",
+                             "rolling_12_months_return": "Prior 12 Months Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "monthly_star": "Star Rating", "Star_COV": "Star Rating  x  COV"})
+stargazer.dependent_variable = " Net Flow"
+stargazer.custom_columns(["Extended Timeframe\n(01/01/2019 - 22/03/2020)", "Narrow Timeframe\n(01/01/2020 - 22/03/2020)"], [1, 4])
 stargazer.covariate_order(["High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return_fundlevel",
-                           "One_M_RET_COV", "Twelve_M_RET_COV", "rolling_12_months_return", "prior_month_return",
+                           "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return",
                            "log_tna", "monthly_star", "Star_COV"])
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"])
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"])
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"])
+stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 
 open('regression_test.html', 'w').write(stargazer.render_html())

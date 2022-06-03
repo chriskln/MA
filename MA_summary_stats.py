@@ -27,8 +27,9 @@ import math
 
 df_final = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\final_dataframes\\df_final.csv", sep= ",")
 
-# delete unnamed columns
+# delete unnamed and unnecessary columns
 df_final = df_final.loc[:, ~df_final.columns.str.contains("^Unnamed")]
+df_final = df_final.drop(columns=["year"])
 
 
 ##############################################
@@ -53,6 +54,12 @@ df_final = df_final.drop(columns=["index"])
 
 
 ################################
+# Nan values in dividends mean that fund does not pay out
+################################
+
+df_final["weekly_div"] = df_final["weekly_div"].fillna(0)
+
+################################
 # Retain those funds having non-missing flow data
 ################################
 
@@ -67,12 +74,96 @@ df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.wee
 # translate weekly tna into $ million
 df_final["weekly_tna_fundlevel"] = df_final["weekly_tna_fundlevel"] / 1000000
 
+# translate weekly size into $ million
+df_final["weekly_size"] = df_final["weekly_size"] / 1000000
+
 df_final = df_final.reset_index()
 df_final = df_final.drop(columns=["index"])
 
+
+################################
+# Delete funds with no sustainability rating and star rating
+################################
+
+df_final["monthly_sus"] = df_final["monthly_sus"].fillna(0)
+df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_sus"].ne(0).all())
+
+df_final["monthly_star"] = df_final["monthly_star"].fillna(0)
+df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_star"].ne(0).all())
+
+
 # number of funds in dataset
-#print(df_final["FundId"].nunique())
-# 787
+print(df_final["FundId"].nunique())
+# 686
+
+################################
+# Winsorize all continuous variables at 99% and 1% levels
+################################
+
+# fund expenses
+# Fama French 5 factors
+df_final["growth"] = winsorize(df_final["growth"], limits=(0.01, 0.01))
+df_final["value"] = winsorize(df_final["value"], limits=(0.01, 0.01))
+df_final["large_cap"] = winsorize(df_final["large_cap"], limits=(0.01, 0.01))
+df_final["mid_cap"] = winsorize(df_final["mid_cap"], limits=(0.01, 0.01))
+df_final["small_cap"] = winsorize(df_final["small_cap"], limits=(0.01, 0.01))
+df_final["large_growth"] = winsorize(df_final["large_growth"], limits=(0.01, 0.01))
+df_final["large_value"] = winsorize(df_final["large_value"], limits=(0.01, 0.01))
+df_final["mid_growth"] = winsorize(df_final["mid_growth"], limits=(0.01, 0.01))
+df_final["mid_value"] = winsorize(df_final["mid_value"], limits=(0.01, 0.01))
+df_final["small_growth"] = winsorize(df_final["small_growth"], limits=(0.01, 0.01))
+df_final["small_value"] = winsorize(df_final["small_value"], limits=(0.01, 0.01))
+
+# Industry Controls
+df_final["basic_materials"] = winsorize(df_final["basic_materials"], limits=(0.01, 0.01))
+df_final["communication_services"] = winsorize(df_final["communication_services"], limits=(0.01, 0.01))
+df_final["consumer_cyclical"] = winsorize(df_final["consumer_cyclical"], limits=(0.01, 0.01))
+df_final["energy"] = winsorize(df_final["energy"], limits=(0.01, 0.01))
+df_final["consumer_defensive"] = winsorize(df_final["consumer_defensive"], limits=(0.01, 0.01))
+df_final["financial_services"] = winsorize(df_final["financial_services"], limits=(0.01, 0.01))
+df_final["healthcare"] = winsorize(df_final["healthcare"], limits=(0.01, 0.01))
+df_final["industrials"] = winsorize(df_final["industrials"], limits=(0.01, 0.01))
+df_final["real_estate"] = winsorize(df_final["real_estate"], limits=(0.01, 0.01))
+df_final["technology"] = winsorize(df_final["technology"], limits=(0.01, 0.01))
+df_final["utilities"] = winsorize(df_final["utilities"], limits=(0.01, 0.01))
+
+# Style-Fixed Effects
+df_final["growth"] = winsorize(df_final["growth"], limits=(0.01, 0.01))
+df_final["value"] = winsorize(df_final["value"], limits=(0.01, 0.01))
+df_final["large_cap"] = winsorize(df_final["large_cap"], limits=(0.01, 0.01))
+df_final["mid_cap"] = winsorize(df_final["mid_cap"], limits=(0.01, 0.01))
+df_final["small_cap"] = winsorize(df_final["small_cap"], limits=(0.01, 0.01))
+df_final["large_growth"] = winsorize(df_final["large_growth"], limits=(0.01, 0.01))
+df_final["large_value"] = winsorize(df_final["large_value"], limits=(0.01, 0.01))
+df_final["mid_growth"] = winsorize(df_final["mid_growth"], limits=(0.01, 0.01))
+df_final["mid_value"] = winsorize(df_final["mid_value"], limits=(0.01, 0.01))
+df_final["small_growth"] = winsorize(df_final["small_growth"], limits=(0.01, 0.01))
+df_final["small_value"] = winsorize(df_final["small_value"], limits=(0.01, 0.01))
+
+# Dividends
+df_final["weekly_div"] = winsorize(df_final["weekly_div"], limits=(0.01, 0.01))
+
+# returns
+df_final["weekly_return_fundlevel"] = winsorize(df_final["weekly_return_fundlevel"], limits=(0.01, 0.01))
+df_final["prior_month_return"] = winsorize(df_final["prior_month_return"], limits=(0.01, 0.01))
+df_final["rolling_12_months_return"] = winsorize(df_final["rolling_12_months_return"], limits=(0.01, 0.01))
+
+# flows
+df_final["weekly_flow"] = winsorize(df_final["weekly_flow"], limits=(0.01, 0.01))
+
+# tna
+df_final["weekly_tna_fundlevel"] = winsorize(df_final["weekly_tna_fundlevel"], limits=(0.01, 0.01))
+
+# size
+df_final["weekly_size"] = winsorize(df_final["weekly_size"], limits=(0.01, 0.01))
+
+# sustainability risk score
+df_final["monthly_env"] = winsorize(df_final["monthly_env"], limits=(0.01, 0.01))
+df_final["monthly_soc"] = winsorize(df_final["monthly_soc"], limits=(0.01, 0.01))
+df_final["monthly_gov"] = winsorize(df_final["monthly_gov"], limits=(0.01, 0.01))
+
+# carbon designation
+df_final["monthly_car"] = winsorize(df_final["monthly_car"], limits=(0.01, 0.01))
 
 
 ##############################################
