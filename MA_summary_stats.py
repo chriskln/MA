@@ -91,10 +91,21 @@ df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mon
 df_final["monthly_star"] = df_final["monthly_star"].fillna(0)
 df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_star"].ne(0).all())
 
+#df_final["monthly_env"] = df_final["monthly_env"].fillna(0)
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_env"].ne(0).all())
+#df_final["monthly_soc"] = df_final["monthly_soc"].fillna(0)
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_soc"].ne(0).all())
+#df_final["monthly_gov"] = df_final["monthly_gov"].fillna(0)
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_gov"].ne(0).all())
+
+#df_final["monthly_car"] = df_final["monthly_car"].fillna(0)
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["monthly_car"].ne(0).all())
 
 # number of funds in dataset
 print(df_final["FundId"].nunique())
-# 686
+# 686 (when deleting funds with no sustainability rating and no star rating)
+# 683 (when deleting funds with no risk scores and no star rating)
+# 615 (when deleting funds with no carbon designation and no star rating)
 
 ################################
 # Winsorize all continuous variables at 99% and 1% levels
@@ -208,7 +219,7 @@ summary = summary.rename(columns={"fund_flows": "Weekly Net Flow (%)", "normaliz
                         "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months Return (%)",
                         "monthly_star": "Star Rating", "monthly_sus": "Globe Rating", "monthly_env": "Environmental Risk Score",
                         "monthly_soc": "Social Risk Score", "monthly_gov": "Governance Risk Score",
-                        "monthly_car": "Carbon Designation"})
+                        "monthly_car": "Low Carbon Designation"})
 
 # round to two decimal places
 summary = summary.round(2)
@@ -224,7 +235,7 @@ summary.rename(columns={"index": "Variable", "count": "N", "mean": "Mean", "std"
                         "25%": "P25", "50%": "P50", "75%": "P75", "90%": "P90", "max": "Max"}, inplace=True)
 
 # to excel
-summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
+#summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
 
 
 ##############################################
@@ -244,7 +255,7 @@ summary_2 = summary_2.rename(columns={"fund_flows": "Weekly Net Flow (%)", "norm
                         "weekly_tna_fundlevel": "Total Net Assets ($ mio.)", "weekly_return_fundlevel": "Weekly Return (%)",
                         "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months Return (%)",
                         "monthly_star": "Star Rating", "monthly_env": "Environmental Risk Score", "monthly_soc": "Social Risk Score",
-                        "monthly_gov": "Governance Risk Score", "monthly_car": "Carbon Designation"})
+                        "monthly_gov": "Governance Risk Score", "monthly_car": "Low Carbon Designation"})
 
 # rename indexes
 summary_2 = summary_2.rename(index={5.0: "High", 4.0: "Above Average", 3.0: "Average", 2.0: "Below Average", 1.0: "Low"})
@@ -288,7 +299,7 @@ summary_fin = summary_fin.rename(columns={0: "t-statistic", 1: "p-value"})
 summary_fin = summary_fin.round(2)
 
 # to excel
-summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_fin.xlsx", index=False)
+#summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_fin.xlsx", index=False)
 
 
 ##############################################
@@ -321,7 +332,7 @@ summary_pre = summary_pre.rename(columns={"fund_flows": "Weekly Net Flow (%)", "
                         "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months Return (%)",
                         "monthly_star": "Star Rating", "monthly_env": "Environmental Risk Score",
                         "monthly_soc": "Social Risk Score", "monthly_gov": "Governance Risk Score",
-                        "monthly_car": "Carbon Designation"})
+                        "monthly_car": "Low Carbon Designation"})
 
 # rename indexes
 summary_pre = summary_pre.rename(index={5.0: "High", 4.0: "Above Average", 3.0: "Average", 2.0: "Below Average", 1.0: "Low"})
@@ -365,7 +376,7 @@ summary_pre_fin = summary_pre_fin.rename(columns={0: "t-statistic", 1: "p-value"
 summary_pre_fin = summary_pre_fin.round(2)
 
 # to excel
-summary_pre_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_pre.xlsx", index=False)
+#summary_pre_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_pre.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: CRASH (23/02/2020 - 22/03/2020)
@@ -397,7 +408,7 @@ summary_crsh = summary_crsh.rename(columns={"fund_flows": "Weekly Net Flow (%)",
                         "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months Return (%)",
                         "monthly_star": "Star Rating", "monthly_env": "Environmental Risk Score",
                         "monthly_soc": "Social Risk Score", "monthly_gov": "Governance Risk Score",
-                        "monthly_car": "Carbon Designation"})
+                        "monthly_car": "Low Carbon Designation"})
 
 # rename indexes
 summary_crsh = summary_crsh.rename(index={5.0: "High", 4.0: "Above Average", 3.0: "Average", 2.0: "Below Average", 1.0: "Low"})
@@ -441,7 +452,7 @@ summary_crsh_fin = summary_crsh_fin.rename(columns={0: "t-statistic", 1: "p-valu
 summary_crsh_fin = summary_crsh_fin.round(2)
 
 # to excel
-summary_crsh_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_crsh.xlsx", index=False)
+#summary_crsh_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_crsh.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: RECOVERY (23/03/2020 - 23/08/2020)
@@ -473,7 +484,7 @@ summary_rec = summary_rec.rename(columns={"fund_flows": "Weekly Net Flow (%)", "
                         "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months Return (%)",
                         "monthly_star": "Star Rating", "monthly_env": "Environmental Risk Score",
                         "monthly_soc": "Social Risk Score", "monthly_gov": "Governance Risk Score",
-                        "monthly_car": "Carbon Designation"})
+                        "monthly_car": "Low Carbon Designation"})
 
 # rename indexes
 summary_rec = summary_rec.rename(index={5.0: "High", 4.0: "Above Average", 3.0: "Average", 2.0: "Below Average", 1.0: "Low"})
@@ -517,7 +528,7 @@ summary_rec_fin = summary_rec_fin.rename(columns={0: "t-statistic", 1: "p-value"
 summary_rec_fin = summary_rec_fin.round(2)
 
 # to excel
-summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
+#summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: POST-RECOVERY (24/08/2020 - 31/12/2020)
@@ -548,7 +559,7 @@ summary_prec = summary_prec.rename(columns={"fund_flows": "Weekly Net Flow (%)",
                         "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months Return (%)",
                         "monthly_star": "Star Rating", "monthly_env": "Environmental Risk Score",
                         "monthly_soc": "Social Risk Score", "monthly_gov": "Governance Risk Score",
-                        "monthly_car": "Carbon Designation"})
+                        "monthly_car": "Low Carbon Designation"})
 
 # rename indexes
 summary_prec = summary_prec.rename(index={5.0: "High", 4.0: "Above Average", 3.0: "Average", 2.0: "Below Average", 1.0: "Low"})
@@ -592,7 +603,7 @@ summary_prec_fin = summary_prec_fin.rename(columns={0: "t-statistic", 1: "p-valu
 summary_prec_fin = summary_prec_fin.round(2)
 
 # to excel
-summary_prec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_prec.xlsx", index=False)
+#summary_prec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_prec.xlsx", index=False)
 
 
 ##############################################
@@ -631,7 +642,7 @@ summary_total = pd.merge(f, t_tests, right_index=True, left_index=True)
 summary_total = summary_total.rename(index={0: "Weekly Net Flow (%)", 1: "Weekly Normalized Net Flow",
                         2: "Total Net Assets ($ mio.)", 3: "Weekly Return (%)", 4: "Prior Month's Return (%)",
                         5: "Past 12 Months Return (%)", 6: "Age", 7: "Star Rating", 8: "Environmental Risk Score",
-                        9: "Social Risk Score", 10: "Governance Risk Score", 11: "Carbon Designation"})
+                        9: "Social Risk Score", 10: "Governance Risk Score", 11: "Low Carbon Designation"})
 
 # to excel
-summary_total.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_total.xlsx")
+#summary_total.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_total.xlsx")
