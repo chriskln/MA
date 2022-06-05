@@ -167,8 +167,33 @@ df_final_trimmed["ENV_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthl
 df_final_trimmed["SOC_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_soc"]
 df_final_trimmed["GOV_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_gov"]
 df_final_trimmed["CAR_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_car"]
+df_final_trimmed["Insti_High_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_High_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_High_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Low_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Low_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Low_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
 df_final_trimmed["Insti_High_ESG"] = df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
 df_final_trimmed["Insti_Low_ESG"] = df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Ret_COV"] = df_final_trimmed["COV"] * df_final_trimmed["weekly_return_fundlevel"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Ret_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["weekly_return_fundlevel"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Ret_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["weekly_return_fundlevel"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Ret"] = df_final_trimmed["weekly_return_fundlevel"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_One_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_One_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_One_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_One_M_RET"] = df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Twelve_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Twelve_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Twelve_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Twelve_M_RET"] = df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Star_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Star_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Star_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+df_final_trimmed["Insti_Star"] = df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
 
 
 ##############################################
@@ -205,7 +230,7 @@ reg2 = sm.ols(formula=fom2, data=df_mod1).fit()
 
 df_mod2 = df_final_trimmed
 
-# Shorter timeframe for mod2: 01/01/2020 - 22/03/2020
+# Shorter timeframe for mod2: 01/01/2020 - 23/08/2020
 df_mod2["Date"] = df_mod2["Date"].astype("datetime64[ns]")
 start_mod2 = pd.to_datetime("2020-01-01", format="%Y-%m-%d")
 end_mod2 = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
@@ -267,10 +292,10 @@ stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Nar
 stargazer.covariate_order(["Intercept", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return_fundlevel",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_net_flow.html', 'w').write(stargazer.render_html())
@@ -289,10 +314,10 @@ stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Nar
 stargazer.covariate_order(["Intercept", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return_fundlevel",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Star_COV", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_normalized_flow.html', 'w').write(stargazer.render_html())
@@ -398,10 +423,10 @@ stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Nar
 stargazer.covariate_order(["Intercept", "ENV_COV", "SOC_COV", "GOV_COV", "monthly_env", "monthly_soc", "monthly_gov", "Ret_COV", "weekly_return_fundlevel",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 #open('OLS_risk_scores_net_flow.html', 'w').write(stargazer.render_html())
@@ -420,10 +445,10 @@ stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Nar
 stargazer.covariate_order(["Intercept", "ENV_COV", "SOC_COV", "GOV_COV", "monthly_env", "monthly_soc", "monthly_gov", "Ret_COV", "weekly_return_fundlevel",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 #open('OLS_risk_scores_normalized_flow.html', 'w').write(stargazer.render_html())
@@ -528,10 +553,10 @@ stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Nar
 stargazer.covariate_order(["Intercept", "CAR_COV", "monthly_car", "Ret_COV", "weekly_return_fundlevel",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 #open('OLS_carb_design_net_flow.html', 'w').write(stargazer.render_html())
@@ -549,10 +574,10 @@ stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Nar
 stargazer.covariate_order(["Intercept", "CAR_COV", "monthly_car", "Ret_COV", "weekly_return_fundlevel",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 #open('OLS_carb_design_normalized_flow.html', 'w').write(stargazer.render_html())
@@ -656,15 +681,15 @@ stargazer.column_separators = True
 stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,4])
 stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
                            "High_ESG", "Low_ESG"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Return Controls:", ["Weekly", "Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Return Interactions:", ["N", "N", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating Interaction:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Other Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["Weekly", "Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Interactions", ["N", "N", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Interaction", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_net_flow_subtime.html', 'w').write(stargazer.render_html())
@@ -685,15 +710,15 @@ stargazer.column_separators = True
 stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,4])
 stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
                            "High_ESG", "Low_ESG"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Return Controls:", ["Weekly", "Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Return Interactions:", ["N", "N", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating Interaction:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Other Controls:", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["Weekly", "Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Interactions", ["N", "N", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Interaction", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_normalized_flow_subtime.html', 'w').write(stargazer.render_html())
@@ -791,10 +816,10 @@ stargazer.custom_columns(["Extended PRE-COVID (01. Jan '19 - 22. Feb '20)",
 stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
                            "weekly_return_fundlevel", "prior_month_return", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('OLS_net_flow_subtime.html', 'w').write(stargazer.render_html())
@@ -815,17 +840,17 @@ stargazer.custom_columns(["Extended PRE-COVID (01. Jan '19 - 22. Feb '20)",
 stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
                            "weekly_return_fundlevel", "prior_month_return", "rolling_12_months_return", "weekly_div",
                            "log_tna", "monthly_star", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Style-Fixed Effects:", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('OLS_normalized_flow_subtime.html', 'w').write(stargazer.render_html())
 
 
 ##############################################
-# 13. Model: Diff in diff regression insti vs. retail with sus. rating distinguishing
+# 13. Model: Diff in diff regression insti vs. retail with shorter timeframe with sus. rating with COV
 ##############################################
 
 df_mod13 = df_final_trimmed
@@ -837,16 +862,302 @@ end_mod13 = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
 df_mod13 = df_mod13[df_mod13["Date"].between(start_mod13, end_mod13)].reset_index()
 df_mod13 = df_mod13.drop(columns=["index"])
 
-fom51 = "fund_flows ~ Insti_High_ESG + Insti_Low_ESG + High_ESG + Low_ESG + weekly_return_fundlevel + log_tna + monthly_star" \
-       "+ Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+fom51 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV + Insti_Ret + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
        "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
-fom52 = "normalized_flows ~ Insti_High_ESG + Insti_Low_ESG + High_ESG + Low_ESG + weekly_return_fundlevel + log_tna + monthly_star" \
-       "+ Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+fom52 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV + Insti_Ret + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
        "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
        "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
        "+ consumer_defensive + communication_services + financial_services + energy"
 
 reg51 = sm.ols(formula=fom51, data=df_mod13).fit()
 reg52 = sm.ols(formula=fom52, data=df_mod13).fit()
+
+
+##############################################
+# 14. Model: Diff in diff regression insti vs. retail with longer timeframe with sus. rating with COV
+##############################################
+
+df_mod14 = df_final_trimmed
+
+# Shorter timeframe for mod14: 01/01/2020 - 23/08/2020
+df_mod14["Date"] = df_mod14["Date"].astype("datetime64[ns]")
+start_mod14 = pd.to_datetime("2020-01-01", format="%Y-%m-%d")
+end_mod14 = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
+df_mod14 = df_mod14[df_mod14["Date"].between(start_mod14, end_mod14)].reset_index()
+df_mod14 = df_mod14.drop(columns=["index"])
+
+fom53 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV + Insti_Ret + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
+       "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
+       "+ consumer_defensive + communication_services + financial_services + energy"
+fom54 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV + Insti_Ret + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
+       "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
+       "+ consumer_defensive + communication_services + financial_services + energy"
+fom55 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + prior_month_return + Insti_One_M_RET_COV + Insti_One_M_RET + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
+       "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
+       "+ consumer_defensive + communication_services + financial_services + energy"
+fom56 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + prior_month_return + Insti_One_M_RET_COV + Insti_One_M_RET + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
+       "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
+       "+ consumer_defensive + communication_services + financial_services + energy"
+fom57 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + rolling_12_months_return + Insti_Twelve_M_RET_COV + Insti_Twelve_M_RET + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
+       "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
+       "+ consumer_defensive + communication_services + financial_services + energy"
+fom58 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + rolling_12_months_return + Insti_Twelve_M_RET_COV + Insti_Twelve_M_RET + log_tna + monthly_star" \
+       "+ Insti_Star_COV + Insti_Star + Star_COV + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS + Universal + AXA + Mkt_RF + SMB + HML + RMW" \
+       "+ CMA + RF + growth + value + large_cap + mid_cap + small_cap + large_growth + large_value + mid_growth + mid_value + small_growth" \
+       "+ small_value + utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare" \
+       "+ consumer_defensive + communication_services + financial_services + energy"
+
+reg53 = sm.ols(formula=fom53, data=df_mod14).fit()
+reg54 = sm.ols(formula=fom54, data=df_mod14).fit()
+reg55 = sm.ols(formula=fom55, data=df_mod14).fit()
+reg56 = sm.ols(formula=fom56, data=df_mod14).fit()
+reg57 = sm.ols(formula=fom57, data=df_mod14).fit()
+reg58 = sm.ols(formula=fom58, data=df_mod14).fit()
+
+# Output for dep. variable Net Flow
+stargazer = Stargazer([reg51, reg53, reg55, reg57])
+stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Insti_High_ESG_COV": "High ESG x COV x Institutional",
+                             "Insti_Low_ESG_COV": "Low ESG x COV x Institutional", "Low_ESG_COV": "Low ESG x COV",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV": "COV x Institutional", "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return_fundlevel": "Return", "rolling_12_months_return": "Prior 12 Months' Return",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Net Flow"
+stargazer.column_separators = True
+stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,3])
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV", "Insti_Low_ESG_COV", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV",
+                           "Insti", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return x COV x Insti Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x COV x Insti Interaction", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_net_flow_insti.html', 'w').write(stargazer.render_html())
+
+
+# Output for dep. variable Normailized Flow
+stargazer = Stargazer([reg52, reg54, reg56, reg58])
+stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Insti_High_ESG_COV": "High ESG x COV x Institutional",
+                             "Insti_Low_ESG_COV": "Low ESG x COV x Institutional", "Low_ESG_COV": "Low ESG x COV",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV": "COV x Institutional", "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return_fundlevel": "Return", "rolling_12_months_return": "Prior 12 Months' Return",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Normalized Flow"
+stargazer.column_separators = True
+stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,3])
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV", "Insti_Low_ESG_COV", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV",
+                           "Insti", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return x COV x Insti Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x COV x Insti Interaction", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_normalized_flow_insti.html', 'w').write(stargazer.render_html())
+
+
+##############################################
+# 15. Model: Diff in diff regression insti vs. retail with longer timeframe with sus. rating distinguishing between different timeframes
+##############################################
+
+df_mod15 = df_final_trimmed
+
+# Longer timeframe for mod15: 01/01/2019 - 23/08/2020
+df_mod15["Date"] = df_mod13["Date"].astype("datetime64[ns]")
+start_mod15 = pd.to_datetime("2019-01-01", format="%Y-%m-%d")
+end_mod15 = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
+df_mod15 = df_mod15[df_mod15["Date"].between(start_mod15, end_mod15)].reset_index()
+df_mod15 = df_mod15.drop(columns=["index"])
+
+fom61 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV_CRASH" \
+        "+ Insti_Ret_COV_REC + Insti_Ret + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+fom62 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV_CRASH" \
+        "+ Insti_Ret_COV_REC + Insti_Ret + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+
+reg61 = sm.ols(formula=fom61, data=df_mod15).fit()
+reg62 = sm.ols(formula=fom62, data=df_mod15).fit()
+
+
+##############################################
+# 16. Model: Diff in diff regression insti vs. retail with shorter timeframe with sus. rating distinguishing between different timeframes
+##############################################
+
+df_mod16 = df_final_trimmed
+
+# Shorter timeframe for mod16: 01/01/2020 - 23/08/2020
+df_mod16["Date"] = df_mod16["Date"].astype("datetime64[ns]")
+start_mod16 = pd.to_datetime("2020-01-01", format="%Y-%m-%d")
+end_mod16 = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
+df_mod16 = df_mod16[df_mod16["Date"].between(start_mod16, end_mod16)].reset_index()
+df_mod16 = df_mod16.drop(columns=["index"])
+
+fom63 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV_CRASH" \
+        "+ Insti_Ret_COV_REC + Insti_Ret + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+fom64 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return_fundlevel + Insti_Ret_COV_CRASH" \
+        "+ Insti_Ret_COV_REC + Insti_Ret + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+fom65 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + prior_month_return + Insti_One_M_RET_COV_CRASH" \
+        "+ Insti_One_M_RET_COV_REC + Insti_One_M_RET + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+fom66 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + prior_month_return + Insti_One_M_RET_COV_CRASH" \
+        "+ Insti_One_M_RET_COV_REC + Insti_One_M_RET + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+fom67 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + rolling_12_months_return + Insti_Twelve_M_RET_COV_CRASH" \
+        "+ Insti_Twelve_M_RET_COV_REC + Insti_Twelve_M_RET + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+fom68 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC" \
+        "+ Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti + High_ESG_COV_CRASH + High_ESG_COV_REC" \
+        "+ Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + rolling_12_months_return + Insti_Twelve_M_RET_COV_CRASH" \
+        "+ Insti_Twelve_M_RET_COV_REC + Insti_Twelve_M_RET + log_tna + monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC" \
+        "+ Insti_Star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator + Allianz + JPMorgan + DWS" \
+        "+ Universal + AXA + Mkt_RF + SMB + HML + RMW + CMA + RF + growth + value + large_cap + mid_cap + small_cap" \
+        "+ large_growth + large_value + mid_growth + mid_value + small_growth + small_value + utilities + industrials" \
+        "+ basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive" \
+        "+ communication_services + financial_services + energy"
+
+reg63 = sm.ols(formula=fom63, data=df_mod16).fit()
+reg64 = sm.ols(formula=fom64, data=df_mod16).fit()
+reg65 = sm.ols(formula=fom65, data=df_mod16).fit()
+reg66 = sm.ols(formula=fom66, data=df_mod16).fit()
+reg67 = sm.ols(formula=fom67, data=df_mod16).fit()
+reg68 = sm.ols(formula=fom68, data=df_mod16).fit()
+
+# Output for dep. variable Net Flow
+stargazer = Stargazer([reg61, reg63, reg65, reg67])
+stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC": "High ESG x COV (RECOVERY)",
+                             "Insti_High_ESG_COV_CRASH": "High ESG x COV (CRASH) x Institutional", "Insti_High_ESG_COV_REC": "High ESG x COV (RECOVERY) x Institutional",
+                             "Insti_Low_ESG_COV_CRASH": "Low ESG x COV (CRASH) x Institutional", "Insti_Low_ESG_COV_REC": "Low ESG x COV (RECOVERY) x Institutional",
+                             "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)", "Low_ESG_COV_REC": "Low ESG x COV (RECOVERY)",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV_CRASH": "COV (CRASH) x Institutional", "Insti_COV_REC": "COV (RECOVERY) x Institutional",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return_fundlevel": "Return", "rolling_12_months_return": "Prior 12 Months' Return",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Net Flow"
+stargazer.column_separators = True
+stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,3])
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV_CRASH", "Insti_High_ESG_COV_REC", "Insti_Low_ESG_COV_CRASH",
+                           "Insti_Low_ESG_COV_REC", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV_CRASH", "Insti_COV_REC",
+                           "Insti", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC", "High_ESG", "Low_ESG"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return x COV x Insti Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x COV x Insti Interaction", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_net_flow_insti_subtime.html', 'w').write(stargazer.render_html())
+
+
+# Output for dep. variable Normailized Flow
+stargazer = Stargazer([reg62, reg64, reg66, reg68])
+stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC": "High ESG x COV (RECOVERY)",
+                             "Insti_High_ESG_COV_CRASH": "High ESG x COV (CRASH) x Institutional", "Insti_High_ESG_COV_REC": "High ESG x COV (RECOVERY) x Institutional",
+                             "Insti_Low_ESG_COV_CRASH": "Low ESG x COV (CRASH) x Institutional", "Insti_Low_ESG_COV_REC": "Low ESG x COV (RECOVERY) x Institutional",
+                             "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)", "Low_ESG_COV_REC": "Low ESG x COV (RECOVERY)",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV_CRASH": "COV (CRASH) x Institutional", "Insti_COV_REC": "COV (RECOVERY) x Institutional",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return_fundlevel": "Return", "rolling_12_months_return": "Prior 12 Months' Return",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Normalized Flow"
+stargazer.column_separators = True
+stargazer.custom_columns(["Extended Timeframe\n(01. Jan '19 - 23. Aug '20)", "Narrow Timeframe\n(01. Jan '20 - 23. Aug '20)"], [1,3])
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV_CRASH", "Insti_High_ESG_COV_REC", "Insti_Low_ESG_COV_CRASH",
+                           "Insti_Low_ESG_COV_REC", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV_CRASH", "Insti_COV_REC",
+                           "Insti", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC", "High_ESG", "Low_ESG"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Style-Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["Weekly", "Weekly", "Prior Month", "Prior 12 Months"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return x COV x Insti Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x COV x Insti Interaction", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_normalized_flow_insti_subtime.html', 'w').write(stargazer.render_html())
