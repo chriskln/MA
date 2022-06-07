@@ -43,23 +43,54 @@ df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_
 
 # number of different funds in dataset
 #print(df_static["FundId"].nunique())
+# 1119
+
+# number of different share classes in dataset
+#print(df_static["ISIN"].nunique())
+# 5317
 
 # number of share classes investing in different investment areas
 df_static["count"] = 1
 share_class_count = df_static.groupby("Investment Area")["count"].count()
 #print(share_class_count)
+#Austria                   20
+#Belgium                    4
+#Denmark                    6
+#Euroland                 832
+#Europe                  3327
+#Europe (North)            87
+#Europe Emerging Mkts     164
+#Europe ex UK             313
+#Finland                    1
+#France                    19
+#Germany                  220
+#Greece                     4
+#Italy                     36
+#Norway                     4
+#Slovakia                   1
+#Spain                     11
+#Switzerland              174
+#United Kingdom           266
 
 # number of institutional share classes
 df_static["count"] = 1
 insti_count = df_static.groupby(["Institutional"])["count"].count()
 #print(insti_count)
 df_static = df_static.drop(["count"], axis=1)
+#Institutional
+#No     4371
+#Yes    1118
 
-# number of share classes having certain sustainability ratings as of 12/2020
+# number of share classes having a sustainability rating as of 12/2020
 df_sus["count"] = 1
 sus_count = df_sus.groupby(["Morningstar Sustainability Rating™ 2020-12"])["count"].count()
 #print(sus_count)
 df_sus = df_sus.drop(["count"], axis=1)
+# Above Average    1076
+# Average          1707
+# Below Average     986
+# High              605
+# Low               235
 
 # check for duplicates
 df_static = df_static.drop_duplicates(subset="ISIN", keep="last")
@@ -125,7 +156,7 @@ for q in range(0, len(df_tna)):
         df_tna.loc[q, "rev_indicator"] = 1
     else:
         df_tna.loc[q, "rev_indicator"] = 0
-# results in 22 cases of extreme reversal pattern
+# results in 32 cases of extreme reversal pattern
 
 # in these cases, set monthly tna to missing
 for p in range(0, len(df_tna)):
