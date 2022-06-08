@@ -59,18 +59,12 @@ df_final = df_final.drop(columns=["index"])
 
 df_final["weekly_div"] = df_final["weekly_div"].fillna(0)
 
-################################
-# Retain those funds having non-missing flow data
-################################
-
-df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["weekly_flow"].ne(0).all())
 
 ################################
 # Add restriction on at least $1m. of tna by previous week (Hartzmark and Sussman)
 ################################
 
 df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.weekly_tna_fundlevel >= 1000000).all())
-#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.weekly_size >= 1000000).all())
 
 # translate weekly tna into $ million
 df_final["weekly_tna_fundlevel"] = df_final["weekly_tna_fundlevel"] / 1000000
@@ -80,6 +74,13 @@ df_final["weekly_size"] = df_final["weekly_size"] / 1000000
 
 df_final = df_final.reset_index()
 df_final = df_final.drop(columns=["index"])
+
+
+################################
+# Retain those funds having non-missing flow data
+################################
+
+df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["weekly_flow"].ne(0).all())
 
 
 ################################
@@ -104,7 +105,7 @@ df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mon
 
 # number of funds in dataset
 print(df_final["FundId"].nunique())
-# 629 (when deleting funds with no sustainability rating and no star rating)
+# 641 (when deleting funds with no sustainability rating and no star rating)
 # 683 (when deleting funds with no risk scores and no star rating) update required
 # 615 (when deleting funds with no carbon designation and no star rating) update required
 
@@ -195,7 +196,7 @@ df_final = df_final[df_final["Date"] > pd.to_datetime("2018-12-30", format="%Y-%
 df_final["fund_flows"] = df_final["fund_flows"].mul(100) # values in percent
 
 # 2: normalized flows (See Hartzmark and Sussma, p. 2798)
-df_final["Decile_Rank"] = df_final.groupby("Date").weekly_tna_fundlevel.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_final["Decile_Rank"] = df_final.groupby(["Date"]).weekly_tna_fundlevel.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
 df_final["normalized_flows"] = df_final.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
 # to csv

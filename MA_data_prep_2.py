@@ -575,9 +575,9 @@ df_age_fundlevel = df_age.groupby(["Fund Legal Name", "FundId", "Institutional"]
 ################################
 
 df_static_control = df_static.drop(columns=["Global Broad Category Group", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Index Fund", "Inception Date", "Valuation Country"])
-df_static_control = df_static_control.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Global Category": "first"}, {"Investment Area": "first"}).reset_index()
+df_static_control = df_static_control.groupby(["Fund Legal Name", "FundId", "Institutional"]).agg({"Global Category": "first"}).reset_index()
 
-
+print(df_static_control.columns)
 ################################
 # Star Rating
 ################################
@@ -590,6 +590,31 @@ df_star = df_star.fillna(6)
 df_star_fundlevel = pd.merge(df_star, df_static, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
 df_star_fundlevel = df_star_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"monthly_star": "min"}).reset_index()
 df_star_fundlevel = df_star_fundlevel.replace(6, np.nan)
+
+
+################################
+# Fill nan values in weekly flows by calculation
+################################
+
+df_flow_weekly_fundlevel = pd.merge(df_flow_weekly_fundlevel, df_return_weekly_fundlevel, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="left")
+df_flow_weekly_fundlevel = pd.merge(df_flow_weekly_fundlevel, df_tna_weekly_fundlevel, on=["Fund Legal Name", "FundId", "Date", "Institutional"], how="left")
+
+group = df_flow_weekly_fundlevel.groupby(["FundId", "Institutional"])
+df_flow_weekly_fundlevel["weekly_tna_fundlevel_lag1"] = group["weekly_tna_fundlevel"].shift(1)
+
+for f in range(0, len(df_flow_weekly_fundlevel)):
+    if (df_flow_weekly_fundlevel.loc[f, "weekly_flow"] == np.nan or df_flow_weekly_fundlevel.loc[f, "weekly_flow"] == 0) \
+            and math.isnan(df_flow_weekly_fundlevel.loc[f, "weekly_tna_fundlevel"]) == False \
+            and df_flow_weekly_fundlevel.loc[f, "weekly_tna_fundlevel"] != 0\
+            and math.isnan(df_flow_weekly_fundlevel.loc[f, "weekly_return_fundlevel"]) == False \
+            and df_flow_weekly_fundlevel.loc[f, "weekly_return_fundlevel"] != 0\
+            and math.isnan(df_flow_weekly_fundlevel.loc[f, "weekly_tna_fundlevel_lag1"]) == False \
+            and df_flow_weekly_fundlevel.loc[f, "weekly_tna_fundlevel_lag1"] != 0:
+        df_flow_weekly_fundlevel.loc[f, "weekly_flow"] = df_flow_weekly_fundlevel.loc[f, "weekly_tna_fundlevel"] - (1 + df_flow_weekly_fundlevel.loc[f, "weekly_return_fundlevel"]) * df_flow_weekly_fundlevel.loc[f, "weekly_tna_fundlevel_lag1"]
+    else:
+        continue
+
+df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["weekly_tna_fundlevel_lag1", "weekly_tna_fundlevel", "weekly_return_fundlevel"])
 
 
 ################################
