@@ -40,7 +40,7 @@ df_final = df_final.drop(columns=["year"])
 # Set timeframe to 01/2019 - 12/2020
 ################################
 
-# lagged tna before setting timeframe
+# lagged tna and size before setting timeframe
 group = df_final.groupby(["FundId", "Institutional"])
 df_final["weekly_tna_fundlevel_lag1"] = group["weekly_tna_fundlevel"].shift(1)
 
@@ -66,10 +66,11 @@ df_final["weekly_div"] = df_final["weekly_div"].fillna(0)
 df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["weekly_flow"].ne(0).all())
 
 ################################
-# Add restriction on at least $1m. fund size by previous week (Hartzmark and Sussman)
+# Add restriction on at least $1m. of tna by previous week (Hartzmark and Sussman)
 ################################
 
 df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.weekly_tna_fundlevel >= 1000000).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.weekly_size >= 1000000).all())
 
 # translate weekly tna into $ million
 df_final["weekly_tna_fundlevel"] = df_final["weekly_tna_fundlevel"] / 1000000
@@ -103,9 +104,9 @@ df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mon
 
 # number of funds in dataset
 print(df_final["FundId"].nunique())
-# 686 (when deleting funds with no sustainability rating and no star rating)
-# 683 (when deleting funds with no risk scores and no star rating)
-# 615 (when deleting funds with no carbon designation and no star rating)
+# 629 (when deleting funds with no sustainability rating and no star rating)
+# 683 (when deleting funds with no risk scores and no star rating) update required
+# 615 (when deleting funds with no carbon designation and no star rating) update required
 
 ################################
 # Winsorize all continuous variables at 99% and 1% levels
@@ -235,7 +236,7 @@ summary.rename(columns={"index": "Variable", "count": "N", "mean": "Mean", "std"
                         "25%": "P25", "50%": "P50", "75%": "P75", "90%": "P90", "max": "Max"}, inplace=True)
 
 # to excel
-#summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
+summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
 
 
 ##############################################
@@ -299,7 +300,7 @@ summary_fin = summary_fin.rename(columns={0: "t-statistic", 1: "p-value"})
 summary_fin = summary_fin.round(2)
 
 # to excel
-#summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_fin.xlsx", index=False)
+summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_fin.xlsx", index=False)
 
 
 ##############################################
@@ -376,7 +377,7 @@ summary_pre_fin = summary_pre_fin.rename(columns={0: "t-statistic", 1: "p-value"
 summary_pre_fin = summary_pre_fin.round(2)
 
 # to excel
-#summary_pre_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_pre.xlsx", index=False)
+summary_pre_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_pre.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: CRASH (23/02/2020 - 22/03/2020)
@@ -452,7 +453,7 @@ summary_crsh_fin = summary_crsh_fin.rename(columns={0: "t-statistic", 1: "p-valu
 summary_crsh_fin = summary_crsh_fin.round(2)
 
 # to excel
-#summary_crsh_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_crsh.xlsx", index=False)
+summary_crsh_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_crsh.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: RECOVERY (23/03/2020 - 23/08/2020)
@@ -528,7 +529,7 @@ summary_rec_fin = summary_rec_fin.rename(columns={0: "t-statistic", 1: "p-value"
 summary_rec_fin = summary_rec_fin.round(2)
 
 # to excel
-#summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
+summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: POST-RECOVERY (24/08/2020 - 31/12/2020)
@@ -603,7 +604,7 @@ summary_prec_fin = summary_prec_fin.rename(columns={0: "t-statistic", 1: "p-valu
 summary_prec_fin = summary_prec_fin.round(2)
 
 # to excel
-#summary_prec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_prec.xlsx", index=False)
+summary_prec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_prec.xlsx", index=False)
 
 
 ##############################################
@@ -623,8 +624,8 @@ df_ttest_rec = df_ttest_rec.round(2)
 df_ttest_prec = df_ttest_prec.round(2)
 
 # merge all together
-#summary_table = [summary_fin, df_ttest_crsh, df_ttest_rec, df_ttest_prec]
-#summary_fin = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True), summary_table)
+summary_table = [summary_fin, df_ttest_crsh, df_ttest_rec, df_ttest_prec]
+summary_fin = reduce(lambda left, right: pd.merge(left, right, left_index=True, right_index=True), summary_table)
 
 # merge t-test results
 d = {"Overall (01/01/2019 - 31/12/2020)": df_ttest, "Crash (23/02/2020 - 22/03/2020)": df_ttest_crsh,
@@ -645,4 +646,4 @@ summary_total = summary_total.rename(index={0: "Weekly Net Flow (%)", 1: "Weekly
                         9: "Social Risk Score", 10: "Governance Risk Score", 11: "Low Carbon Designation"})
 
 # to excel
-#summary_total.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_total.xlsx")
+summary_total.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_total.xlsx")
