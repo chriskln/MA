@@ -23,7 +23,7 @@ import math
 df_flow_weekly_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv", sep= ",")
 df_return_weekly_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv", sep= ",")
 df_tna_weekly_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv", sep= ",")
-df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\expense.csv", sep= ";")
+df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\annual_report_net_exp_ratio.csv", sep= ";")
 df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\sus_rating_abs.csv", sep= ";")
 df_env = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_env_score.csv", sep= ";")
 df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_soc_score.csv", sep= ";")
@@ -79,37 +79,60 @@ df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.loc[:, ~df_tna_weekly_fundleve
 # Fund Expenses
 ################################
 
-# split data in cells
-df_exp[[1,2,3,4,5,6,7,8,9,10,11]] = df_exp["Semi-Annual Report Net Expense Ratio History"].str.split(";", n=10, expand=True)
-df_exp = df_exp.drop(columns=["Semi-Annual Report Net Expense Ratio History"])
-
-# merge "Institutional" into dataframe
 df_exp = pd.merge(df_exp, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
 df_exp = df_exp.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
+df_exp = pd.melt(df_exp, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], var_name="Date", value_name="yearly_expense")
+df_exp["Date"] = df_exp["Date"].str.slice(36, 40, 1)
+df_exp["Date"] = pd.to_datetime(df_exp["Date"], format="%Y-%m-%d")
+df_exp = df_exp.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).agg({"yearly_expense": "mean"}).reset_index()
+
+for c in range(2, len(df_exp)):
+    if math.isnan(df_exp.loc[c, "monthly_star"]) == True and df_exp.loc[c, "FundId"] == df_exp.loc[c - 1, "FundId"] and df_exp.loc[c, "Institutional"] == df_exp.loc[c - 1, "Institutional"]:
+        df_exp.loc[c, "monthly_star"] = df_exp.loc[c - 1, "monthly_star"]
+    elif math.isnan(df_exp.loc[c, "monthly_star"]) == True and df_exp.loc[c, "FundId"] == df_exp.loc[c - 2, "FundId"] and df_exp.loc[c, "Institutional"] == df_exp.loc[c - 2, "Institutional"]:
+        df_exp.loc[c, "monthly_star"] = df_exp.loc[c - 2, "monthly_star"]
+    else:
+        continue
+
+df_exp.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_exp_testl.csv")
+
+
+
+
+
+
+
+# split data in cells
+#df_exp[[1,2,3,4,5,6,7,8,9,10,11]] = df_exp["Semi-Annual Report Net Expense Ratio History"].str.split(";", n=10, expand=True)
+#df_exp = df_exp.drop(columns=["Semi-Annual Report Net Expense Ratio History"])
+
+# merge "Institutional" into dataframe
+#df_exp = pd.merge(df_exp, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+#df_exp = df_exp.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 
 # data prep
-df_exp = pd.melt(df_exp, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], value_name="semi_ann_expense")
-df_exp = df_exp.drop(columns=["variable"])
-df_exp[["Date", "semi_annual_expense"]] = df_exp["semi_ann_expense"].str.split(" ", n=1, expand=True)
-df_exp = df_exp.drop(columns=["semi_ann_expense"])
-df_exp["Date"] = df_exp["Date"].astype(str)
-df_exp["Date"] = df_exp["Date"].map(lambda x: x.lstrip("[").rstrip("]"))
+#df_exp = pd.melt(df_exp, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Institutional"], value_name="semi_ann_expense")
+#df_exp = df_exp.drop(columns=["variable"])
+#df_exp[["Date", "semi_annual_expense"]] = df_exp["semi_ann_expense"].str.split(" ", n=1, expand=True)
+#df_exp = df_exp.drop(columns=["semi_ann_expense"])
+#df_exp["Date"] = df_exp["Date"].astype(str)
+#df_exp["Date"] = df_exp["Date"].map(lambda x: x.lstrip("[").rstrip("]"))
 
 # drop nan rows
-df_exp = df_exp.dropna(axis=0, how="any", thresh=8)
+#df_exp = df_exp.dropna(axis=0, how="any", thresh=8)
 
 # drop rows out of time range
-df_exp["Date"] = pd.to_datetime(df_exp["Date"], format="%Y-%m-%d")
-df_exp = df_exp.drop(df_exp[(df_exp.Date < pd.to_datetime("2017-01-01", format="%Y-%m-%d"))].index)
-df_exp = df_exp.drop(df_exp[(df_exp.Date > pd.to_datetime("2020-12-31", format="%Y-%m-%d"))].index)
+#df_exp["Date"] = pd.to_datetime(df_exp["Date"], format="%Y-%m-%d")
+#df_exp = df_exp.drop(df_exp[(df_exp.Date < pd.to_datetime("2017-01-01", format="%Y-%m-%d"))].index)
+#df_exp = df_exp.drop(df_exp[(df_exp.Date > pd.to_datetime("2020-12-31", format="%Y-%m-%d"))].index)
 
 # prepare for merging
-df_exp["month_year"] = pd.to_datetime(df_exp["Date"]).dt.to_period("M")
-df_exp = df_exp.drop(columns=["Date"])
-df_exp["semi_annual_expense"] = df_exp["semi_annual_expense"].astype(float)
+#df_exp["month_year"] = pd.to_datetime(df_exp["Date"]).dt.to_period("M")
+#df_exp = df_exp.drop(columns=["Date"])
+#df_exp["semi_annual_expense"] = df_exp["semi_annual_expense"].astype(float)
 
 # aggregate tp fund level
-df_exp_fundlevel = df_exp.groupby(["Fund Legal Name", "FundId", "month_year", "Institutional"]).agg({"semi_annual_expense": "mean"}).reset_index()
+#df_exp_fundlevel = df_exp.groupby(["Fund Legal Name", "FundId", "month_year", "Institutional"]).agg({"semi_annual_expense": "mean"}).reset_index()
 
 
 ################################
@@ -175,7 +198,7 @@ df_eff_weekly["RF"] = df_eff_weekly["RF"].mul(100)
 
 
 ################################
-# Style-Fixed Effects
+# Investment Style Exposure
 ################################
 
 df_growth = pd.merge(df_growth, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
@@ -805,7 +828,7 @@ df_car_fundlevel = df_car_fundlevel.groupby(["Fund Legal Name", "FundId", "Date"
 
 
 ################################
-# Fill NaN's in columns with most actual value OR assume that first available datapoint is also valid in the past
+# Fill NaN's in columns with most actual value
 ################################
 
 # star rating
@@ -933,7 +956,7 @@ df_weekly_final["year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("
 df_monthly_final["month_year"] = pd.to_datetime(df_monthly_final["Date"]).dt.to_period("M")
 df_monthly_final = df_monthly_final.drop(columns=["Date"])
 
-df_monthly_final = pd.merge(df_monthly_final, df_exp_fundlevel, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
+#df_monthly_final = pd.merge(df_monthly_final, df_exp_fundlevel, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
 df_weekly_final = pd.merge(df_weekly_final, df_div, on=["Fund Legal Name", "FundId", "year", "Institutional"], how="left")
 df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Fund Legal Name", "FundId", "month_year", "Institutional"], how="left")
 df_final = pd.merge(df_final, df_fixed_final, on=["Fund Legal Name", "FundId", "Institutional"], how="left")
