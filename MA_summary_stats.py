@@ -77,10 +77,19 @@ df_final = df_final.drop(columns=["index"])
 
 
 ################################
-# Retain those funds having non-missing flow data
+# Retain those funds having non-missing data
 ################################
 
 df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["weekly_flow"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["large_growth"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["large_value"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["large_core"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mid_growth"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mid_value"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mid_core"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["small_growth"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["small_value"].ne(0).all())
+#df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["small_core"].ne(0).all())
 
 
 ################################
@@ -105,7 +114,7 @@ df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: x["mon
 
 # number of funds in dataset
 print(df_final["FundId"].nunique())
-# 641 (when deleting funds with no sustainability rating and no star rating)
+# 629 (when deleting funds with no sustainability rating and no star rating)
 # 683 (when deleting funds with no risk scores and no star rating) update required
 # 615 (when deleting funds with no carbon designation and no star rating) update required
 
