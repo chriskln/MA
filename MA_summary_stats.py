@@ -40,7 +40,7 @@ df_final = df_final.drop(columns=["year"])
 # Set timeframe to 01/2019 - 12/2020
 ################################
 
-# lagged tna and size before setting timeframe
+# lagged tna before setting timeframe
 group = df_final.groupby(["FundId", "Institutional"])
 df_final["weekly_tna_fundlevel_lag1"] = group["weekly_tna_fundlevel"].shift(1)
 
@@ -64,7 +64,7 @@ df_final["weekly_div"] = df_final["weekly_div"].fillna(0)
 # Add restriction on at least $1m. of tna by previous week (Hartzmark and Sussman)
 ################################
 
-df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.weekly_tna_fundlevel >= 1000000).all())
+df_final = df_final.groupby(["FundId", "Institutional"]).filter(lambda x: (x.weekly_tna_fundlevel_lag1 >= 1000000).all())
 
 # translate weekly tna into $ million
 df_final["weekly_tna_fundlevel"] = df_final["weekly_tna_fundlevel"] / 1000000
