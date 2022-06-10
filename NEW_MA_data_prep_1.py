@@ -120,13 +120,14 @@ df_flow_weekly = df_flow_weekly.rename(columns={"daily_flow": "weekly_flow"})
 df_return = pd.melt(df_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_return")
 df_return["Date"] = df_return["Date"].str.slice(20, 30, 1)
 df_return["Date"] = pd.to_datetime(df_return["Date"], format="%Y-%m-%d")
-df_return.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_before.csv")
-df_return = df_return.groupby(["ISIN"]).filter(lambda x: x["daily_return"].ne(np.nan).all())
-df_return.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_after.csv")
 
 df_m_return = pd.melt(df_m_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_return")
 df_m_return["Date"] = df_m_return["Date"].str.slice(15, 22, 1)
 df_m_return["Date"] = pd.to_datetime(df_m_return["Date"], format="%Y-%m-%d")
+df_m_return["month_year"] = pd.to_datetime(df_m_return["Date"]).dt.to_period("M")
+df_m_return = df_m_return.drop(columns=["Date"])
+df_m_return = df_m_return.rename(columns={"month_year": "Date"})
+df_m_return["monthly_return"] = df_m_return["monthly_return"].div(100)
 
 # aggregate from daily to weekly data
 df_return["daily_return"] = df_return["daily_return"].div(100)
@@ -135,7 +136,6 @@ df_return_weekly = df_return.groupby(["Name", "Fund Legal Name", "FundId", "SecI
 df_return_weekly["daily_return"] = df_return_weekly["daily_return"].sub(1)
 #df_return_weekly["daily_return"] = df_return_weekly["daily_return"].mul(100)
 df_return_weekly = df_return_weekly.rename(columns={"daily_return": "weekly_return"})
-
 
 
 ##############################################
@@ -191,8 +191,6 @@ df_merged = df_merged.drop(columns=["Date_y"])
 
 # identifier for every new datapoint that is available at month ending
 df_merged["count"] = 0
-#df_merged.loc[df_merged.monthly_tna_lag1.ne(0).groupby(df_calc_tna["ISIN"]).idxmax(), "count"] = 1
-#df_merged["weekly_tna"] = np.where(df_merged["count"] == 1, df_merged["weekly_flow"] + (1 + df_merged["weekly_return"]) * df_merged["monthly_tna_lag1"], 0)
 
 for j in range(1, len(df_merged)):
     if df_merged.loc[j, "month_year"] != df_merged.loc[j - 1, "month_year"]:
@@ -222,48 +220,9 @@ for t in range(0, len(df_merged)):
         continue
 
 df_tna_weekly = df_merged[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "weekly_tna"]].copy()
-#df_merged.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_merged.csv")
 
-##############################################
-# Translate all data from share class to fund level
-##############################################
 
-# weekly returns
-group1 = df_tna_weekly.groupby("ISIN")
-df_tna_weekly["weekly_tna_lag1"] = group1["weekly_tna"].shift(1) # compute lagged weekly tna as weight for weekly return
-df_return_weekly_fundlevel = pd.merge(df_return_weekly, df_tna_weekly, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
-df_return_weekly_fundlevel = pd.merge(df_return_weekly_fundlevel, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
-df_return_weekly_fundlevel["return_tna"] = df_return_weekly_fundlevel["weekly_return"] * df_return_weekly_fundlevel["weekly_tna_lag1"]
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna", "weekly_return"])
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
-df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["return_tna"] / df_return_weekly_fundlevel["weekly_tna_lag1"] # calculate final weigthed average
-df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna_lag1", "return_tna"])
-
-# monthly returns
-df_m_return_fundlevel = pd.merge(df_m_return, df_tna, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
-df_m_return_fundlevel = pd.merge(df_m_return_fundlevel, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_m_return_fundlevel = df_m_return_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
-df_m_return_fundlevel["monthly_return"] = df_m_return_fundlevel["monthly_return"].div(100)
-df_m_return_fundlevel["m_return_tna_lag1"] = df_m_return_fundlevel["monthly_return"] * df_m_return_fundlevel["monthly_tna_lag1"]
-df_m_return_fundlevel = df_m_return_fundlevel.drop(columns=["monthly_return"])
-df_m_return_fundlevel = df_m_return_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
-df_m_return_fundlevel["monthly_return_fundlevel"] = df_m_return_fundlevel["m_return_tna_lag1"] / df_m_return_fundlevel["monthly_tna_lag1"] # calculate final weigthed average
-df_m_return_fundlevel = df_m_return_fundlevel.drop(columns=["monthly_tna", "monthly_tna_lag1", "m_return_tna_lag1"])
-
-# tna
-df_tna_weekly = df_tna_weekly.drop(columns="weekly_tna_lag1")
-df_tna_weekly_fundlevel = pd.merge(df_tna_weekly, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index() # calculate weekly tna at fund level by summing all ISIN's within a FundId
-df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.rename(columns={"weekly_tna": "weekly_tna_fundlevel"})
-
-# flows
-df_flow_weekly_fundlevel = pd.merge(df_flow_weekly, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
-df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
-
-df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv")
-df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv")
-df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv")
-df_m_return_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_m_return_fundlevel.csv")
+df_return_weekly.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_return_weekly.csv")
+df_tna_weekly.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_tna_weekly.csv")
+df_flow_weekly.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_flow_weekly.csv")
+df_m_return.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_m_return.csv")
