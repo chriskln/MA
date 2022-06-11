@@ -36,9 +36,7 @@ df_static_add = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesi
 df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\star_rating.csv", sep= ";")
 df_div = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dividend.csv", sep= ";")
 df_fix = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects.csv", sep= ";")
-df_rank = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\annual_rank_category.csv", sep= ";")
 df_size = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\daily_fund_size.csv", sep= ";")
-df_exl = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\exclusions_screening.csv", sep= ";")
 df_eff = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\Europe_5_Factors_Daily.csv", sep= ",")
 df_static = pd.merge(df_static, df_static_add, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
 
@@ -74,12 +72,64 @@ df_ut = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2
 # delete unnamed columns
 df_flow_weekly = df_flow_weekly.loc[:, ~df_flow_weekly.columns.str.contains("^Unnamed")]
 df_return_weekly = df_return_weekly.loc[:, ~df_return_weekly.columns.str.contains("^Unnamed")]
-df_tna_weekly_fundlevel = df_tna_weekly.loc[:, ~df_tna_weekly.columns.str.contains("^Unnamed")]
+df_tna_weekly = df_tna_weekly.loc[:, ~df_tna_weekly.columns.str.contains("^Unnamed")]
 df_m_return = df_m_return.loc[:, ~df_m_return.columns.str.contains("^Unnamed")]
 
 ##############################################
 # Controls
 ##############################################
+
+################################
+# Industry Controls
+################################
+
+df_bm = pd.melt(df_bm, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="basic_materials")
+df_bm["Date"] = df_bm["Date"].str.slice(44, 51, 1)
+df_bm["Date"] = pd.to_datetime(df_bm["Date"], format="%Y-%m-%d")
+
+df_cs = pd.melt(df_cs, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="communication_services")
+df_cs["Date"] = df_cs["Date"].str.slice(51, 58, 1)
+df_cs["Date"] = pd.to_datetime(df_cs["Date"], format="%Y-%m-%d")
+
+df_cc = pd.melt(df_cc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="consumer_cyclical")
+df_cc["Date"] = df_cc["Date"].str.slice(46, 53, 1)
+df_cc["Date"] = pd.to_datetime(df_cc["Date"], format="%Y-%m-%d")
+
+df_en = pd.melt(df_en, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="energy")
+df_en["Date"] = df_en["Date"].str.slice(35, 42, 1)
+df_en["Date"] = pd.to_datetime(df_en["Date"], format="%Y-%m-%d")
+
+df_cd = pd.melt(df_cd, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="consumer_defensive")
+df_cd["Date"] = df_cd["Date"].str.slice(47, 54, 1)
+df_cd["Date"] = pd.to_datetime(df_cd["Date"], format="%Y-%m-%d")
+
+df_fs = pd.melt(df_fs, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="financial_services")
+df_fs["Date"] = df_fs["Date"].str.slice(47, 54, 1)
+df_fs["Date"] = pd.to_datetime(df_fs["Date"], format="%Y-%m-%d")
+
+df_hc = pd.melt(df_hc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="healthcare")
+df_hc["Date"] = df_hc["Date"].str.slice(39, 46, 1)
+df_hc["Date"] = pd.to_datetime(df_hc["Date"], format="%Y-%m-%d")
+
+df_in = pd.melt(df_in, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="industrials")
+df_in["Date"] = df_in["Date"].str.slice(40, 47, 1)
+df_in["Date"] = pd.to_datetime(df_in["Date"], format="%Y-%m-%d")
+
+df_re = pd.melt(df_re, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="real_estate")
+df_re["Date"] = df_re["Date"].str.slice(40, 47, 1)
+df_re["Date"] = pd.to_datetime(df_re["Date"], format="%Y-%m-%d")
+
+df_tc = pd.melt(df_tc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="technology")
+df_tc["Date"] = df_tc["Date"].str.slice(39, 46, 1)
+df_tc["Date"] = pd.to_datetime(df_tc["Date"], format="%Y-%m-%d")
+
+df_ut = pd.melt(df_ut, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="utilities")
+df_ut["Date"] = df_ut["Date"].str.slice(38, 45, 1)
+df_ut["Date"] = pd.to_datetime(df_ut["Date"], format="%Y-%m-%d")
+
+industry_controls = [df_ut, df_in, df_bm, df_cc, df_re, df_tc, df_hc, df_cd, df_cs, df_fs, df_en]
+df_ind = reduce(lambda left, right: pd.merge(left, right, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="inner"), industry_controls)
+
 
 ################################
 # Investment Style Exposure
@@ -143,13 +193,6 @@ df_small_core["Date"] = pd.to_datetime(df_small_core["Date"], format="%Y-%m-%d")
 
 inv_style_exp = [df_growth, df_value, df_large, df_mid, df_small, df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value, df_large_core, df_small_core, df_mid_core]
 df_fixed = reduce(lambda left, right: pd.merge(left, right, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="inner"), inv_style_exp)
-df_fixed.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_fixed_test_bef.csv")
-
-# fill nan values with most actual value
-df_fixed = df_fixed.groupby("Name", "Fund Legal Name", "FundId", "SecId")
-df_fixed = df_fixed["growth"].fillna(method="ffill")
-
-df_fixed.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_fixed_test_aft.csv")
 
 
 ################################
@@ -218,21 +261,6 @@ df_return_monthly = df_return_monthly.drop(columns=["monthly_return", "monthly_r
 
 
 ################################
-# Index Fund Check
-################################
-
-# index fund indicator
-df_index_fund = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Index Fund"]].copy()
-df_index_fund["name_check"] = df_index_fund["Name"].str.contains("Index", na=False)
-
-for f in range(0, len(df_index_fund)):
-    if df_index_fund.loc[f, "name_check"] == True or df_index_fund.loc[f, "Index Fund"] == "Yes":
-        df_index_fund.loc[f, "index_indicator"] = 1
-    else:
-        df_index_fund.loc[f, "index_indicator"] = 0
-
-
-################################
 # Fama and French 5 Factor Europe Returns
 ################################
 
@@ -273,3 +301,175 @@ df_eff_weekly["HML"] = df_eff_weekly["HML"].mul(100)
 df_eff_weekly["RMW"] = df_eff_weekly["RMW"].mul(100)
 df_eff_weekly["CMA"] = df_eff_weekly["CMA"].mul(100)
 df_eff_weekly["RF"] = df_eff_weekly["RF"].mul(100)
+
+
+################################
+# Fund Annual Expenses
+################################
+
+df_exp = pd.melt(df_exp, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="yearly_expense")
+df_exp["Date"] = df_exp["Date"].str.slice(36, 40, 1)
+df_exp["Date"] = pd.to_datetime(df_exp["Date"], format="%Y-%m-%d")
+df_exp["year"] = pd.to_datetime(df_exp["Date"]).dt.to_period("Y")
+
+# obtain weekly expense
+df_exp["weekly_expense"] = df_exp["yearly_expense"] / 52
+df_exp = df_exp.drop(columns=["Date", "yearly_expense"])
+df_exp = df_exp.groupby("ISIN")["weekly_expense"].fillna(method="ffill")
+
+df_exp.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_exp.csv")
+################################
+# Index Fund Check
+################################
+
+# index fund indicator
+df_index_fund = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Index Fund"]].copy()
+df_index_fund["name_check"] = df_index_fund["Name"].str.contains("Index", na=False)
+
+for f in range(0, len(df_index_fund)):
+    if df_index_fund.loc[f, "name_check"] == True or df_index_fund.loc[f, "Index Fund"] == "Yes":
+        df_index_fund.loc[f, "index_indicator"] = 1
+    else:
+        df_index_fund.loc[f, "index_indicator"] = 0
+
+df_index_fund = df_index_fund.drop(columns=["name_check", "Index Fund"])
+
+
+################################
+# Dividend
+################################
+
+df_div = pd.melt(df_div, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_div")
+df_div["Date"] = df_div["Date"].str.slice(17, 24, 1)
+df_div["Date"] = pd.to_datetime(df_div["Date"], format="%Y-%m-%d")
+
+# solution for nan values
+df_div["year"] = pd.to_datetime(df_div["Date"]).dt.to_period("Y")
+df_div["monthly_div"] = df_div["monthly_div"].replace(0, np.nan)
+df_div = df_div.dropna(axis=0, how="any", thresh=5)
+df_div = df_div.drop(columns=["Date"])
+df_div = df_div.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"]).agg({"monthly_div": "sum"}).reset_index()
+df_div = df_div.rename(columns={"monthly_div": "yearly_div"})
+df_div["weekly_div"] = df_div["yearly_div"] / 52
+df_div = df_div.drop(columns=["yearly_div"])
+
+
+################################
+# Firm Name
+################################
+
+df_firm_name = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Firm Name"]].copy()
+
+
+################################
+# Age
+################################
+
+# obtain age of fund taking 31.12.2020 as reference
+df_age = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Inception Date"]].copy()
+df_age["Inception Date"] = pd.to_datetime(df_age["Inception Date"], format= "%d.%m.%Y") # dtype
+df_age["d_end"] = date(2020, 12, 31)
+df_age["d_end"] = pd.to_datetime(df_age["d_end"], format="%Y-%m-%d") # dtype
+df_age["Age"] = df_age["d_end"] - df_age["Inception Date"] # calculation
+df_age["Age"] = df_age["Age"] / np.timedelta64(1, "Y") # convert to years
+df_age = df_age.drop(columns=["Inception Date", "d_end"])
+
+
+################################
+# Other static controls
+################################
+
+df_static_control = df_static.drop(columns=["Global Broad Category Group", "Institutional", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Index Fund", "Inception Date", "Valuation Country"])
+
+
+################################
+# Star Rating
+################################
+
+# star rating
+df_star = pd.melt(df_star, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_star")
+df_star["Date"] = df_star["Date"].str.slice(15, 22, 1)
+df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
+
+
+##############################################
+# Sustainability Measures
+##############################################
+
+# change column headers to date format
+df_sus = pd.melt(df_sus, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_sus")
+df_sus["Date"] = df_sus["Date"].str.slice(35, 42, 1)
+df_sus["Date"] = pd.to_datetime(df_sus["Date"], format="%Y-%m-%d")
+
+df_env = pd.melt(df_env, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_env")
+df_env["Date"] = df_env["Date"].str.slice(35, 42, 1)
+df_env["Date"] = pd.to_datetime(df_env["Date"], format="%Y-%m-%d")
+
+df_soc = pd.melt(df_soc, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_soc")
+df_soc["Date"] = df_soc["Date"].str.slice(28, 35, 1)
+df_soc["Date"] = pd.to_datetime(df_soc["Date"], format="%Y-%m-%d")
+
+df_gov = pd.melt(df_gov, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_gov")
+df_gov["Date"] = df_gov["Date"].str.slice(32, 39, 1)
+df_gov["Date"] = pd.to_datetime(df_gov["Date"], format="%Y-%m-%d")
+
+df_car = pd.melt(df_car, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_car")
+df_car["Date"] = df_car["Date"].str.slice(18, 25, 1)
+df_car["Date"] = pd.to_datetime(df_car["Date"], format="%Y-%m-%d")
+
+# translate string into numeric scores (5 = High, ... , 1 = Low)
+for i in range(0, len(df_sus)):
+    if df_sus.loc[i, "monthly_sus"] == "High":
+        df_sus.loc[i, "monthly_sus"] = 5
+    elif df_sus.loc[i, "monthly_sus"] == "Above Average":
+        df_sus.loc[i, "monthly_sus"] = 4
+    elif df_sus.loc[i, "monthly_sus"] == "Average":
+        df_sus.loc[i, "monthly_sus"] = 3
+    elif df_sus.loc[i, "monthly_sus"] == "Below Average":
+        df_sus.loc[i, "monthly_sus"] = 2
+    elif df_sus.loc[i, "monthly_sus"] == "Low":
+        df_sus.loc[i, "monthly_sus"] = 1
+    else:
+        df_sus.loc[i, "monthly_sus"] = df_sus.loc[i, "monthly_sus"]
+df_sus["monthly_sus"] = pd.to_numeric(df_sus["monthly_sus"])
+
+
+##############################################
+# Merge
+##############################################
+
+df_sus["Date"] = pd.to_datetime(df_sus["Date"]).dt.to_period("M")
+df_env["Date"] = pd.to_datetime(df_env["Date"]).dt.to_period("M")
+df_soc["Date"] = pd.to_datetime(df_soc["Date"]).dt.to_period("M")
+df_gov["Date"] = pd.to_datetime(df_gov["Date"]).dt.to_period("M")
+df_car["Date"] = pd.to_datetime(df_car["Date"]).dt.to_period("M")
+df_star["Date"] = pd.to_datetime(df_star["Date"]).dt.to_period("M")
+df_fixed["Date"] = pd.to_datetime(df_fixed["Date"]).dt.to_period("M")
+df_ind["Date"] = pd.to_datetime(df_ind["Date"]).dt.to_period("M")
+
+df_flow_weekly["Date"] = df_flow_weekly["Date"].astype("datetime64[ns]")
+df_return_weekly["Date"] = df_return_weekly["Date"].astype("datetime64[ns]")
+df_tna_weekly["Date"] = df_tna_weekly["Date"].astype("datetime64[ns]")
+
+all_weekly_dataframes = [df_flow_weekly, df_return_weekly, df_tna_weekly]
+all_monthly_dataframes = [df_sus, df_env, df_soc, df_gov, df_car, df_star, df_fixed, df_ind, df_return_monthly]
+all_fixed_dataframes = [df_index_fund, df_firm_name, df_age, df_static_control]
+
+df_weekly_final = reduce(lambda left, right: pd.merge(left, right, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="outer"), all_weekly_dataframes)
+df_monthly_final = reduce(lambda left, right: pd.merge(left, right, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="outer"), all_monthly_dataframes)
+df_fixed_final = reduce(lambda left, right: pd.merge(left, right, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="outer"), all_fixed_dataframes)
+
+# merge all
+df_weekly_final["month_year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("M")
+df_monthly_final = df_monthly_final.rename(columns={"Date": "month_year"})
+df_weekly_final["year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("Y")
+
+df_weekly_final = pd.merge(df_weekly_final, df_div, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
+df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "month_year"], how="left")
+df_final = pd.merge(df_final, df_fixed_final, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
+df_final = pd.merge(df_final, df_eff_weekly, on=["Date"], how="left")
+
+# store all final dataframes in csv files
+df_weekly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_weekly_final.csv")
+df_monthly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_monthly_final.csv")
+df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_final.csv")

@@ -120,9 +120,6 @@ df_flow_weekly = df_flow_weekly.rename(columns={"daily_flow": "weekly_flow"})
 df_return = pd.melt(df_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="daily_return")
 df_return["Date"] = df_return["Date"].str.slice(20, 30, 1)
 df_return["Date"] = pd.to_datetime(df_return["Date"], format="%Y-%m-%d")
-df_return.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_before.csv")
-df_return = df_return.groupby(["ISIN"]).filter(lambda x: x["daily_return"].ne(np.nan).all())
-df_return.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_after.csv")
 
 df_m_return = pd.melt(df_m_return, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="monthly_return")
 df_m_return["Date"] = df_m_return["Date"].str.slice(15, 22, 1)
@@ -136,6 +133,24 @@ df_return_weekly["daily_return"] = df_return_weekly["daily_return"].sub(1)
 #df_return_weekly["daily_return"] = df_return_weekly["daily_return"].mul(100)
 df_return_weekly = df_return_weekly.rename(columns={"daily_return": "weekly_return"})
 
+# setting later timeframe for deleting nan rows now
+df_return_trimmed = df_return_weekly
+df_return_trimmed["Date"] = df_return_trimmed["Date"].astype("datetime64[ns]")
+start = pd.to_datetime("2019-01-01", format="%Y-%m-%d")
+end = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
+df_return_trimmed = df_return_trimmed[df_return_trimmed["Date"].between(start, end)].reset_index()
+df_return_trimmed = df_return_trimmed.drop(columns=["index"])
+
+df_m_return_trimmed = df_m_return
+df_m_return_trimmed["Date"] = df_m_return_trimmed["Date"].astype("datetime64[ns]")
+start1 = pd.to_datetime("2018-01-01", format="%Y-%m-%d")
+end1 = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
+df_m_return_trimmed = df_m_return_trimmed[df_m_return_trimmed["Date"].between(start1, end1)].reset_index()
+df_m_return_trimmed = df_m_return_trimmed.drop(columns=["index"])
+
+# delete nan columns
+df_return_trimmed = df_return_trimmed.groupby(["ISIN"]).filter(lambda x: x["weekly_return"].ne(0).all())
+df_m_return_trimmed = df_m_return_trimmed.groupby(["ISIN"]).filter(lambda x: x["monthly_return"].ne(np.nan).all())
 
 
 ##############################################
@@ -229,9 +244,17 @@ df_tna_weekly = df_merged[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN",
 ##############################################
 
 # weekly returns
-group1 = df_tna_weekly.groupby("ISIN")
-df_tna_weekly["weekly_tna_lag1"] = group1["weekly_tna"].shift(1) # compute lagged weekly tna as weight for weekly return
-df_return_weekly_fundlevel = pd.merge(df_return_weekly, df_tna_weekly, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+df_tna_trimmed = df_tna_weekly
+group1 = df_tna_trimmed.groupby("ISIN")
+df_tna_trimmed["weekly_tna_lag1"] = group1["weekly_tna"].shift(1) # compute lagged weekly tna as weight for weekly return
+
+df_tna_trimmed["Date"] = df_tna_trimmed["Date"].astype("datetime64[ns]")
+start2 = pd.to_datetime("2018-01-01", format="%Y-%m-%d")
+end2 = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
+df_tna_trimmed = df_tna_trimmed[df_tna_trimmed["Date"].between(start2, end2)].reset_index()
+df_tna_trimmed = df_tna_trimmed.drop(columns=["index"]) # setting time frame matched to return data
+
+df_return_weekly_fundlevel = pd.merge(df_return_trimmed, df_tna_trimmed, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
 df_return_weekly_fundlevel = pd.merge(df_return_weekly_fundlevel, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_return_weekly_fundlevel["return_tna"] = df_return_weekly_fundlevel["weekly_return"] * df_return_weekly_fundlevel["weekly_tna_lag1"]
@@ -241,7 +264,14 @@ df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlev
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.drop(columns=["weekly_tna_lag1", "return_tna"])
 
 # monthly returns
-df_m_return_fundlevel = pd.merge(df_m_return, df_tna, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+df_tna_trimmed2 = df_tna
+df_tna_trimmed2["Date"] = df_tna_trimmed2["Date"].astype("datetime64[ns]")
+start3 = pd.to_datetime("2019-01-01", format="%Y-%m-%d")
+end3 = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
+df_tna_trimmed2 = df_tna_trimmed2[df_tna_trimmed2["Date"].between(start3, end3)].reset_index()
+df_tna_trimmed2 = df_tna_trimmed2.drop(columns=["index"]) # setting time frame matched to return data
+
+df_m_return_fundlevel = pd.merge(df_m_return_trimmed, df_tna_trimmed2, on=["Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
 df_m_return_fundlevel = pd.merge(df_m_return_fundlevel, df_static, on=["Fund Legal Name", "FundId", "SecId", "ISIN"], how="left") # obtain indicator for whether share class "primarily aimed at instis or not"
 df_m_return_fundlevel = df_m_return_fundlevel.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area", "Inception Date"])
 df_m_return_fundlevel["monthly_return"] = df_m_return_fundlevel["monthly_return"].div(100)
@@ -264,6 +294,9 @@ df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.drop(columns=["Global Broad 
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).sum().reset_index()
 
 df_return_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv")
+df_return_weekly.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly.csv")
 df_tna_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv")
+df_tna.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_monthly.csv")
 df_flow_weekly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv")
 df_m_return_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_m_return_fundlevel.csv")
+df_m_return.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_m_return.csv")

@@ -22,8 +22,11 @@ import math
 
 df_flow_weekly_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_flow_weekly_fundlevel.csv", sep= ",")
 df_return_weekly_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly_fundlevel.csv", sep= ",")
+df_return_weekly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_return_weekly.csv", sep= ",")
 df_tna_weekly_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_weekly_fundlevel.csv", sep= ",")
+df_tna_monthly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_tna_monthly.csv", sep= ",")
 df_m_return_fundlevel = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_m_return_fundlevel.csv", sep= ",")
+df_m_return = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes\\df_m_return.csv", sep= ",")
 df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\net_exp.csv", sep= ";")
 df_tur = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\turnover.csv", sep= ";")
 df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\sus_rating_abs.csv", sep= ";")
@@ -76,6 +79,7 @@ df_ut = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2
 df_flow_weekly_fundlevel = df_flow_weekly_fundlevel.loc[:, ~df_flow_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_return_weekly_fundlevel = df_return_weekly_fundlevel.loc[:, ~df_return_weekly_fundlevel.columns.str.contains("^Unnamed")]
 df_tna_weekly_fundlevel = df_tna_weekly_fundlevel.loc[:, ~df_tna_weekly_fundlevel.columns.str.contains("^Unnamed")]
+df_return_weekly = df_return_weekly.loc[:, ~df_return_weekly.columns.str.contains("^Unnamed")]
 
 
 ##############################################
@@ -685,38 +689,80 @@ df_star_fundlevel = df_star_fundlevel.replace(6, np.nan)
 # Past Returns
 ################################
 
-# prior month return
-df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].add(1)
-df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("datetime64[ns]")
-df_return_monthly_fundlevel = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Institutional"]).resample("M", on="Date").mean().reset_index()
-df_return_monthly_fundlevel = df_return_monthly_fundlevel.rename(columns={"weekly_return_fundlevel": "trans_monthly_return_fundlevel"})
+# calculate prior month return using weekly return
+df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].add(1)
+df_return_weekly["Date"] = df_return_weekly["Date"].astype("datetime64[ns]")
+df_return_monthly = df_return_weekly.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("M", on="Date").prod().reset_index()
+df_return_monthly = df_return_monthly.rename(columns={"weekly_return": "calc_monthly_return"})
 
-group1 = df_return_monthly_fundlevel.groupby(["FundId", "Institutional"])
-df_return_monthly_fundlevel["prior_month_return"] = group1["trans_monthly_return_fundlevel"].shift(1)
+group1 = df_return_monthly.groupby(["ISIN"])
+df_return_monthly["calc_prior_month_return"] = group1["calc_monthly_return"].shift(1)
 
-# rolling 12 months return
-df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel.groupby(["FundId", "Institutional"])["trans_monthly_return_fundlevel"].transform(lambda x: x.rolling(12).mean())
-df_m_return_fundlevel["Date"] = df_m_return_fundlevel["Date"].astype("datetime64[ns]")
-df_m_return_fundlevel["month_year"] = pd.to_datetime(df_m_return_fundlevel["Date"]).dt.to_period("M")
-df_return_monthly_fundlevel["month_year"] = pd.to_datetime(df_return_monthly_fundlevel["Date"]).dt.to_period("M")
-df_return_monthly_fundlevel = pd.merge(df_return_monthly_fundlevel, df_m_return_fundlevel, on=["Fund Legal Name", "FundId", "Institutional", "month_year"])
-df_return_monthly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_monthly_fundlevel_test.csv")
+#df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].add(1)
+#df_return_weekly_fundlevel["Date"] = df_return_weekly_fundlevel["Date"].astype("datetime64[ns]")
+#df_return_monthly_fundlevel = df_return_weekly_fundlevel.groupby(["Fund Legal Name", "FundId", "Institutional"]).resample("M", on="Date").mean().reset_index()
+#df_return_monthly_fundlevel = df_return_monthly_fundlevel.rename(columns={"weekly_return_fundlevel": "trans_monthly_return_fundlevel"})
+
+#group1 = df_return_monthly_fundlevel.groupby(["FundId", "Institutional"])
+#df_return_monthly_fundlevel["prior_month_return"] = group1["trans_monthly_return_fundlevel"].shift(1)
+
+# calculate rolling 12 months return
+df_return_monthly["calc_rolling_12_months_return"] = df_return_monthly.groupby(["ISIN"])["calc_monthly_return"].transform(lambda x: x.cumprod(12))
+
+# obtain prior month's return from monthly return
+group = df_m_return.groupby(["ISIN"])
+df_m_return["prior_month_return"] = group["monthly_return"].shift(1)
+
+# obtain 12 months rolling return from monthly return
+df_m_return["monthly_return"] = df_m_return["monthly_return"].div(100)
+df_m_return["monthly_return"] = df_m_return["monthly_return"].add(1)
+df_m_return["rolling_12_months_return"] = df_m_return.groupby(["ISIN"])["monthly_return"].transform(lambda x: x.rolling(12).prod())
+
+# return controls from share class to fundlevel
+df_m_return["Date"] = df_m_return["Date"].astype("datetime64[ns]")
+start = pd.to_datetime("2019-01-01", format="%Y-%m-%d")
+end = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
+df_m_return = df_m_return[df_m_return["Date"].between(start, end)].reset_index()
+df_m_return = df_m_return.drop(columns=["index"]) # setting time frame matched to return data
+
+df_m_return = df_m_return.groupby(["ISIN"]).filter(lambda x: x["prior_month_return"].ne(np.nan).all())
+df_m_return = df_m_return.groupby(["ISIN"]).filter(lambda x: x["rolling_12_months_return"].ne(np.nan).all())
+
+df_m_return = pd.merge(df_m_return, df_static, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
+df_m_return = df_m_return.drop(columns=["Global Broad Category Group", "Global Category", "Investment Area",
+                                    "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Inception Date", "Index Fund", "Valuation Country"])
+df_m_return_fundlevel = df_m_return.groupby(["Fund Legal Name", "FundId", "Date", "Institutional"]).mean().reset_index()
+
+# transfrom all formats to %
+df_m_return["monthly_return"] = df_m_return["monthly_return"].sub(1)
+df_m_return["monthly_return"] = df_m_return["monthly_return"].mul(100)
+df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].mul(100)
+df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].mul(100)
+
+df_return_monthly.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_monthly_fundlevel_test.csv")
+df_m_return_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_m_return_fundlevel_test.csv")
+
+#df_m_return["Date"] = df_m_return["Date"].astype("datetime64[ns]")
+#df_m_return["month_year"] = pd.to_datetime(df_m_return["Date"]).dt.to_period("M")
+#df_return_monthly_fundlevel["month_year"] = pd.to_datetime(df_return_monthly_fundlevel["Date"]).dt.to_period("M")
+#df_return_monthly_fundlevel = pd.merge(df_return_monthly_fundlevel, df_m_return_fundlevel, on=["Fund Legal Name", "FundId", "Institutional", "month_year"])
+#df_return_monthly_fundlevel.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\df_return_monthly_fundlevel_test.csv")
 
 # back to decimal format
-df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel["rolling_12_months_return"].sub(1)
-df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].sub(1)
-df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].sub(1)
+#df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel["rolling_12_months_return"].sub(1)
+#df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].sub(1)
+#df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].sub(1)
 
 # convert to % values
-df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel["rolling_12_months_return"].mul(100)
-df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].mul(100)
-df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].mul(100)
+#df_return_monthly_fundlevel["rolling_12_months_return"] = df_return_monthly_fundlevel["rolling_12_months_return"].mul(100)
+#df_return_monthly_fundlevel["prior_month_return"] = df_return_monthly_fundlevel["prior_month_return"].mul(100)
+#df_return_weekly_fundlevel["weekly_return_fundlevel"] = df_return_weekly_fundlevel["weekly_return_fundlevel"].mul(100)
 
 # change date format for later merging
 #df_return_monthly_fundlevel["month_year"] = pd.to_datetime(df_return_monthly_fundlevel["Date"]).dt.to_period("M")
-df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["Date"])
-df_return_monthly_fundlevel["Date"] = df_return_monthly_fundlevel["month_year"].astype("datetime64[ns]")
-df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["month_year"])
+#df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["Date"])
+#df_return_monthly_fundlevel["Date"] = df_return_monthly_fundlevel["month_year"].astype("datetime64[ns]")
+#df_return_monthly_fundlevel = df_return_monthly_fundlevel.drop(columns=["month_year"])
 
 
 ##############################################
