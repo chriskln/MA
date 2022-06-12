@@ -37,9 +37,6 @@ df_final_trimmed = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Th
 # delete unnamed columns
 df_final_trimmed = df_final_trimmed.loc[:, ~df_final_trimmed.columns.str.contains("^Unnamed")]
 
-# execute necessary renaming
-df_final_trimmed = df_final_trimmed.rename(columns={"Mkt-RF": "Mkt_RF"})
-
 ##############################################
 # Dummy Variables
 ##############################################

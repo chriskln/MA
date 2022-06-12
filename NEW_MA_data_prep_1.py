@@ -42,6 +42,10 @@ df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_
 #print(df_exp.head)
 #print(df_star.head)
 
+# number of different ISIN's in dataset
+print(df_static["ISIN"].nunique())
+# 5317
+
 # number of different funds in dataset
 #print(df_static["FundId"].nunique())
 # 1119

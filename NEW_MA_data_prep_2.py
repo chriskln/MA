@@ -515,3 +515,7 @@ df_final = pd.merge(df_final, df_eff_weekly, on=["Date"], how="left")
 df_weekly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_weekly_final.csv")
 df_monthly_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_monthly_final.csv")
 df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_final.csv")
+
+# number of ISIN's in dataset before overall trimming
+print(df_final["ISIN"].nunique())
+# 5317
