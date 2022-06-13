@@ -99,23 +99,29 @@ df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN
 #df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["small_value"].ne(0).all())
 #df_final["small_core"] = df_final["small_core"].fillna(0)
 #df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["small_core"].ne(0).all())
-#df_final["monthly_sus"] = df_final["monthly_sus"].fillna(0)
+df_final["monthly_sus"] = df_final["monthly_sus"].fillna(0)
 df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_sus"].ne(0).all())
 df_final["monthly_star"] = df_final["monthly_star"].fillna(0)
 df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_star"].ne(0).all())
 df_final["monthly_env"] = df_final["monthly_env"].fillna(0)
-#df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_env"].ne(0).all())
-#df_final["monthly_soc"] = df_final["monthly_soc"].fillna(0)
-#df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_soc"].ne(0).all())
-#df_final["monthly_gov"] = df_final["monthly_gov"].fillna(0)
-#df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_gov"].ne(0).all())
-#df_final["monthly_car"] = df_final["monthly_car"].fillna(0)
-#df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_car"].ne(0).all())
+df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_env"].ne(0).all())
+df_final["monthly_soc"] = df_final["monthly_soc"].fillna(0)
+df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_soc"].ne(0).all())
+df_final["monthly_gov"] = df_final["monthly_gov"].fillna(0)
+df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_gov"].ne(0).all())
+df_final["monthly_car"] = df_final["monthly_car"].fillna(0)
+df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["monthly_car"].ne(0).all())
+df_final["weekly_expense"] = df_final["weekly_expense"].fillna(0)
+df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: x["weekly_expense"].ne(0).all())
+
 
 # number of ISIN's in dataset
 print(df_final["ISIN"].nunique())
 # 2288
-# 1721 (after deleting ISIN's with no flow, sus rating and star rating)
+# 2018 (after deleting ISIN's with no flow, sus rating and star rating)
+# 1963 (after deleting ISIN's with no flow, sus rating, star rating and risk scores)
+# 1888 (after deleting ISIN's with no flow, sus rating, star rating, risk scores and expense ratio)
+# 161 (after deleting nan's in flow, sus, star, style)
 
 
 ################################
@@ -128,9 +134,9 @@ df_final["weekly_expense"] = winsorize(df_final["weekly_expense"], limits=(0.01,
 # turnover
 
 # Investment Style Exposures
-df_final["large_core"] = winsorize(df_final["growth"], limits=(0.01, 0.01))
-df_final["mid_core"] = winsorize(df_final["value"], limits=(0.01, 0.01))
-df_final["small_core"] = winsorize(df_final["large_cap"], limits=(0.01, 0.01))
+df_final["large_core"] = winsorize(df_final["large_core"], limits=(0.01, 0.01))
+df_final["mid_core"] = winsorize(df_final["mid_core"], limits=(0.01, 0.01))
+df_final["small_core"] = winsorize(df_final["small_core"], limits=(0.01, 0.01))
 df_final["large_growth"] = winsorize(df_final["large_growth"], limits=(0.01, 0.01))
 df_final["large_value"] = winsorize(df_final["large_value"], limits=(0.01, 0.01))
 df_final["mid_growth"] = winsorize(df_final["mid_growth"], limits=(0.01, 0.01))
@@ -644,7 +650,7 @@ summary_total = pd.merge(f, t_tests, right_index=True, left_index=True)
 
 # rename indexes
 summary_total = summary_total.rename(index={0: "Weekly Net Flow (%)", 1: "Weekly Normalized Net Flow",
-                        2: "Total Net Assets ($ mio.)", 3: "Weekly Return (%)", 4: "Prior Month's Return (%)",
+                        2: "Total Net Assets (€ mio.)", 3: "Weekly Return (%)", 4: "Prior Month's Return (%)",
                         5: "Past 12 Months Return (%)", 6: "Age", 7: "Star Rating", 8: "Environmental Risk Score",
                         9: "Social Risk Score", 10: "Governance Risk Score", 11: "Low Carbon Designation"})
 

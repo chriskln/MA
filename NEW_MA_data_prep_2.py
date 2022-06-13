@@ -24,50 +24,43 @@ df_flow_weekly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thes
 df_return_weekly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_return_weekly.csv", sep= ",")
 df_tna_weekly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_tna_weekly.csv", sep= ",")
 df_m_return = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_m_return.csv", sep= ",")
-df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\net_exp.csv", sep= ";")
-df_tur = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\turnover.csv", sep= ";")
-df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\sus_rating_abs.csv", sep= ";")
-df_env = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_env_score.csv", sep= ";")
-df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_soc_score.csv", sep= ";")
-df_gov = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\por_gov_score.csv", sep= ";")
-df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\car_risk_score.csv", sep= ";")
-df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\static_var.csv", sep= ";")
-df_static_add = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\controls_add.csv", sep= ";")
-df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\star_rating.csv", sep= ";")
-df_div = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dividend.csv", sep= ";")
-df_fix = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects.csv", sep= ";")
-df_size = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\daily_fund_size.csv", sep= ";")
-df_eff = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\Europe_5_Factors_Daily.csv", sep= ",")
+df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\expense_ratio.csv", sep= ";")
+df_tur = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\turnover.csv", sep= ";")
+df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\sustainability_rating.csv", sep= ";")
+df_env = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\environmental_risk_score.csv", sep= ";")
+df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\social_risk_score.csv", sep= ";")
+df_gov = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\governance_risk_score.csv", sep= ";")
+df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\carbon_risk_score.csv", sep= ";")
+df_static = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\static_var.csv", sep= ";")
+df_static_add = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\controls_add.csv", sep= ";")
+df_star = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\star_rating.csv", sep= ";")
+df_div = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\dividend.csv", sep= ";")
+df_eff = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\Europe_5_Factors_Daily.csv", sep= ",")
 df_static = pd.merge(df_static, df_static_add, on=(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]), how="left")
 
 # investment style exposures
-df_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\growth.csv", sep= ";")
-df_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\value.csv", sep= ";")
-df_large = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap.csv", sep= ";")
-df_mid = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap.csv", sep= ";")
-df_small = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap.csv", sep= ";")
-df_large_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap_growth.csv", sep= ";")
-df_large_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap_value.csv", sep= ";")
-df_large_core = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\largecap_core.csv", sep= ";")
-df_mid_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap_growth.csv", sep= ";")
-df_mid_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap_value.csv", sep= ";")
-df_mid_core = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\midcap_core.csv", sep= ";")
-df_small_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap_growth.csv", sep= ";")
-df_small_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap_value.csv", sep= ";")
-df_small_core = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\stylefixedeffects\\smallcap_core.csv", sep= ";")
+df_large_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\large_growth.csv", sep= ";")
+df_large_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\large_value.csv", sep= ";")
+df_large_core = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\large_core.csv", sep= ";")
+df_mid_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\mid_growth.csv", sep= ";")
+df_mid_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\mid_value.csv", sep= ";")
+df_mid_core = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\mid_core.csv", sep= ";")
+df_small_growth = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\small_growth.csv", sep= ";")
+df_small_value = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\small_value.csv", sep= ";")
+df_small_core = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\small_core.csv", sep= ";")
 
 # industry controls
-df_bm = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\basicmaterials.csv", sep= ";")
-df_cs = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\communicationservices.csv", sep= ";")
-df_cc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\consumercyclical.csv", sep= ";")
-df_en = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\energy.csv", sep= ";")
-df_cd = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\consumerdefensive.csv", sep= ";")
-df_fs = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\financialservices.csv", sep= ";")
-df_hc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\healthcare.csv", sep= ";")
-df_in = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\industrials.csv", sep= ";")
-df_re = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\realestate.csv", sep= ";")
-df_tc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\technology.csv", sep= ";")
-df_ut = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\industry controls\\utilities.csv", sep= ";")
+df_bm = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\basicmaterials.csv", sep= ";")
+df_cs = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\communicationservices.csv", sep= ";")
+df_cc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\consumercyclical.csv", sep= ";")
+df_en = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\energy.csv", sep= ";")
+df_cd = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\consumerdefensive.csv", sep= ";")
+df_fs = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\financialservices.csv", sep= ";")
+df_hc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\healthcare.csv", sep= ";")
+df_in = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\industrials.csv", sep= ";")
+df_re = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\realestate.csv", sep= ";")
+df_tc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\technology.csv", sep= ";")
+df_ut = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\utilities.csv", sep= ";")
 
 # delete unnamed columns
 df_flow_weekly = df_flow_weekly.loc[:, ~df_flow_weekly.columns.str.contains("^Unnamed")]
@@ -143,29 +136,23 @@ df_ind["real_estate"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "Se
 df_ind["technology"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["technology"].transform(lambda x: x.ffill())
 df_ind["utilities"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["utilities"].transform(lambda x: x.ffill())
 
+# backward fill future values into past
+df_ind["basic_materials"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["basic_materials"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["communication_services"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["communication_services"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["consumer_cyclical"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["consumer_cyclical"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["energy"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["energy"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["consumer_defensive"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["consumer_defensive"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["financial_services"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["financial_services"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["healthcare"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["healthcare"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["industrials"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["industrials"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["real_estate"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["real_estate"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["technology"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["technology"].transform(lambda x: x.fillna(method="bfill"))
+df_ind["utilities"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["utilities"].transform(lambda x: x.fillna(method="bfill"))
+
+
 ################################
 # Investment Style Exposure
 ################################
-
-df_growth = pd.melt(df_growth, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="growth")
-df_growth["Date"] = df_growth["Date"].str.slice(29, 36, 1)
-df_growth["Date"] = pd.to_datetime(df_growth["Date"], format="%Y-%m-%d")
-
-df_value = pd.melt(df_value, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="value")
-df_value["Date"] = df_value["Date"].str.slice(28, 35, 1)
-df_value["Date"] = pd.to_datetime(df_value["Date"], format="%Y-%m-%d")
-
-df_large = pd.melt(df_large, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="large_cap")
-df_large["Date"] = df_large["Date"].str.slice(32, 39, 1)
-df_large["Date"] = pd.to_datetime(df_large["Date"], format="%Y-%m-%d")
-
-df_mid = pd.melt(df_mid, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="mid_cap")
-df_mid["Date"] = df_mid["Date"].str.slice(30, 37, 1)
-df_mid["Date"] = pd.to_datetime(df_mid["Date"], format="%Y-%m-%d")
-
-df_small = pd.melt(df_small, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="small_cap")
-df_small["Date"] = df_small["Date"].str.slice(32, 39, 1)
-df_small["Date"] = pd.to_datetime(df_small["Date"], format="%Y-%m-%d")
 
 df_large_growth = pd.melt(df_large_growth, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="large_growth")
 df_large_growth["Date"] = df_large_growth["Date"].str.slice(35, 42, 1)
@@ -203,15 +190,10 @@ df_small_core = pd.melt(df_small_core, id_vars=["Name", "Fund Legal Name", "Fund
 df_small_core["Date"] = df_small_core["Date"].str.slice(33, 40, 1)
 df_small_core["Date"] = pd.to_datetime(df_small_core["Date"], format="%Y-%m-%d")
 
-inv_style_exp = [df_growth, df_value, df_large, df_mid, df_small, df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value, df_large_core, df_small_core, df_mid_core]
+inv_style_exp = [df_large_growth, df_large_value, df_mid_growth, df_mid_value, df_small_growth, df_small_value, df_large_core, df_small_core, df_mid_core]
 df_fixed = reduce(lambda left, right: pd.merge(left, right, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="inner"), inv_style_exp)
 
 # forward fill values from the past into future
-df_fixed["growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["growth"].transform(lambda x: x.ffill())
-df_fixed["value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["value"].transform(lambda x: x.ffill())
-df_fixed["large_cap"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_cap"].transform(lambda x: x.ffill())
-df_fixed["mid_cap"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_cap"].transform(lambda x: x.ffill())
-df_fixed["small_cap"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_cap"].transform(lambda x: x.ffill())
 df_fixed["large_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_growth"].transform(lambda x: x.ffill())
 df_fixed["large_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_value"].transform(lambda x: x.ffill())
 df_fixed["large_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_core"].transform(lambda x: x.ffill())
@@ -221,6 +203,17 @@ df_fixed["mid_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "S
 df_fixed["small_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_growth"].transform(lambda x: x.ffill())
 df_fixed["small_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_value"].transform(lambda x: x.ffill())
 df_fixed["small_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_core"].transform(lambda x: x.ffill())
+
+# backward fill future values into past
+df_fixed["large_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_growth"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["large_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_value"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["large_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_core"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["mid_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_growth"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["mid_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_value"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["mid_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_core"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["small_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_growth"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["small_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_value"].transform(lambda x: x.fillna(method="bfill"))
+df_fixed["small_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_core"].transform(lambda x: x.fillna(method="bfill"))
 
 
 ################################
@@ -332,6 +325,27 @@ df_eff_weekly["RF"] = df_eff_weekly["RF"].mul(100)
 
 
 ################################
+# Turnover ratio
+################################
+
+df_tur = pd.melt(df_tur, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="yearly_turnover")
+df_tur["Date"] = df_tur["Date"].str.slice(21, 25, 1)
+df_tur["Date"] = pd.to_datetime(df_tur["Date"], format="%Y-%m-%d")
+df_tur["year"] = pd.to_datetime(df_tur["Date"]).dt.to_period("Y")
+
+# obtain average weekly turnover
+#df_tur["yearly_turnover"] = df_tur["yearly_turnover"].astype("float64")
+df_tur["weekly_turnover"] = df_tur["yearly_turnover"] / 52
+df_tur = df_tur.drop(columns=["Date", "yearly_turnover"])
+
+# forward fill values from the past into future
+df_tur["weekly_turnover"] = df_tur.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_turnover"].transform(lambda x: x.ffill())
+
+# backward fill future values into past
+#df_tur["weekly_turnover"] = df_tur.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_turnover"].transform(lambda x: x.fillna(method="bfill"))
+
+
+################################
 # Fund Annual Expenses
 ################################
 
@@ -346,6 +360,9 @@ df_exp = df_exp.drop(columns=["Date", "yearly_expense"])
 
 # forward fill values from the past into future
 df_exp["weekly_expense"] = df_exp.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_expense"].transform(lambda x: x.ffill())
+
+# backward fill future values into past
+df_exp["weekly_expense"] = df_exp.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_expense"].transform(lambda x: x.fillna(method="bfill"))
 
 
 ################################
@@ -409,7 +426,7 @@ df_age = df_age.drop(columns=["Inception Date", "d_end"])
 # Other static controls
 ################################
 
-df_static_control = df_static.drop(columns=["Global Broad Category Group", "Institutional", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Index Fund", "Inception Date", "Valuation Country"])
+df_static_control = df_static.drop(columns=["Global Broad Category Group", "Country Available for Sale", "Manager History", "Manager Name", "Firm Name", "Index Fund", "Inception Date", "Valuation Country"])
 
 
 ################################
@@ -423,6 +440,9 @@ df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
 
 # forward fill values from the past into future
 df_star["monthly_star"] = df_star.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_star"].transform(lambda x: x.ffill())
+
+# backward fill future values into the past
+df_star["monthly_star"] = df_star.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_star"].transform(lambda x: x.fillna(method="bfill"))
 
 
 ##############################################
@@ -473,6 +493,13 @@ df_env["monthly_env"] = df_env.groupby(["Name", "Fund Legal Name", "FundId", "Se
 df_soc["monthly_soc"] = df_soc.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_soc"].transform(lambda x: x.ffill())
 df_gov["monthly_gov"] = df_gov.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_gov"].transform(lambda x: x.ffill())
 
+# backward fill future values into past
+df_sus["monthly_sus"] = df_sus.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_sus"].transform(lambda x: x.fillna(method="bfill"))
+df_car["monthly_car"] = df_car.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_car"].transform(lambda x: x.fillna(method="bfill"))
+df_env["monthly_env"] = df_env.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_env"].transform(lambda x: x.fillna(method="bfill"))
+df_soc["monthly_soc"] = df_soc.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_soc"].transform(lambda x: x.fillna(method="bfill"))
+df_gov["monthly_gov"] = df_gov.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_gov"].transform(lambda x: x.fillna(method="bfill"))
+
 
 
 ##############################################
@@ -507,6 +534,7 @@ df_weekly_final["year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("
 
 df_weekly_final = pd.merge(df_weekly_final, df_div, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
 df_weekly_final = pd.merge(df_weekly_final, df_exp, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
+df_weekly_final = pd.merge(df_weekly_final, df_tur, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
 df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "month_year"], how="left")
 df_final = pd.merge(df_final, df_fixed_final, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
 df_final = pd.merge(df_final, df_eff_weekly, on=["Date"], how="left")
