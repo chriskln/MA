@@ -361,26 +361,6 @@ df_eff_weekly["RF"] = df_eff_weekly["RF"].mul(100)
 
 
 ################################
-# Turnover ratio
-################################
-
-df_tur = pd.melt(df_tur, id_vars=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], var_name="Date", value_name="yearly_turnover")
-df_tur["Date"] = df_tur["Date"].str.slice(21, 25, 1)
-df_tur["Date"] = pd.to_datetime(df_tur["Date"], format="%Y-%m-%d")
-df_tur["year"] = pd.to_datetime(df_tur["Date"]).dt.to_period("Y")
-
-# obtain average weekly turnover
-df_tur["weekly_turnover"] = df_tur["yearly_turnover"] / 52
-df_tur = df_tur.drop(columns=["Date", "yearly_turnover"])
-
-# forward fill values from the past into future
-df_tur["weekly_turnover"] = df_tur.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_turnover"].transform(lambda x: x.ffill())
-
-# backward fill future values into past
-#df_tur["weekly_turnover"] = df_tur.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_turnover"].transform(lambda x: x.fillna(method="bfill"))
-
-
-################################
 # Fund Annual Expenses
 ################################
 
@@ -568,7 +548,6 @@ df_weekly_final["year"] = pd.to_datetime(df_weekly_final["Date"]).dt.to_period("
 
 df_weekly_final = pd.merge(df_weekly_final, df_div, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
 df_weekly_final = pd.merge(df_weekly_final, df_exp, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
-df_weekly_final = pd.merge(df_weekly_final, df_tur, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "year"], how="left")
 df_final = pd.merge(df_weekly_final, df_monthly_final, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "month_year"], how="left")
 df_final = pd.merge(df_final, df_fixed_final, on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"], how="left")
 df_final = pd.merge(df_final, df_eff_weekly, on=["Date"], how="left")
