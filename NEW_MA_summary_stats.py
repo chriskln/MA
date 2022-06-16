@@ -7,6 +7,8 @@
 ##############################################
 
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 from sklearn import datasets
 import openpyxl
 import statistics
@@ -69,7 +71,7 @@ df_final["weekly_div"] = df_final["weekly_div"].fillna(0)
 
 df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: (x.weekly_tna_lag1 >= 1000000).all())
 
-# translate weekly tna into $ million
+# translate weekly tna into € million
 df_final["weekly_tna"] = df_final["weekly_tna"] / 1000000
 
 df_final = df_final.reset_index()
@@ -140,6 +142,18 @@ df_final["monthly_car"] = winsorize(df_final["monthly_car"], limits=(0.01, 0.01)
 ##############################################
 
 ################################
+# Calculate normalized expense ratio
+################################
+
+# check for outliers in expense ratio data
+sns.boxplot(x=df_final["weekly_expense"])
+plt.show()
+# plot shows several outliers on right tail
+
+# normalized expense ratio
+df_final["normalized_exp"] = df_final.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+
+################################
 # Calculate flow variables
 ################################
 
@@ -155,8 +169,11 @@ df_final["fund_flows"] = df_final["fund_flows"].mul(100) # values in percent
 df_final["Decile_Rank"] = df_final.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
 df_final["normalized_flows"] = df_final.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
+
+
 # to csv
 df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_final_trimmed.csv")
+
 
 
 ##############################################

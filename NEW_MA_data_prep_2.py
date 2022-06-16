@@ -316,6 +316,16 @@ for r in range(0,len(df_return_monthly)):
 
 df_return_monthly = df_return_monthly.drop(columns=["monthly_return", "monthly_return_calc", "rolling_12_months_return_backup", "prior_month_return_backup"])
 
+################################
+# Calculate log of total net assets
+################################
+
+for d in range(0, len(df_tna_weekly)):
+    if df_tna_weekly.loc[d, "weekly_tna"] == 0 or math.isnan(df_tna_weekly.loc[d, "weekly_tna"]) == True:
+        continue
+    else:
+        df_tna_weekly.loc[d, "log_tna"] = np.log(df_tna_weekly.loc[d, "weekly_tna"])
+
 
 ################################
 # Fama and French 5 Factor Europe Returns

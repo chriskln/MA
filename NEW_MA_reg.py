@@ -7,10 +7,14 @@
 ##############################################
 
 import numpy as np
+from IPython.core.display_functions import display
 from sklearn import datasets
+import imgkit as im
 import openpyxl
 import statistics
 import pandas as pd
+import html2image as hti
+import matplotlib.pyplot as plt
 import statsmodels as statsmodels
 import statsmodels.formula.api as sm
 from statsmodels.iolib.summary2 import summary_col
@@ -195,10 +199,119 @@ for g in range(0, len(df_final_trimmed)):
 
 for g in range(0, len(df_final_trimmed)):
     if df_final_trimmed.loc[g, "Global Category"] == "UK Equity Large Cap":
-        df_final_trimmed.loc[g, "UK"] = 1
+        df_final_trimmed.loc[g, "UKE"] = 1
     else:
-        df_final_trimmed.loc[g, "UK"] = 0
+        df_final_trimmed.loc[g, "UKE"] = 0
 
+
+# dummies for Investment Area
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Austria":
+        df_final_trimmed.loc[i, "AT"] = 1
+    else:
+        df_final_trimmed.loc[i, "AT"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Belgium":
+        df_final_trimmed.loc[i, "BEL"] = 1
+    else:
+        df_final_trimmed.loc[i, "BEL"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Denmark":
+        df_final_trimmed.loc[i, "DEN"] = 1
+    else:
+        df_final_trimmed.loc[i, "DEN"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Euroland":
+        df_final_trimmed.loc[i, "EURO"] = 1
+    else:
+        df_final_trimmed.loc[i, "EURO"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Europe":
+        df_final_trimmed.loc[i, "EUR"] = 1
+    else:
+        df_final_trimmed.loc[i, "EUR"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Europe (North)":
+        df_final_trimmed.loc[i, "EURN"] = 1
+    else:
+        df_final_trimmed.loc[i, "EURN"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Europe Emerging Mkts":
+        df_final_trimmed.loc[i, "EUREM"] = 1
+    else:
+        df_final_trimmed.loc[i, "EUREM"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Europe ex UK":
+        df_final_trimmed.loc[i, "EURUK"] = 1
+    else:
+        df_final_trimmed.loc[i, "EURUK"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Finland":
+        df_final_trimmed.loc[i, "FIN"] = 1
+    else:
+        df_final_trimmed.loc[i, "FIN"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "France":
+        df_final_trimmed.loc[i, "FR"] = 1
+    else:
+        df_final_trimmed.loc[i, "FR"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Germany":
+        df_final_trimmed.loc[i, "GER"] = 1
+    else:
+        df_final_trimmed.loc[i, "GER"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Greece":
+        df_final_trimmed.loc[i, "GRE"] = 1
+    else:
+        df_final_trimmed.loc[i, "GRE"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Italy":
+        df_final_trimmed.loc[i, "IT"] = 1
+    else:
+        df_final_trimmed.loc[i, "IT"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Norway":
+        df_final_trimmed.loc[i, "NOR"] = 1
+    else:
+        df_final_trimmed.loc[i, "NOR"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Slovakia":
+        df_final_trimmed.loc[i, "SVK"] = 1
+    else:
+        df_final_trimmed.loc[i, "SVK"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Spain":
+        df_final_trimmed.loc[i, "ESP"] = 1
+    else:
+        df_final_trimmed.loc[i, "ESP"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "Switzerland":
+        df_final_trimmed.loc[i, "CH"] = 1
+    else:
+        df_final_trimmed.loc[i, "CH"] = 0
+
+for i in range(0, len(df_final_trimmed)):
+    if df_final_trimmed.loc[i, "Investment Area"] == "United Kingdom":
+        df_final_trimmed.loc[i, "UK"] = 1
+    else:
+        df_final_trimmed.loc[i, "UK"] = 0
 
 ##############################################
 # Interaction terms
@@ -261,27 +374,29 @@ df_final_trimmed["Insti_Star"] = df_final_trimmed["monthly_star"] * df_final_tri
 
 df_mod1 = df_final_trimmed
 
-# Longer timeframe for mod1: 01/01/2019 - 23/08/2020
+# Longer timeframe for mod1: 01/01/2019 - 31/12/2020
 df_mod1["Date"] = df_mod1["Date"].astype("datetime64[ns]")
 start_mod1 = pd.to_datetime("2019-01-01", format="%Y-%m-%d")
-end_mod1 = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
+end_mod1 = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
 df_mod1 = df_mod1[df_mod1["Date"].between(start_mod1, end_mod1)].reset_index()
 df_mod1 = df_mod1.drop(columns=["index"])
 
 fom1 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ weekly_return + weekly_tna + monthly_star + Star_COV + weekly_div + Age + index_indicator" \
+       "+ weekly_return + log_tna + normalized_exp + monthly_star + Star_COV + weekly_div + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom2 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ weekly_return + weekly_tna + monthly_star + Star_COV + weekly_div + Age + index_indicator" \
+       "+ weekly_return + log_tna + normalized_exp + monthly_star + Star_COV + weekly_div + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 reg1 = sm.ols(formula=fom1, data=df_mod1).fit()
 reg2 = sm.ols(formula=fom2, data=df_mod1).fit()
@@ -301,61 +416,69 @@ df_mod2 = df_mod2[df_mod2["Date"].between(start_mod2, end_mod2)].reset_index()
 df_mod2 = df_mod2.drop(columns=["index"])
 
 fom3 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ weekly_return + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ weekly_return + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom4 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ weekly_return + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ weekly_return + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom5 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ weekly_return + Ret_COV + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ weekly_return + Ret_COV + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom6 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ weekly_return + Ret_COV + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ weekly_return + Ret_COV + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom7 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ prior_month_return + One_M_RET_COV + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ prior_month_return + One_M_RET_COV + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom8 = "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ prior_month_return + One_M_RET_COV + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ prior_month_return + One_M_RET_COV + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom9 = "fund_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ Twelve_M_RET_COV + rolling_12_months_return + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ Twelve_M_RET_COV + rolling_12_months_return + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 fom10= "normalized_flows ~ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG" \
-       "+ Twelve_M_RET_COV + rolling_12_months_return + weekly_tna + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
+       "+ Twelve_M_RET_COV + rolling_12_months_return + log_tna + normalized_exp + weekly_div + monthly_star + Star_COV + Age + index_indicator" \
        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
        "+ Mkt_RF + SMB + HML + RMW + CMA" \
        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
-       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UK"
+       "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+       "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 reg3 = sm.ols(formula=fom3, data=df_mod2).fit()
 reg4 = sm.ols(formula=fom4, data=df_mod2).fit()
@@ -372,21 +495,29 @@ stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "L
                              "Low_ESG": "Low ESG", "Ret_COV": "Return x COV", "weekly_return": "Return",
                              "One_M_RET_COV": "Prior Month's Return x COV", "Twelve_M_RET_COV": "Prior 12 Months' Return  x  COV",
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
-                             "weekly_tna": "Total Net Assets (€ mio.)", "monthly_star": "Star Rating", "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
+                             "log_tna": "log(TNA)", "normalized_exp": "Normalized Expense Ratio", "monthly_star": "Star Rating", "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
 stargazer.dependent_variable = " Net Flow"
 stargazer.column_separators = True
 stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,4])
 stargazer.covariate_order(["Intercept", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
-                           "weekly_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
+                           "log_tna", "normalized_exp", "monthly_star", "Star_COV", "Age", "index_indicator",
+                           "Allianz", "JPMorgan", "DWS", "Universal", "AXA", "Mkt_RF", "SMB", "HML", "RMW", "CMA",
+                           "small_core", "mid_core", "large_core", "small_value", "mid_value", "large_value", "small_growth", "mid_growth", "large_growth",
+                           "utilities", "industrials", "basic_materials", "consumer_cyclical", "real_estate", "technology", "healthcare", "consumer_defensive", "communication_services", "financial_services",
+                           "energy", "Equity_Mis", "Eur_EM", "Eur_Large", "Eur_Mid_Small", "Health", "Infra", "LS_E", "Real", "Tech", "UKE",
+                           "AT", "BEL", "DEN", "EURO", "EUR", "EURN", "EUREM", "EURUK", "FIN", "FR", "GER", "GRE", "IT", "NOR", "SVK", "ESP", "CH", "UK"])
 stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
-open('diff_in_diff_net_flow.html', 'w').write(stargazer.render_html())
+#open('diff_in_diff_net_flow.html', 'w').write(stargazer.render_html())
+hti.screenshot(html)
+
 
 
 # Output for dep. variable Normailized Flow
@@ -395,15 +526,27 @@ stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "L
                              "Low_ESG": "Low ESG", "Ret_COV": "Return x COV", "weekly_return": "Return",
                              "One_M_RET_COV": "Prior Month's Return x COV", "Twelve_M_RET_COV": "Prior 12 Months' Return x COV",
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
-                             "weekly_tna": "Total Net Assets (€ mio.)", "monthly_star": "Star Rating", "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
+                             "log_tna": "log(TNA)", "normalized_exp": "Normalized Expense Ratio",
+                             "monthly_star": "Star Rating", "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
 stargazer.dependent_variable = " Normalized Flow"
 stargazer.column_separators = True
 stargazer.custom_columns(["Extended Timeframe (01. Jan '19 - 23. Aug '20)", "Narrow Timeframe (01. Jan '20 - 23. Aug '20)"], [1,4])
 stargazer.covariate_order(["Intercept", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return",
                            "One_M_RET_COV", "prior_month_return", "Twelve_M_RET_COV", "rolling_12_months_return", "weekly_div",
-                           "log_tna", "monthly_star", "Star_COV", "Age", "index_indicator"])
+                           "log_tna", "normalized_exp", "monthly_star", "Star_COV", "Age", "index_indicator",
+                           "Allianz", "JPMorgan", "DWS", "Universal", "AXA", "Mkt_RF", "SMB", "HML", "RMW", "CMA",
+                           "small_core", "mid_core", "large_core", "small_value", "mid_value", "large_value",
+                           "small_growth", "mid_growth", "large_growth",
+                           "utilities", "industrials", "basic_materials", "consumer_cyclical", "real_estate",
+                           "technology", "healthcare", "consumer_defensive", "communication_services",
+                           "financial_services",
+                           "energy", "Equity_Mis", "Eur_EM", "Eur_Large", "Eur_Mid_Small", "Health", "Infra", "LS_E",
+                           "Real", "Tech", "UKE",
+                           "AT", "BEL", "DEN", "EURO", "EUR", "EURN", "EUREM", "EURUK", "FIN", "FR", "GER", "GRE", "IT",
+                           "NOR", "SVK", "ESP", "CH", "UK"])
 stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
