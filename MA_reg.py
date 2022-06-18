@@ -65,6 +65,13 @@ for t in range(0, len(df_final_trimmed)):
     else:
         df_final_trimmed.loc[t, "COV_REC"] = 0
 
+# dummy for timeframe COVID POST RECOVERY
+for t in range(0, len(df_final_trimmed)):
+    if pd.to_datetime("2020-08-24", format="%Y-%m-%d") <= df_final_trimmed.loc[t, "Date"] <= pd.to_datetime("2020-12-31", format="%Y-%m-%d"):
+        df_final_trimmed.loc[t, "COV_P_REC"] = 1
+    else:
+        df_final_trimmed.loc[t, "COV_P_REC"] = 0
+
 # dummy for globe ratings
 for g in range(0, len(df_final_trimmed)):
     if df_final_trimmed.loc[g, "monthly_sus"] == 5:
@@ -256,7 +263,10 @@ df_final_trimmed["Insti_Star"] = df_final_trimmed["monthly_star"] * df_final_tri
 
 
 ##############################################
-# 1. Model: Diff in diff regression for longer timeframe with sus. ratings
+# 1. Model:
+# Diff in diff regression
+# longer timeframe (01/01/2019 - 23/08/2020)
+# globe rating
 ##############################################
 
 df_mod1 = df_final_trimmed

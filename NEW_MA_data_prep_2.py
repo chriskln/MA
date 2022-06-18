@@ -437,10 +437,10 @@ df_firm_name = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", 
 # Age
 ################################
 
-# obtain age of fund taking 31.12.2020 as reference
+# obtain age of fund taking 23/08/2020 as reference
 df_age = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Inception Date"]].copy()
 df_age["Inception Date"] = pd.to_datetime(df_age["Inception Date"], format= "%d.%m.%Y") # dtype
-df_age["d_end"] = date(2020, 12, 31)
+df_age["d_end"] = date(2020, 1, 1)
 df_age["d_end"] = pd.to_datetime(df_age["d_end"], format="%Y-%m-%d") # dtype
 df_age["Age"] = df_age["d_end"] - df_age["Inception Date"] # calculation
 df_age["Age"] = df_age["Age"] / np.timedelta64(1, "Y") # convert to years
