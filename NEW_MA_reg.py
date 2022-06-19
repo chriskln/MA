@@ -493,6 +493,7 @@ stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "L
                              "One_M_RET_COV": "Prior Month's Return x COV", "Twelve_M_RET_COV": "Prior 12 Months' Return  x  COV",
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
                              "log_tna": "log(TNA)", "normalized_exp": "Normalized Net Expense Ratio", "monthly_star": "Star Rating", "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
+stargazer.title("Panel A")
 stargazer.dependent_variable = " Net Flow"
 stargazer.column_separators = True
 stargazer.covariate_order(["Intercept", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return",
@@ -517,6 +518,7 @@ stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "L
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
                              "log_tna": "log(TNA)", "normalized_exp": "Normalized Net Expense Ratio",
                              "monthly_star": "Star Rating", "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
+stargazer.title("Panel B")
 stargazer.dependent_variable = " Normalized Flow"
 stargazer.column_separators = True
 stargazer.covariate_order(["Intercept", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return",
