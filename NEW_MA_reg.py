@@ -64,12 +64,19 @@ for t in range(0, len(df_final_trimmed)):
     else:
         df_final_trimmed.loc[t, "COV_CRASH"] = 0
 
-# dummy for timeframe COVID RECOVERY
+# dummy for timeframe COVID RECOVERY 1
 for t in range(0, len(df_final_trimmed)):
-    if pd.to_datetime("2020-03-23", format="%Y-%m-%d") <= df_final_trimmed.loc[t, "Date"] <= pd.to_datetime("2020-08-23", format="%Y-%m-%d"):
-        df_final_trimmed.loc[t, "COV_REC"] = 1
+    if pd.to_datetime("2020-03-23", format="%Y-%m-%d") <= df_final_trimmed.loc[t, "Date"] <= pd.to_datetime("2020-06-07", format="%Y-%m-%d"):
+        df_final_trimmed.loc[t, "COV_REC1"] = 1
     else:
-        df_final_trimmed.loc[t, "COV_REC"] = 0
+        df_final_trimmed.loc[t, "COV_REC1"] = 0
+
+# dummy for timeframe COVID RECOVERY 2
+for t in range(0, len(df_final_trimmed)):
+    if pd.to_datetime("2020-06-08", format="%Y-%m-%d") <= df_final_trimmed.loc[t, "Date"] <= pd.to_datetime("2020-08-23", format="%Y-%m-%d"):
+        df_final_trimmed.loc[t, "COV_REC2"] = 1
+    else:
+        df_final_trimmed.loc[t, "COV_REC2"] = 0
 
 # dummy for globe ratings
 for g in range(0, len(df_final_trimmed)):
@@ -326,51 +333,57 @@ df_final_trimmed["High_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["H
 df_final_trimmed["Low_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Low_ESG"]
 df_final_trimmed["High_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["High_ESG"]
 df_final_trimmed["Low_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Low_ESG"]
-df_final_trimmed["High_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["High_ESG"]
-df_final_trimmed["Low_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Low_ESG"]
+df_final_trimmed["High_ESG_COV_REC1"] = df_final_trimmed["COV_REC1"] * df_final_trimmed["High_ESG"]
+df_final_trimmed["Low_ESG_COV_REC1"] = df_final_trimmed["COV_REC1"] * df_final_trimmed["Low_ESG"]
+df_final_trimmed["High_ESG_COV_REC2"] = df_final_trimmed["COV_REC2"] * df_final_trimmed["High_ESG"]
+df_final_trimmed["Low_ESG_COV_REC2"] = df_final_trimmed["COV_REC2"] * df_final_trimmed["Low_ESG"]
 df_final_trimmed["Ret_COV"] = df_final_trimmed["COV"] * df_final_trimmed["weekly_return"]
 df_final_trimmed["Ret_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["weekly_return"]
-df_final_trimmed["Ret_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["weekly_return"]
+df_final_trimmed["Ret_COV_REC1"] = df_final_trimmed["COV_REC1"] * df_final_trimmed["weekly_return"]
+df_final_trimmed["Ret_COV_REC2"] = df_final_trimmed["COV_REC2"] * df_final_trimmed["weekly_return"]
 df_final_trimmed["One_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["prior_month_return"]
 df_final_trimmed["One_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["prior_month_return"]
-df_final_trimmed["One_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["prior_month_return"]
+df_final_trimmed["One_M_RET_COV_REC1"] = df_final_trimmed["COV_REC1"] * df_final_trimmed["prior_month_return"]
+df_final_trimmed["One_M_RET_COV_REC2"] = df_final_trimmed["COV_REC2"] * df_final_trimmed["prior_month_return"]
 df_final_trimmed["Twelve_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["rolling_12_months_return"]
 df_final_trimmed["Twelve_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["rolling_12_months_return"]
-df_final_trimmed["Twelve_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["rolling_12_months_return"]
+df_final_trimmed["Twelve_M_RET_COV_REC1"] = df_final_trimmed["COV_REC1"] * df_final_trimmed["rolling_12_months_return"]
+df_final_trimmed["Twelve_M_RET_COV_REC2"] = df_final_trimmed["COV_REC2"] * df_final_trimmed["rolling_12_months_return"]
 df_final_trimmed["Star_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_star"]
 df_final_trimmed["Star_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["monthly_star"]
-df_final_trimmed["Star_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["monthly_star"]
+df_final_trimmed["Star_COV_REC1"] = df_final_trimmed["COV_REC1"] * df_final_trimmed["monthly_star"]
+df_final_trimmed["Star_COV_REC2"] = df_final_trimmed["COV_REC2"] * df_final_trimmed["monthly_star"]
 df_final_trimmed["ENV_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_env"]
 df_final_trimmed["SOC_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_soc"]
 df_final_trimmed["GOV_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_gov"]
 df_final_trimmed["CAR_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_car"]
-df_final_trimmed["Insti_High_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_High_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_High_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Low_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Low_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Low_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_High_ESG"] = df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Low_ESG"] = df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Ret_COV"] = df_final_trimmed["COV"] * df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Ret_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Ret_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Ret"] = df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_One_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_One_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_One_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_One_M_RET"] = df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Twelve_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Twelve_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Twelve_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Twelve_M_RET"] = df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Star_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Star_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Star_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
-df_final_trimmed["Insti_Star"] = df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_High_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_High_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_High_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Low_ESG_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Low_ESG_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Low_ESG_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_High_ESG"] = df_final_trimmed["High_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Low_ESG"] = df_final_trimmed["Low_ESG"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_COV"] = df_final_trimmed["COV"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Ret_COV"] = df_final_trimmed["COV"] * df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Ret_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Ret_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Ret"] = df_final_trimmed["weekly_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_One_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_One_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_One_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_One_M_RET"] = df_final_trimmed["prior_month_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Twelve_M_RET_COV"] = df_final_trimmed["COV"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Twelve_M_RET_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Twelve_M_RET_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Twelve_M_RET"] = df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Star_COV"] = df_final_trimmed["COV"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Star_COV_CRASH"] = df_final_trimmed["COV_CRASH"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Star_COV_REC"] = df_final_trimmed["COV_REC"] * df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
+#df_final_trimmed["Insti_Star"] = df_final_trimmed["monthly_star"] * df_final_trimmed["Insti"]
 
 
 ##############################################
@@ -790,7 +803,7 @@ open('OLS_carb_design_normalized_flow.html', 'w').write(stargazer.render_html())
 ##############################################
 
 # NET FLOW, return (no interaction), Star Rating (no interaction), no controls
-fom31 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
+fom31 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
         "+ weekly_return + prior_month_return" \
         "+ log_tna + normalized_exp + monthly_star + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
@@ -801,9 +814,9 @@ fom31 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH 
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NET FLOW, return (with interaction), Star Rating (with interaction), no controls
-fom32 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
-        "+ weekly_return + prior_month_return + Ret_COV_CRASH + Ret_COV_REC + One_M_RET_COV_CRASH + One_M_RET_COV_REC" \
-        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator" \
+fom32 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
+        "+ weekly_return + prior_month_return + Ret_COV_CRASH + Ret_COV_REC1 + Ret_COV_REC2 + One_M_RET_COV_CRASH + One_M_RET_COV_REC1 + One_M_RET_COV_REC2" \
+        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC1 + Star_COV_REC2 + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
         "+ Mkt_RF + SMB + HML + RMW + CMA" \
         "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
@@ -812,7 +825,7 @@ fom32 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH 
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NET FLOW, return (with interaction), Star Rating (with interaction), some controls
-fom33 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
+fom33 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
         "+ weekly_return + rolling_12_months_return" \
         "+ log_tna + normalized_exp + monthly_star + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
@@ -823,9 +836,9 @@ fom33 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH 
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NET FLOW, return (with interaction), Star Rating (with interaction), all controls
-fom34 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
-        "+ weekly_return + rolling_12_months_return + Ret_COV_CRASH + Ret_COV_REC + Twelve_M_RET_COV_CRASH + Twelve_M_RET_COV_REC" \
-        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator" \
+fom34 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
+        "+ weekly_return + rolling_12_months_return + Ret_COV_CRASH + Ret_COV_REC1 + Ret_COV_REC2 + Twelve_M_RET_COV_CRASH + Twelve_M_RET_COV_REC1 + Twelve_M_RET_COV_REC2" \
+        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC1 + Star_COV_REC2 + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
         "+ Mkt_RF + SMB + HML + RMW + CMA" \
         "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
@@ -834,7 +847,7 @@ fom34 = "fund_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH 
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NORMALIZED FLOW, return (no interaction), Star Rating (no interaction), no controls
-fom35 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
+fom35 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
         "+ weekly_return + prior_month_return" \
         "+ log_tna + normalized_exp + monthly_star + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
@@ -845,9 +858,9 @@ fom35 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NORMALIZED FLOW, return (with interaction), Star Rating (with interaction), no controls
-fom36 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
-        "+ weekly_return + prior_month_return + Ret_COV_CRASH + Ret_COV_REC + One_M_RET_COV_CRASH + One_M_RET_COV_REC" \
-        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator" \
+fom36 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
+        "+ weekly_return + prior_month_return + Ret_COV_CRASH + Ret_COV_REC1 + Ret_COV_REC2 + One_M_RET_COV_CRASH + One_M_RET_COV_REC1 + One_M_RET_COV_REC2" \
+        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC1 + Star_COV_REC2 + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
         "+ Mkt_RF + SMB + HML + RMW + CMA" \
         "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
@@ -856,7 +869,7 @@ fom36 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NORMALIZED FLOW, return (with interaction), Star Rating (with interaction), some controls
-fom37 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
+fom37 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
         "+ weekly_return + rolling_12_months_return" \
         "+ log_tna + normalized_exp + monthly_star + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
@@ -867,9 +880,9 @@ fom37 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NORMALIZED FLOW, return (with interaction), Star Rating (with interaction), all controls
-fom38 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG" \
-        "+ weekly_return + rolling_12_months_return + Ret_COV_CRASH + Ret_COV_REC + Twelve_M_RET_COV_CRASH + Twelve_M_RET_COV_REC" \
-        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC + weekly_div + Age + index_indicator" \
+fom38 = "normalized_flows ~ High_ESG_COV_CRASH + High_ESG_COV_REC1 + High_ESG_COV_REC2 + Low_ESG_COV_CRASH + Low_ESG_COV_REC1 + Low_ESG_COV_REC2 + High_ESG + Low_ESG" \
+        "+ weekly_return + rolling_12_months_return + Ret_COV_CRASH + Ret_COV_REC1 + Ret_COV_REC2 + Twelve_M_RET_COV_CRASH + Twelve_M_RET_COV_REC1 + Twelve_M_RET_COV_REC2" \
+        "+ log_tna + normalized_exp + monthly_star + Star_COV_CRASH + Star_COV_REC1 + Star_COV_REC2 + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
         "+ Mkt_RF + SMB + HML + RMW + CMA" \
         "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
@@ -888,30 +901,31 @@ reg38 = sm.ols(formula=fom38, data=df_mod1).fit()
 
 # Output for dep. variable Net Flow
 stargazer = Stargazer([reg31, reg32, reg33, reg34])
-stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC": "High ESG x COV (RECOVERY)",
-                             "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)", "Low_ESG_COV_REC": "Low ESG x COV (RECOVERY)",
+stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC1": "High ESG x COV (RECOVERY 1)",
+                             "High_ESG_COV_REC2": "High ESG x COV (RECOVERY 2)", "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)",
+                             "Low_ESG_COV_REC1": "Low ESG x COV (RECOVERY 1)", "Low_ESG_COV_REC2": "Low ESG x COV (RECOVERY 2)",
                              "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
-                             "Ret_COV_CRASH": "Return x COV (CRASH)", "Ret_COV_REC": "Return x COV (RECOVERY)", "weekly_return": "Return",
-                             "One_M_RET_COV_CRASH": "Prior Month's Return x COV (CRASH)", "One_M_RET_COV_REC": "Prior Month's Return x COV (RECOVERY)",
-                             "Twelve_M_RET_COV_CRASH": "Prior 12 Months' Return x COV (CRASH)", "Twelve_M_RET_COV_REC": "Prior 12 Months' Return x COV (RECOVERY)",
+                             "Ret_COV_CRASH": "Return x COV (CRASH)", "Ret_COV_REC1": "Return x COV (RECOVERY 1)", "weekly_return": "Return",
+                             "One_M_RET_COV_CRASH": "Prior Month's Return x COV (CRASH)", "One_M_RET_COV_REC1": "Prior Month's Return x COV (RECOVERYm 1)",
+                             "Twelve_M_RET_COV_CRASH": "Prior 12 Months' Return x COV (CRASH)", "Twelve_M_RET_COV_REC1": "Prior 12 Months' Return x COV (RECOVERY 1)",
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
                              "log_tna": "log(TNA)", "normalized_exp": "Normalized Expense Ratio", "monthly_star": "Star Rating",
-                             "Star_COV_CRASH": "Star Rating x COV (CRASH)", "Star_COV_REC": "Star Rating x COV (RECOVERY)", "index_indicator": "Index Fund"})
-stargazer.dependent_variable = " Net Flow"
+                             "Star_COV_CRASH": "Star Rating x COV (CRASH)", "Star_COV_REC1": "Star Rating x COV (RECOVERY 1)", "index_indicator": "Index Fund"})
+stargazer.dependent_variable = " Percentage Net Flows"
 stargazer.column_separators = True
-stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
+stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC1", "High_ESG_COV_REC2", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC1", "Low_ESG_COV_REC2",
                            "High_ESG", "Low_ESG"])
-stargazer.add_line("Weekly Return Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Past Return Controls", ["1M", "1M", "12M", "12M"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Return Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating Interaction", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_net_flow_subtime.html', 'w').write(stargazer.render_html())
@@ -919,30 +933,31 @@ open('diff_in_diff_net_flow_subtime.html', 'w').write(stargazer.render_html())
 
 # Output for dep. variable Normailized Flow
 stargazer = Stargazer([reg35, reg36, reg37, reg38])
-stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC": "High ESG x COV (RECOVERY)",
-                             "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)", "Low_ESG_COV_REC": "Low ESG x COV (RECOVERY)",
+stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC1": "High ESG x COV (RECOVERY 1)",
+                             "High_ESG_COV_REC2": "High ESG x COV (RECOVERY 2)", "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)",
+                             "Low_ESG_COV_REC1": "Low ESG x COV (RECOVERY 1)", "Low_ESG_COV_REC2": "Low ESG x COV (RECOVERY 2)",
                              "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
-                             "Ret_COV_CRASH": "Return x COV (CRASH)", "Ret_COV_REC": "Return x COV (RECOVERY)", "weekly_return": "Return",
-                             "One_M_RET_COV_CRASH": "Prior Month's Return x COV (CRASH)", "One_M_RET_COV_REC": "Prior Month's Return x COV (RECOVERY)",
-                             "Twelve_M_RET_COV_CRASH": "Prior 12 Months' Return x COV (CRASH)", "Twelve_M_RET_COV_REC": "Prior 12 Months' Return x COV (RECOVERY)",
+                             "Ret_COV_CRASH": "Return x COV (CRASH)", "Ret_COV_REC1": "Return x COV (RECOVERY 1)", "weekly_return": "Return",
+                             "One_M_RET_COV_CRASH": "Prior Month's Return x COV (CRASH)", "One_M_RET_COV_REC1": "Prior Month's Return x COV (RECOVERYm 1)",
+                             "Twelve_M_RET_COV_CRASH": "Prior 12 Months' Return x COV (CRASH)", "Twelve_M_RET_COV_REC1": "Prior 12 Months' Return x COV (RECOVERY 1)",
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
                              "log_tna": "log(TNA)", "normalized_exp": "Normalized Expense Ratio", "monthly_star": "Star Rating",
-                             "Star_COV_CRASH": "Star Rating x COV (CRASH)", "Star_COV_REC": "Star Rating x COV (RECOVERY)", "index_indicator": "Index Fund"})
-stargazer.dependent_variable = " Normalized Flow"
+                             "Star_COV_CRASH": "Star Rating x COV (CRASH)", "Star_COV_REC1": "Star Rating x COV (RECOVERY 1)", "index_indicator": "Index Fund"})
+stargazer.dependent_variable = " Normalized Flows"
 stargazer.column_separators = True
-stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
+stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC1", "High_ESG_COV_REC2", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC1", "Low_ESG_COV_REC2",
                            "High_ESG", "Low_ESG"])
-stargazer.add_line("Weekly Return Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Past Return Controls", ["1M", "1M", "12M", "12M"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Return Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating Interaction", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_normalized_flow_subtime.html', 'w').write(stargazer.render_html())
