@@ -791,7 +791,6 @@ open('OLS_carb_design_normalized_flow.html', 'w').write(stargazer.render_html())
 ##############################################
 # 4. Model
 # Diff in diff regression
-# longer timeframe (01/01/2019 - 23/08/2020)
 # Globe Rating
 # distinguishing between multiple sub-timeframes
 ##############################################
@@ -1038,3 +1037,353 @@ stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation
 stargazer.show_r2 = False
 
 open('OLS_subtime.html', 'w').write(stargazer.render_html())
+
+
+##############################################
+# 6. Model
+# Diff.-in-diff. regressions
+# insti vs. retail
+# Globe Rating
+##############################################
+
+# % NET FLOW, prior month's return, without COV interactions
+fom42 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, prior month's return, with COV interactions
+fom43 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET_COV + Insti_One_M_RET + Insti_Ret_COV + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV + Insti_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, past 12 months' return, without COV interactions
+fom44 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + rolling_12_months_return" \
+        "+ Insti_Twelve_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, past 12 months return, with COV interactions
+fom45 = "fund_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + rolling_12_months_return" \
+        "+ Insti_Twelve_M_RET_COV + Insti_Twelve_M_RET + Insti_Ret_COV + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV + Insti_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, prior month's return, without COV interactions
+fom46 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, prior month's return, with COV interactions
+fom47 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET_COV + Insti_One_M_RET + Insti_Ret_COV + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV + Insti_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, past 12 months' return, without COV interactions
+fom48 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + rolling_12_months_return" \
+        "+ Insti_Twelve_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, past 12 months return, with COV interactions
+fom49 = "normalized_flows ~ Insti_High_ESG_COV + Insti_Low_ESG_COV + Insti_High_ESG + Insti_Low_ESG + Insti_COV + Insti" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + weekly_return + rolling_12_months_return" \
+        "+ Insti_Twelve_M_RET_COV + Insti_Twelve_M_RET + Insti_Ret_COV + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV + Insti_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+reg42 = sm.ols(formula=fom42, data=df_mod1).fit()
+reg43 = sm.ols(formula=fom43, data=df_mod1).fit()
+reg44 = sm.ols(formula=fom44, data=df_mod1).fit()
+reg45 = sm.ols(formula=fom45, data=df_mod1).fit()
+reg46 = sm.ols(formula=fom46, data=df_mod1).fit()
+reg47 = sm.ols(formula=fom47, data=df_mod1).fit()
+reg48 = sm.ols(formula=fom48, data=df_mod1).fit()
+reg49 = sm.ols(formula=fom49, data=df_mod1).fit()
+
+# Output for dep. variable Net Flow
+stargazer = Stargazer([reg42, reg43, reg44, reg45])
+stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Insti_High_ESG_COV": "High ESG x COV x Institutional",
+                             "Insti_Low_ESG_COV": "Low ESG x COV x Institutional", "Low_ESG_COV": "Low ESG x COV",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV": "COV x Institutional", "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "normalized_exp": "Normalized Net Expense Ratio",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Percentage Net Flows"
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV", "Insti_Low_ESG_COV", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV",
+                           "Insti", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG"])
+stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_net_flow_insti.html', 'w').write(stargazer.render_html())
+
+# Output for dep. variable Normailized Flow
+stargazer = Stargazer([reg46, reg47, reg48, reg49])
+stargazer.rename_covariates({"High_ESG_COV": "High ESG x COV", "Insti_High_ESG_COV": "High ESG x COV x Institutional",
+                             "Insti_Low_ESG_COV": "Low ESG x COV x Institutional", "Low_ESG_COV": "Low ESG x COV",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV": "COV x Institutional", "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "normalized_exp": "Normalized Net Expense Ratio",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Normalized Flows"
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV", "Insti_Low_ESG_COV", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV",
+                           "Insti", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG"])
+stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_normalized_flow_insti.html', 'w').write(stargazer.render_html())
+
+
+##############################################
+# 7. Model
+# Diff.-in-diff. regressions
+# distinguishing between multiple sub-timeframes (insti vs. retail)
+# Globe Rating
+##############################################
+
+# % NET FLOW, prior month's return, without COV interactions
+fom50 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, prior month's return, with COV interactions
+fom51 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET_COV_CRASH + Insti_One_M_RET_COV_REC + Insti_One_M_RET + Insti_Ret_COV_CRASH + Insti_Ret_COV_REC + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC + Insti_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, past 12 months' return, without COV interactions
+fom52 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_Twelve_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, past 12 months return, with COV interactions
+fom53 = "fund_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_Twelve_M_RET_COV_CRASH + Insti_Twelve_M_RET_COV_REC + Insti_Twelve_M_RET + Insti_Ret_COV_CRASH + Insti_Ret_COV_REC + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC + Insti_Star + Star_COV_CRASH + Star_COV_REC + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, prior month's return, without COV interactions
+fom54 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, prior month's return, with COV interactions
+fom55 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_One_M_RET_COV_CRASH + Insti_One_M_RET_COV_REC + Insti_One_M_RET + Insti_Ret_COV_CRASH + Insti_Ret_COV_REC + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC + Insti_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, past 12 months' return, without COV interactions
+fom56 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_Twelve_M_RET + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, past 12 months return, with COV interactions
+fom57 = "normalized_flows ~ Insti_High_ESG_COV_CRASH + Insti_High_ESG_COV_REC + Insti_Low_ESG_COV_CRASH + Insti_Low_ESG_COV_REC + Insti_High_ESG + Insti_Low_ESG + Insti_COV_CRASH + Insti_COV_REC + Insti" \
+        "+ High_ESG_COV_CRASH + High_ESG_COV_REC + Low_ESG_COV_CRASH + Low_ESG_COV_REC + High_ESG + Low_ESG + weekly_return + prior_month_return" \
+        "+ Insti_Twelve_M_RET_COV_CRASH + Insti_Twelve_M_RET_COV_REC + Insti_Twelve_M_RET + Insti_Ret_COV_CRASH + Insti_Ret_COV_REC + Insti_Ret + log_tna" \
+        "+ monthly_star + Insti_Star_COV_CRASH + Insti_Star_COV_REC + Insti_Star + Star_COV_CRASH + Star_COV_REC + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+reg50 = sm.ols(formula=fom50, data=df_mod1).fit()
+reg51 = sm.ols(formula=fom51, data=df_mod1).fit()
+reg52 = sm.ols(formula=fom52, data=df_mod1).fit()
+reg53 = sm.ols(formula=fom53, data=df_mod1).fit()
+reg54 = sm.ols(formula=fom54, data=df_mod1).fit()
+reg55 = sm.ols(formula=fom55, data=df_mod1).fit()
+reg56 = sm.ols(formula=fom56, data=df_mod1).fit()
+reg57 = sm.ols(formula=fom57, data=df_mod1).fit()
+
+# Output for dep. variable Net Flow
+stargazer = Stargazer([reg50, reg51, reg52, reg53])
+stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC": "High ESG x COV (RECOVERY)",
+                             "Insti_High_ESG_COV_CRASH": "High ESG x COV (CRASH) x Institutional", "Insti_High_ESG_COV_REC": "High ESG x COV (RECOVERY) x Institutional",
+                             "Insti_Low_ESG_COV_CRASH": "Low ESG x COV (CRASH) x Institutional", "Insti_Low_ESG_COV_REC": "Low ESG x COV (RECOVERY) x Institutional",
+                             "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)", "Low_ESG_COV_REC": "Low ESG x COV (RECOVERY)",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV_CRASH": "COV (CRASH) x Institutional", "Insti_COV_REC": "COV (RECOVERY) x Institutional",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "normalized_exp": "Normalized Net Expense Ratio",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Percentage Net Flows"
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV_CRASH", "Insti_High_ESG_COV_REC", "Insti_Low_ESG_COV_CRASH",
+                           "Insti_Low_ESG_COV_REC", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV_CRASH", "Insti_COV_REC",
+                           "Insti", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC", "High_ESG", "Low_ESG"])
+stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_net_flow_insti_subtime.html', 'w').write(stargazer.render_html())
+
+# Output for dep. variable Normailized Flow
+stargazer = Stargazer([reg54, reg55, reg56, reg57])
+stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "High_ESG_COV_REC": "High ESG x COV (RECOVERY)",
+                             "Insti_High_ESG_COV_CRASH": "High ESG x COV (CRASH) x Institutional", "Insti_High_ESG_COV_REC": "High ESG x COV (RECOVERY) x Institutional",
+                             "Insti_Low_ESG_COV_CRASH": "Low ESG x COV (CRASH) x Institutional", "Insti_Low_ESG_COV_REC": "Low ESG x COV (RECOVERY) x Institutional",
+                             "Low_ESG_COV_CRASH": "Low ESG x COV (CRASH)", "Low_ESG_COV_REC": "Low ESG x COV (RECOVERY)",
+                             "Insti_High_ESG": "High ESG x Institutional", "Insti_Low_ESG": "Low ESG x Institutional", "Insti": "Institutional",
+                             "Insti_COV_CRASH": "COV (CRASH) x Institutional", "Insti_COV_REC": "COV (RECOVERY) x Institutional",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "normalized_exp": "Normalized Net Expense Ratio",
+                             "prior_month_return": "Prior Month's Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating"})
+stargazer.dependent_variable = " Normalized Flows"
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "Insti_High_ESG_COV_CRASH", "Insti_High_ESG_COV_REC", "Insti_Low_ESG_COV_CRASH",
+                           "Insti_Low_ESG_COV_REC", "Insti_High_ESG", "Insti_Low_ESG", "Insti_COV_CRASH", "Insti_COV_REC",
+                           "Insti", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC", "High_ESG", "Low_ESG"])
+stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Return COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating Institutional Interactions", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating COV Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('diff_in_diff_normalized_flow_insti_subtime.html', 'w').write(stargazer.render_html())

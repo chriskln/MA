@@ -284,7 +284,7 @@ summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv
 
 
 ##############################################
-# Summary Statistic in dependence of globe rating: PRE-COVID (01/01/2020 - 22/02/2020)
+# Summary Statistic in dependence of globe rating: PRE-COVID (01/10/2019 - 22/02/2020)
 ##############################################
 
 # create separate dataframe
@@ -294,7 +294,7 @@ df_describe_pre = df_final[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"
 
 # setting time frame
 df_describe_pre["Date"] = df_describe_pre["Date"].astype("datetime64[ns]")
-start_pre = pd.to_datetime("2020-01-01", format="%Y-%m-%d")
+start_pre = pd.to_datetime("2019-10-01", format="%Y-%m-%d")
 end_pre = pd.to_datetime("2020-02-22", format="%Y-%m-%d")
 df_describe_pre = df_describe_pre[df_describe_pre["Date"].between(start_pre, end_pre)].reset_index()
 df_describe_pre = df_describe_pre.drop(columns=["index"])
