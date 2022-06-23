@@ -962,7 +962,6 @@ open('diff_in_diff_normalized_flow_subtime.html', 'w').write(stargazer.render_ht
 ##############################################
 
 df_pre = df_final_trimmed
-
 # set timeframe
 df_pre["Date"] = df_pre["Date"].astype("datetime64[ns]")
 start_pre = pd.to_datetime("2019-10-01", format="%Y-%m-%d")
@@ -970,8 +969,13 @@ end_pre = pd.to_datetime("2020-02-22", format="%Y-%m-%d")
 df_pre = df_pre[df_pre["Date"].between(start_pre, end_pre)].reset_index()
 df_pre = df_pre.drop(columns=["index"])
 
-df_crash = df_final_trimmed
+# normalized flow update
+df_pre["Decile_Rank_pre"] = df_pre.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_pre["normalized_flows_pre"] = df_pre.groupby("Decile_Rank_pre").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+# normalized net expense ratio update
+df_pre["normalized_exp_pre"] = df_pre.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
+df_crash = df_final_trimmed
 # set timeframe
 df_crash["Date"] = df_crash["Date"].astype("datetime64[ns]")
 start_crash = pd.to_datetime("2020-02-23", format="%Y-%m-%d")
@@ -979,14 +983,25 @@ end_crash = pd.to_datetime("2020-03-22", format="%Y-%m-%d")
 df_crash = df_crash[df_crash["Date"].between(start_crash, end_crash)].reset_index()
 df_crash = df_crash.drop(columns=["index"])
 
-df_rec = df_final_trimmed
+# normalized flow update
+df_crash["Decile_Rank_crash"] = df_crash.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_crash["normalized_flows_crash"] = df_crash.groupby("Decile_Rank_crash").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+# normalized net expense ratio update
+df_crash["normalized_exp_crash"] = df_crash.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
+df_rec = df_final_trimmed
 # set timeframe
 df_rec["Date"] = df_rec["Date"].astype("datetime64[ns]")
 start_rec = pd.to_datetime("2020-03-23", format="%Y-%m-%d")
 end_rec = pd.to_datetime("2020-08-23", format="%Y-%m-%d")
 df_rec = df_rec[df_rec["Date"].between(start_rec, end_rec)].reset_index()
 df_rec = df_rec.drop(columns=["index"])
+
+# normalized flow update
+df_rec["Decile_Rank_rec"] = df_rec.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_rec["normalized_flows_rec"] = df_rec.groupby("Decile_Rank_rec").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+# normalized net expense ratio update
+df_rec["normalized_exp_rec"] = df_rec.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
 # percentage net flows
 fom40 = "fund_flows ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
@@ -1000,9 +1015,27 @@ fom40 = "fund_flows ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # normalized flows
-fom41 = "normalized_flows ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+fom41a = "normalized_flows_pre ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
         "+ weekly_return + prior_month_return" \
-        "+ log_tna + normalized_exp + monthly_star + weekly_div + Age + index_indicator" \
+        "+ log_tna + normalized_exp_pre + monthly_star + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+fom41b = "normalized_flows_crash ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+        "+ weekly_return + prior_month_return" \
+        "+ log_tna + normalized_exp_crash + monthly_star + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+fom41c = "normalized_flows_rec ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+        "+ weekly_return + prior_month_return" \
+        "+ log_tna + normalized_exp_rec + monthly_star + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
         "+ Mkt_RF + SMB + HML + RMW + CMA" \
         "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
@@ -1011,15 +1044,15 @@ fom41 = "normalized_flows ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Avera
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 reg40 = sm.ols(formula=fom40, data=df_pre).fit()
-reg41 = sm.ols(formula=fom41, data=df_pre).fit()
+reg41 = sm.ols(formula=fom41a, data=df_pre).fit()
 reg42 = sm.ols(formula=fom40, data=df_crash).fit()
-reg43 = sm.ols(formula=fom41, data=df_crash).fit()
+reg43 = sm.ols(formula=fom41b, data=df_crash).fit()
 reg44 = sm.ols(formula=fom40, data=df_rec).fit()
-reg45 = sm.ols(formula=fom41, data=df_rec).fit()
+reg45 = sm.ols(formula=fom41c, data=df_rec).fit()
 
 
-# Output for dep. variable Percentage Net Flows & Normalized FLows
-stargazer = Stargazer([reg40, reg41, reg42, reg43, reg44, reg45])
+# Output for dep. variable Percentage Net Flows
+stargazer = Stargazer([reg40, reg42, reg44])
 stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
                              "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
                              "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
@@ -1028,16 +1061,73 @@ stargazer.column_separators = True
 stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
                            "weekly_return", "prior_month_return", "weekly_div",
                            "log_tna", "normalized_exp", "monthly_star", "Age", "index_indicator"])
-stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
-open('OLS_subtime.html', 'w').write(stargazer.render_html())
+open('OLS_net_flow_subtime.html', 'w').write(stargazer.render_html())
 
+# Output for dep. variable Normalized Flows
+stargazer = Stargazer([reg41])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp_pre": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp_pre", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_normalized_flow_pre.html', 'w').write(stargazer.render_html())
+
+stargazer = Stargazer([reg43])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp_crash": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp_crash", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_normalized_flow_crash.html', 'w').write(stargazer.render_html())
+
+stargazer = Stargazer([reg45])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp_rec": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp_rec", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_normalized_flow_rec.html', 'w').write(stargazer.render_html())
 
 ##############################################
 # 6. Model
@@ -1212,7 +1302,7 @@ open('diff_in_diff_normalized_flow_insti.html', 'w').write(stargazer.render_html
 
 ##############################################
 # 7. Model
-# Diff.-in-diff. regressions
+# Triple-diff. regressions
 # distinguishing between multiple sub-timeframes (insti vs. retail)
 # Globe Rating
 ##############################################
@@ -1387,3 +1477,161 @@ stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_T
 stargazer.show_r2 = False
 
 open('diff_in_diff_normalized_flow_insti_subtime.html', 'w').write(stargazer.render_html())
+
+
+##############################################
+# 8. Model
+# OLS regression
+# distinguishing between multiple sub-timeframes (insti vs. retail)
+# Globe Rating
+##############################################
+
+# pre-covid
+df_pre = df_pre.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: (x.Institutional == "Yes").all())
+# normalized flow update
+df_pre["Decile_Rank_pre2"] = df_pre.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_pre["normalized_flows_pre2"] = df_pre.groupby("Decile_Rank_pre2").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+# normalized net expense ratio update
+df_pre["normalized_exp_pre2"] = df_pre.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+
+# crash
+df_crash = df_crash.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: (x.Institutional == "Yes").all())
+# normalized flow update
+df_crash["Decile_Rank_crash2"] = df_crash.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_crash["normalized_flows_crash2"] = df_crash.groupby("Decile_Rank_crash2").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+# normalized net expense ratio update
+df_crash["normalized_exp_crash2"] = df_crash.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+
+# recovery
+df_rec = df_rec.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: (x.Institutional == "Yes").all())
+# normalized flow update
+df_rec["Decile_Rank_rec2"] = df_rec.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
+df_rec["normalized_flows_rec2"] = df_rec.groupby("Decile_Rank_rec2").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+# normalized net expense ratio update
+df_rec["normalized_exp_rec2"] = df_rec.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+
+# percentage net flows
+fom58 = "fund_flows ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+        "+ weekly_return + prior_month_return" \
+        "+ log_tna + normalized_exp + monthly_star + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# normalized flows
+fom59a = "normalized_flows_pre2 ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+        "+ weekly_return + prior_month_return" \
+        "+ log_tna + normalized_exp_pre2 + monthly_star + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+fom59b = "normalized_flows_crash2 ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+        "+ weekly_return + prior_month_return" \
+        "+ log_tna + normalized_exp_crash2 + monthly_star + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+fom59c = "normalized_flows_rec2 ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
+        "+ weekly_return + prior_month_return" \
+        "+ log_tna + normalized_exp_rec2 + monthly_star + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+reg58 = sm.ols(formula=fom58, data=df_pre).fit()
+reg59 = sm.ols(formula=fom59a, data=df_pre).fit()
+reg60 = sm.ols(formula=fom58, data=df_crash).fit()
+reg61 = sm.ols(formula=fom59b, data=df_crash).fit()
+reg62 = sm.ols(formula=fom58, data=df_rec).fit()
+reg63 = sm.ols(formula=fom59c, data=df_rec).fit()
+
+
+# Output for dep. variable Percentage Net Flows
+stargazer = Stargazer([reg58, reg60, reg62])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_net_flow_insti_subtime.html', 'w').write(stargazer.render_html())
+
+# Output for dep. variable Normalized Flows
+stargazer = Stargazer([reg59])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp_pre2": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp_pre2", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_normalized_flow_insti_pre.html', 'w').write(stargazer.render_html())
+
+stargazer = Stargazer([reg61])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp_crash2": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp_crash2", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_normalized_flow_insti_crash.html', 'w').write(stargazer.render_html())
+
+stargazer = Stargazer([reg63])
+stargazer.rename_covariates({"Above_Average_ESG": "Above Average ESG", "Below_Average_ESG": "Below Average ESG",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
+                             "weekly_return": "Return", "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
+                             "log_tna": "log(TNA)", "normalized_exp_rec22": "Normalized Expense Ratio", "monthly_star": "Star Rating", "index_indicator": "Index Fund"})
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG", "Above_Average_ESG", "Below_Average_ESG", "Low_ESG",
+                           "weekly_return", "prior_month_return", "weekly_div",
+                           "log_tna", "normalized_exp_rec2", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Fama-French Europe 5 Factors", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Firm Name Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fixed Effects", ["Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('OLS_normalized_flow_insti_rec.html', 'w').write(stargazer.render_html())

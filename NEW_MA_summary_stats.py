@@ -97,8 +97,10 @@ df_final = df_final.loc[~df_final.ISIN.isin(df_final.loc[df_final[["utilities", 
 
 # number of ISIN's in dataset
 print(df_final["ISIN"].nunique())
-# 1589
+# 1589 (overall)
 
+# number of insti funds
+#
 
 ################################
 # Winsorize all continuous variables at 99% and 1% levels
@@ -147,7 +149,7 @@ df_final["monthly_car"] = winsorize(df_final["monthly_car"], limits=(0.01, 0.01)
 
 # check for outliers in expense ratio data
 sns.boxplot(x=df_final["weekly_expense"])
-plt.show()
+#plt.show()
 # plot shows several outliers on right tail
 
 # normalized expense ratio
@@ -214,7 +216,7 @@ summary.rename(columns={"index": "Variable", "count": "N", "mean": "Mean", "std"
                         "25%": "P25", "50%": "P50", "75%": "P75"}, inplace=True)
 
 # to excel
-summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
+#summary.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary.xlsx", index=False)
 
 
 ##############################################
@@ -280,7 +282,7 @@ summary_fin = summary_fin.rename(columns={0: "t-statistic", 1: "p-value"})
 summary_fin = summary_fin.round(2)
 
 # to excel
-summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_fin.xlsx", index=False)
+#summary_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_fin.xlsx", index=False)
 
 
 ##############################################
@@ -358,7 +360,7 @@ summary_pre_fin = summary_pre_fin.rename(columns={0: "t-statistic", 1: "p-value"
 summary_pre_fin = summary_pre_fin.round(2)
 
 # to excel
-summary_pre_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_pre.xlsx", index=False)
+#summary_pre_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_pre.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: CRASH (23/02/2020 - 22/03/2020)
@@ -435,7 +437,7 @@ summary_crsh_fin = summary_crsh_fin.rename(columns={0: "t-statistic", 1: "p-valu
 summary_crsh_fin = summary_crsh_fin.round(2)
 
 # to excel
-summary_crsh_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_crsh.xlsx", index=False)
+#summary_crsh_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_crsh.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: RECOVERY (23/03/2020 - 23/08/2020)
@@ -512,7 +514,7 @@ summary_rec_fin = summary_rec_fin.rename(columns={0: "t-statistic", 1: "p-value"
 summary_rec_fin = summary_rec_fin.round(2)
 
 # to excel
-summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
+#summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
 
 ##############################################
 # Summary Statistic in dependence of globe rating: POST-RECOVERY (24/08/2020 - 31/12/2020)
@@ -630,4 +632,4 @@ summary_total = summary_total.rename(index={0: "Net Flow (%)", 1: "Normalized Ne
                         10: "Social Risk Score", 11: "Governance Risk Score", 12: "Low Carbon Risk Score"})
 
 # to excel
-summary_total.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_total.xlsx")
+#summary_total.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_total.xlsx")
