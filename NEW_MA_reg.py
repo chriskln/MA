@@ -901,23 +901,26 @@ stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "Hi
                              "One_M_RET_COV_CRASH": "Prior Month's Return x COV (CRASH)", "One_M_RET_COV_REC": "Prior Month's Return x COV (RECOVERY)",
                              "Twelve_M_RET_COV_CRASH": "Prior 12 Months' Return x COV (CRASH)", "Twelve_M_RET_COV_REC": "Prior 12 Months' Return x COV (RECOVERY)",
                              "rolling_12_months_return": "Prior 12 Months' Return", "prior_month_return": "Prior Month's Return",
-                             "log_tna": "log(TNA)", "normalized_exp": "Normalized Expense Ratio", "monthly_star": "Star Rating",
+                             "log_tna": "log(TNA)", "normalized_exp": "Normalized Net Expense Ratio", "monthly_star": "Star Rating",
                              "Star_COV_CRASH": "Star Rating x COV (CRASH)", "Star_COV_REC": "Star Rating x COV (RECOVERY)", "index_indicator": "Index Fund"})
 stargazer.dependent_variable = " Percentage Net Flows"
 stargazer.column_separators = True
 stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC","Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
-                           "High_ESG", "Low_ESG"])
-stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Return Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+                           "High_ESG", "Low_ESG", "Ret_COV_CRASH", "Ret_COV_REC", "weekly_return", "One_M_RET_COV_CRASH",
+                           "One_M_RET_COV_REC", "prior_month_return", "Twelve_M_RET_COV_CRASH", "Twelve_M_RET_COV_REC",
+                           "rolling_12_months_return", "weekly_div", "log_tna", "normalized_exp", "Star_COV_CRASH",
+                           "Star_COV_REC", "monthly_star", "Age", "index_indicator"])
+#stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Return Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Star Rating Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_net_flow_subtime.html', 'w').write(stargazer.render_html())
@@ -936,19 +939,22 @@ stargazer.rename_covariates({"High_ESG_COV_CRASH": "High ESG x COV (CRASH)", "Hi
                              "Star_COV_CRASH": "Star Rating x COV (CRASH)", "Star_COV_REC": "Star Rating x COV (RECOVERY)", "index_indicator": "Index Fund"})
 stargazer.dependent_variable = " Normalized Flows"
 stargazer.column_separators = True
-stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC", "Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
-                           "High_ESG", "Low_ESG"])
-stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Return Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Star Rating Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.covariate_order(["Intercept", "High_ESG_COV_CRASH", "High_ESG_COV_REC","Low_ESG_COV_CRASH", "Low_ESG_COV_REC",
+                           "High_ESG", "Low_ESG", "Ret_COV_CRASH", "Ret_COV_REC", "weekly_return", "One_M_RET_COV_CRASH",
+                           "One_M_RET_COV_REC", "prior_month_return", "Twelve_M_RET_COV_CRASH", "Twelve_M_RET_COV_REC",
+                           "rolling_12_months_return", "weekly_div", "log_tna", "normalized_exp", "Star_COV_CRASH",
+                           "Star_COV_REC", "monthly_star", "Age", "index_indicator"])
+#stargazer.add_line("Return Controls", ["W/1M", "W/1M", "W/12M", "W/12M"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Return Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Star Rating", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Star Rating Interactions", ["N", "Y", "N", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fama-French Europe 5 Factors", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Firm Name Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Style Exposures", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Investment Area Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Industry Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.add_line("Fixed Effects", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
-stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
+#stargazer.add_line("Other Controls", ["Y", "Y", "Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
 open('diff_in_diff_normalized_flow_subtime.html', 'w').write(stargazer.render_html())
@@ -1509,6 +1515,8 @@ df_rec["Decile_Rank_rec2"] = df_rec.groupby(["Date"]).weekly_tna.apply(lambda x:
 df_rec["normalized_flows_rec2"] = df_rec.groupby("Decile_Rank_rec2").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 # normalized net expense ratio update
 df_rec["normalized_exp_rec2"] = df_rec.groupby("Date").weekly_expense.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
+
+print(df_rec["ISIN"].nunique())
 
 # percentage net flows
 fom58 = "fund_flows ~ High_ESG + Low_ESG + Above_Average_ESG + Below_Average_ESG" \
