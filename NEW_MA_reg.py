@@ -2155,12 +2155,127 @@ open('OLS_past_return_normalized_flow_rec.html', 'w').write(stargazer.render_htm
 ##############################################
 # 12. Model
 # Triple-diff. regressions
-# past return
+# past monthly return
 # Globe Rating
 ##############################################
 
 # % NET FLOW, without COV interactions for controls
-fom100 = "fund_flows ~ High_ESG_PAST_RET_COV + Low_ESG_PAST_RET_COV + High_ESG_PAST_RET + Low_ESG_PAST_RET + PAST_RET_COV + prior_week_return" \
+fom100 = "fund_flows ~ High_ESG_One_M_RET_COV + Low_ESG_One_M_RET_COV + High_ESG_One_M_RET + Low_ESG_One_M_RET + prior_month_return + weekly_return" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + log_tna" \
+        "+ monthly_star + One_M_RET_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# % NET FLOW, with COV interactions for controls
+fom101 = "fund_flows ~ High_ESG_One_M_RET_COV + Low_ESG_One_M_RET_COV + High_ESG_One_M_RET + Low_ESG_One_M_RET + One_M_RET_COV + prior_month_return + weekly_return + Ret_COV" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + log_tna" \
+        "+ monthly_star + One_M_RET_Star_COV + One_M_RET_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, without COV interactions for controls
+fom102 = "normalized_flows ~ High_ESG_One_M_RET_COV + Low_ESG_One_M_RET_COV + High_ESG_One_M_RET + Low_ESG_One_M_RET + prior_month_return + weekly_return" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + log_tna" \
+        "+ monthly_star + One_M_RET_Star + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+# NORMALIZED FLOW, with COV interactions for controls
+fom103 = "normalized_flows ~ High_ESG_One_M_RET_COV + Low_ESG_One_M_RET_COV + High_ESG_One_M_RET + Low_ESG_One_M_RET + One_M_RET_COV + prior_month_return + weekly_return + Ret_COV" \
+        "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + log_tna" \
+        "+ monthly_star + One_M_RET_Star_COV + One_M_RET_Star + Star_COV + normalized_exp + weekly_div + Age + index_indicator" \
+        "+ Allianz + JPMorgan + DWS + Universal + AXA" \
+        "+ Mkt_RF + SMB + HML + RMW + CMA" \
+        "+ small_core + mid_core + large_core + large_growth + large_value + mid_growth + mid_value + small_growth + small_value" \
+        "+ utilities + industrials + basic_materials + consumer_cyclical + real_estate + technology + healthcare + consumer_defensive + communication_services + financial_services + energy" \
+        "+ Equity_Mis + Eur_EM + Eur_Large + Eur_Mid_Small + Health + Infra + LS_E + Real + Tech + UKE" \
+        "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
+
+
+reg100 = sm.ols(formula=fom100, data=df_mod1).fit()
+reg101 = sm.ols(formula=fom101, data=df_mod1).fit()
+reg102 = sm.ols(formula=fom102, data=df_mod1).fit()
+reg103 = sm.ols(formula=fom103, data=df_mod1).fit()
+
+# Output for dep. variable Net Flow
+stargazer = Stargazer([reg100, reg101])
+stargazer.rename_covariates({"High_ESG_One_M_RET_COV": "High ESG x 1 M. Return x COV", "Low_ESG_One_M_RET_COV": "Low ESG x 1 M. Return x COV",
+                             "High_ESG_One_M_RET": "High ESG x 1 M. Return", "Low_ESG_One_M_RET": "Low ESG x 1 M. Return",
+                             "One_M_RET_COV": "1 M. Return x COV", "High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "Low ESG x COV",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends", "weekly_return": "Return", "Ret_COV": "Return x COV",
+                             "normalized_exp": "Normalized Net Expense Ratio",
+                             "prior_month_return": "1 M. Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating",
+                             "One_M_RET_Star_COV": "1 M. Return x Star Rating x COV", "One_M_RET_Star": "1 M. Return x Star Rating",
+                             "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
+stargazer.dependent_variable = " Percentage Net Flows"
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG_One_M_RET_COV", "Low_ESG_One_M_RET_COV", "High_ESG_One_M_RET", "Low_ESG_One_M_RET", "One_M_RET_COV",
+                           "prior_month_return", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return", "weekly_div",
+                           "log_tna", "normalized_exp", "One_M_RET_Star_COV", "Star_COV", "One_M_RET_Star", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Star Rating", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x COV", ["N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x 1 M. Return", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("FF. Europe 5 Factors", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fund Provider", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Global Category Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('triple_diff_net_flow_past_m_return.html', 'w').write(stargazer.render_html())
+
+# Output for dep. variable Normailized Flow
+stargazer = Stargazer([reg102, reg103])
+stargazer.rename_covariates({"High_ESG_One_M_RET_COV": "High ESG x 1 M. Return x COV", "Low_ESG_One_M_RET_COV": "Low ESG x 1 M. Return x COV",
+                             "High_ESG_One_M_RET": "High ESG x 1 M. Return", "Low_ESG_One_M_RET": "Low ESG x 1 M. Return",
+                             "One_M_RET_COV": "1 M. Return x COV", "High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "Low ESG x COV",
+                             "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends", "weekly_return": "Return", "Ret_COV": "Return x COV",
+                             "normalized_exp": "Normalized Net Expense Ratio",
+                             "prior_month_return": "1 M. Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating",
+                             "One_M_RET_Star_COV": "1 M. Return x Star Rating x COV", "One_M_RET_Star": "1 M. Return x Star Rating",
+                             "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
+stargazer.dependent_variable = " Normalized Flows"
+stargazer.column_separators = True
+stargazer.covariate_order(["Intercept", "High_ESG_One_M_RET_COV", "Low_ESG_One_M_RET_COV", "High_ESG_One_M_RET", "Low_ESG_One_M_RET", "One_M_RET_COV",
+                           "prior_month_return", "High_ESG_COV", "Low_ESG_COV", "High_ESG", "Low_ESG", "Ret_COV", "weekly_return", "weekly_div",
+                           "log_tna", "normalized_exp", "One_M_RET_Star_COV", "Star_COV", "One_M_RET_Star", "monthly_star", "Age", "index_indicator"])
+stargazer.add_line("Star Rating", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x COV", ["N", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Star Rating x 1 M. Return", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("FF. Europe 5 Factors", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Fund Provider", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Style Exposures", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Investment Area Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Industry Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Global Category Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.add_line("Other Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
+stargazer.show_r2 = False
+
+open('triple_diff_normalized_flow_past_m_return.html', 'w').write(stargazer.render_html())
+
+##############################################
+# 12. Model
+# Triple-diff. regressions
+# past weekly return
+# Globe Rating
+##############################################
+
+# % NET FLOW, without COV interactions for controls
+fom100 = "fund_flows ~ High_ESG_PAST_RET_COV + Low_ESG_PAST_RET_COV + High_ESG_PAST_RET + Low_ESG_PAST_RET + prior_week_return" \
         "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + log_tna" \
         "+ monthly_star + PAST_RET_Star + normalized_exp + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
@@ -2182,7 +2297,7 @@ fom101 = "fund_flows ~ High_ESG_PAST_RET_COV + Low_ESG_PAST_RET_COV + High_ESG_P
         "+ AT + BEL + DEN + EURO + EUR + EURN + EUREM + EURUK + FIN + FR + GER + GRE + IT + NOR + SVK + ESP + CH + UK"
 
 # NORMALIZED FLOW, without COV interactions for controls
-fom102 = "normalized_flows ~ High_ESG_PAST_RET_COV + Low_ESG_PAST_RET_COV + High_ESG_PAST_RET + Low_ESG_PAST_RET + PAST_RET_COV + prior_week_return" \
+fom102 = "normalized_flows ~ High_ESG_PAST_RET_COV + Low_ESG_PAST_RET_COV + High_ESG_PAST_RET + Low_ESG_PAST_RET + prior_week_return" \
         "+ High_ESG_COV + Low_ESG_COV + High_ESG + Low_ESG + log_tna" \
         "+ monthly_star + PAST_RET_Star + normalized_exp + weekly_div + Age + index_indicator" \
         "+ Allianz + JPMorgan + DWS + Universal + AXA" \
@@ -2215,7 +2330,7 @@ stargazer.rename_covariates({"High_ESG_PAST_RET_COV": "High ESG x 1 W. Return x 
                              "High_ESG_PAST_RET": "High ESG x 1 W. Return", "Low_ESG_PAST_RET": "Low ESG x 1 W. Return",
                              "PAST_RET_COV": "1 W. Return x COV", "High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "Low ESG x COV",
                              "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
-                             "normalized_exp": "Normalized Net Expense Ratio",
+                             "normalized_exp": "Norm. Net Expense Ratio",
                              "prior_week_return": "1 W. Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating",
                              "PAST_RET_Star_COV": "1 W. Return x Star Rating x COV", "PAST_RET_Star": "1 W. Return x Star Rating",
                              "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
@@ -2236,7 +2351,7 @@ stargazer.add_line("Global Category Controls", ["Y", "Y"], LineLocation.FOOTER_T
 stargazer.add_line("Other Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
-open('triple_diff_net_flow_past_return.html', 'w').write(stargazer.render_html())
+open('triple_diff_net_flow_past_w_return.html', 'w').write(stargazer.render_html())
 
 # Output for dep. variable Normailized Flow
 stargazer = Stargazer([reg102, reg103])
@@ -2244,7 +2359,7 @@ stargazer.rename_covariates({"High_ESG_PAST_RET_COV": "High ESG x 1 W. Return x 
                              "High_ESG_PAST_RET": "High ESG x 1 W. Return", "Low_ESG_PAST_RET": "Low ESG x 1 W. Return",
                              "PAST_RET_COV": "1 W. Return x COV", "High_ESG_COV": "High ESG x COV", "Low_ESG_COV": "Low ESG x COV",
                              "High_ESG": "High ESG", "Low_ESG": "Low ESG", "weekly_div": "Dividends",
-                             "normalized_exp": "Normalized Net Expense Ratio",
+                             "normalized_exp": "Norm. Net Expense Ratio",
                              "prior_week_return": "1 W. Return", "log_tna": "log(TNA)", "monthly_star": "Star Rating",
                              "PAST_RET_Star_COV": "1 W. Return x Star Rating x COV", "PAST_RET_Star": "1 W. Return x Star Rating",
                              "Star_COV": "Star Rating x COV", "index_indicator": "Index Fund"})
@@ -2265,4 +2380,4 @@ stargazer.add_line("Global Category Controls", ["Y", "Y"], LineLocation.FOOTER_T
 stargazer.add_line("Other Controls", ["Y", "Y"], LineLocation.FOOTER_TOP)
 stargazer.show_r2 = False
 
-open('triple_diff_normalized_flow_past_return.html', 'w').write(stargazer.render_html())
+open('triple_diff_normalized_flow_past_w_return.html', 'w').write(stargazer.render_html())
