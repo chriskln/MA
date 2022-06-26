@@ -256,11 +256,16 @@ df_fixed["mid"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId"
 # Past Returns
 ################################
 
+# prior week's return
+groupgroup = df_return_weekly.groupby(["ISIN"])
+df_return_weekly["prior_week_return"] = groupgroup["weekly_return"].shift(1)
+
 # prior month return
 df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].add(1)
 df_return_weekly["Date"] = df_return_weekly["Date"].astype("datetime64[ns]")
 df_return_monthly = df_return_weekly.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("M", on="Date").prod().reset_index()
 df_return_monthly = df_return_monthly.rename(columns={"weekly_return": "monthly_return_calc"})
+df_return_monthly = df_return_monthly.drop(columns=["prior_week_return"])
 
 group1 = df_return_monthly.groupby(["ISIN"])
 df_return_monthly["prior_month_return"] = group1["monthly_return_calc"].shift(1)
@@ -281,6 +286,7 @@ df_return_monthly["rolling_12_months_return"] = df_return_monthly["rolling_12_mo
 df_return_monthly["monthly_return_calc"] = df_return_monthly["monthly_return_calc"].sub(1)
 df_return_monthly["prior_month_return"] = df_return_monthly["prior_month_return"].sub(1)
 df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].sub(1)
+df_return_weekly["prior_week_return"] = df_return_weekly["prior_week_return"].sub(1)
 
 # convert to % values
 df_return_monthly["rolling_12_months_return"] = df_return_monthly["rolling_12_months_return"].mul(100)
@@ -290,6 +296,7 @@ df_return_monthly["monthly_return"] = df_return_monthly["monthly_return"].mul(10
 df_return_monthly["prior_month_return"] = df_return_monthly["prior_month_return"].mul(100)
 df_return_monthly["prior_month_return_backup"] = df_return_monthly["prior_month_return_backup"].mul(100)
 df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].mul(100)
+df_return_weekly["prior_week_return"] = df_return_weekly["prior_week_return"].mul(100)
 
 df_return_monthly = df_return_monthly.rename(columns={"month_year": "Date"})
 
