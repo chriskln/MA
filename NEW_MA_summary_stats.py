@@ -66,7 +66,7 @@ df_final["weekly_div"] = df_final["weekly_div"].fillna(0)
 
 
 ################################
-# Add restriction on at least $1m. of tna by previous week (Hartzmark and Sussman)
+# Add restriction on at least $1m. of tna by previous week
 ################################
 
 df_final = df_final.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).filter(lambda x: (x.weekly_tna_lag1 >= 1000000).all())
@@ -90,14 +90,12 @@ df_final = df_final.loc[~df_final.ISIN.isin(df_final.loc[df_final[["utilities", 
                                                                    "energy", "large_growth", "large_value", "large_core",
                                                                    "mid_growth", "mid_value", "mid_core", "small_core",
                                                                    "small_value", "small_growth",
-                                                                   "monthly_sus", "monthly_star", "monthly_env",
-                                                                   "monthly_gov", "monthly_soc", "monthly_car",
-                                                                   "weekly_expense"]].isna().any(axis=1), "ISIN"])]
-
+                                                                   "monthly_sus", "monthly_star", "monthly_env", "monthly_car",
+                                                                   "monthly_gov", "monthly_soc", "weekly_expense"]].isna().any(axis=1), "ISIN"])]
 
 # number of ISIN's in dataset
 print(df_final["ISIN"].nunique())
-# 1589 (overall)
+# 1589
 
 
 ################################
@@ -114,7 +112,7 @@ df_final["HML"] = winsorize(df_final["HML"], limits=(0.01, 0.01))
 df_final["RMW"] = winsorize(df_final["RMW"], limits=(0.01, 0.01))
 df_final["CMA"] = winsorize(df_final["CMA"], limits=(0.01, 0.01))
 
-# Dividends
+# dividends
 df_final["weekly_div"] = winsorize(df_final["weekly_div"], limits=(0.01, 0.01))
 
 # returns
@@ -149,7 +147,7 @@ df_final["monthly_car"] = winsorize(df_final["monthly_car"], limits=(0.01, 0.01)
 df_final = df_final.rename(columns={"weekly_expense": "Net Expense Ratio"})
 # check for outliers in expense ratio data
 sns.boxplot(x=df_final["Net Expense Ratio"])
-#plt.show()
+plt.show()
 # plot shows several outliers on right tail
 # rename
 df_final = df_final.rename(columns={"Net Expense Ratio": "weekly_expense"})
@@ -173,11 +171,8 @@ df_final["fund_flows"] = df_final["fund_flows"].mul(100) # values in percent
 df_final["Decile_Rank"] = df_final.groupby(["Date"]).weekly_tna.apply(lambda x: pd.qcut(x, 10, duplicates="drop", labels=False))
 df_final["normalized_flows"] = df_final.groupby("Decile_Rank").weekly_flow.apply(lambda x: pd.qcut(x, 100, duplicates="drop", labels=False))
 
-
-
 # to csv
 df_final.to_csv(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_2\\df_final_trimmed.csv")
-
 
 
 ##############################################
@@ -193,13 +188,12 @@ df_describe = df_final[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "D
 summary = df_describe.describe(percentiles=[.25,.5,.75])
 
 # rename columns
-summary = summary.rename(columns={"fund_flows": "Net Flow (%)", "normalized_flows": "Normalized Net Flow",
+summary = summary.rename(columns={"fund_flows": "Net Flows (%)", "normalized_flows": "Normalized Flows",
                         "weekly_tna": "Total Net Assets (€ mio.)", "weekly_return": "Return (%)",
                         "prior_month_return": "1 M. Return (%)", "rolling_12_months_return": "12 M. Return (%)",
                         "weekly_expense": "Net Expense Ratio (%)", "Age": "Age (years)",
                         "monthly_star": "Star Rating", "monthly_sus": "Globe Rating", "monthly_env": "Env. Risk Score",
-                        "monthly_soc": "Soc. Risk Score", "monthly_gov": "Gov. Risk Score",
-                        "monthly_car": "Low Carbon Risk Score"})
+                        "monthly_soc": "Soc. Risk Score", "monthly_gov": "Gov. Risk Score", "monthly_car": "Low Carbon Risk Score"})
 
 # round to two decimal places
 summary = summary.round(2)
@@ -230,12 +224,12 @@ summary_2 = pd.DataFrame(df_describe.groupby(["monthly_sus"])[["Name", "Fund Leg
                                                                "Date", "fund_flows", "normalized_flows", "weekly_tna",
                                                                "weekly_return", "prior_month_return",
                                                                "rolling_12_months_return", "weekly_expense",
-                                                               "Age", "monthly_star",
-                                                               "monthly_env", "monthly_soc", "monthly_gov",
-                                                               "monthly_car"]].describe().loc[:,(slice(None), ["count", "mean", "std"])])
+                                                               "Age", "monthly_star", "monthly_car",
+                                                               "monthly_env", "monthly_soc", "monthly_gov"]].describe()
+                                                                .loc[:,(slice(None), ["count", "mean", "std"])])
 
 # rename columns
-summary_2 = summary_2.rename(columns={"fund_flows": "Net Flow (%)", "normalized_flows": "Normalized Net Flow",
+summary_2 = summary_2.rename(columns={"fund_flows": "Net Flows (%)", "normalized_flows": "Normalized Flows",
                         "weekly_tna": "Total Net Assets (€ mio.)", "weekly_return": "Return (%)",
                         "prior_month_return": "1 M. Return (%)", "rolling_12_months_return": "12 M. Return (%)",
                         "weekly_expense": "Net Expense Ratio (%)", "Age": "Age (years)", "monthly_star": "Star Rating",
@@ -308,17 +302,16 @@ summary_pre = pd.DataFrame(df_describe_pre.groupby(["monthly_sus"])[["Name", "Fu
                                                                "normalized_flows", "weekly_tna",
                                                                "weekly_return", "prior_month_return",
                                                                "rolling_12_months_return", "weekly_expense", "Age", "monthly_star",
-                                                               "monthly_env", "monthly_soc", "monthly_gov",
-                                                               "monthly_car"]].describe().loc[:,(slice(None), ["count", "mean", "std"])])
+                                                               "monthly_env", "monthly_soc", "monthly_gov", "monthly_car"]].describe()
+                                                                .loc[:,(slice(None), ["count", "mean", "std"])])
 
 # rename columns
-summary_pre = summary_pre.rename(columns={"fund_flows": "Net Flow (%)", "normalized_flows": "Normalized Net Flow",
+summary_pre = summary_pre.rename(columns={"fund_flows": "Net Flows (%)", "normalized_flows": "Normalized Flows",
                         "weekly_tna": "Total Net Assets (€ mio.)", "weekly_return": "Return (%)",
                         "prior_month_return": "1 M. Return (%)", "rolling_12_months_return": "12 M. Return (%)",
                         "weekly_expense": "Net Expense Ratio (%)", "Age": "Age (years)",
                         "monthly_star": "Star Rating", "monthly_env": "Env. Risk Score",
-                        "monthly_soc": "Soc. Risk Score", "monthly_gov": "Gov. Risk Score",
-                        "monthly_car": "Low Carbon Risk Score"})
+                        "monthly_soc": "Soc. Risk Score", "monthly_gov": "Gov. Risk Score", "monthly_car": "Low Carbon Risk Score"})
 
 # rename indexes
 summary_pre = summary_pre.rename(index={5.0: "High", 4.0: "Above Av.", 3.0: "Av.", 2.0: "Below Av.", 1.0: "Low"})
@@ -389,7 +382,7 @@ summary_crsh = pd.DataFrame(df_describe_crsh.groupby(["monthly_sus"])[["Name", "
                                                                "monthly_gov", "monthly_car"]].describe().loc[:,(slice(None), ["count", "mean", "std"])])
 
 # rename columns
-summary_crsh = summary_crsh.rename(columns={"fund_flows": "Net Flow (%)", "normalized_flows": "Normalized Net Flow",
+summary_crsh = summary_crsh.rename(columns={"fund_flows": "Net Flows (%)", "normalized_flows": "Normalized Flows",
                         "weekly_tna": "Total Net Assets (€ mio.)", "weekly_return": "Return (%)",
                         "prior_month_return": "1 M. Return (%)", "rolling_12_months_return": "12 M. Return (%)",
                         "weekly_expense": "Net Expense Ratio (%)", "Age": "Age (years)",
@@ -462,17 +455,16 @@ summary_rec = pd.DataFrame(df_describe_rec.groupby(["monthly_sus"])[["Name", "Fu
                                                                "normalized_flows", "weekly_tna",
                                                                "weekly_return", "prior_month_return",
                                                                "rolling_12_months_return", "weekly_expense", "Age", "monthly_star",
-                                                               "monthly_env", "monthly_soc",
-                                                               "monthly_gov", "monthly_car"]].describe().loc[:,(slice(None), ["count", "mean", "std"])])
+                                                               "monthly_env", "monthly_soc", "monthly_car",
+                                                               "monthly_gov"]].describe().loc[:,(slice(None), ["count", "mean", "std"])])
 
 # rename columns
-summary_rec = summary_rec.rename(columns={"fund_flows": "Net Flow (%)", "normalized_flows": "Normalized Net Flow",
+summary_rec = summary_rec.rename(columns={"fund_flows": "Net Flows (%)", "normalized_flows": "Normalized Flows",
                         "weekly_tna": "Total Net Assets (€ mio.)", "weekly_return": "Return (%)",
                         "prior_month_return": "1 M. Return (%)", "rolling_12_months_return": "12 M. Return (%)",
                         "weekly_expense": "Net Expense Ratio (%)", "Age": "Age (years)",
                         "monthly_star": "Star Rating", "monthly_env": "Env. Risk Score",
-                        "monthly_soc": "Soc. Risk Score", "monthly_gov": "Gov. Risk Score",
-                        "monthly_car": "Low Carbon Risk Score"})
+                        "monthly_soc": "Soc. Risk Score", "monthly_gov": "Gov. Risk Score", "monthly_car": "Low Carbon Risk Score"})
 
 # rename indexes
 summary_rec = summary_rec.rename(index={5.0: "High", 4.0: "Above Av.", 3.0: "Av.", 2.0: "Below Av.", 1.0: "Low"})
@@ -519,83 +511,6 @@ summary_rec_fin = summary_rec_fin.round(2)
 summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_rec.xlsx", index=False)
 
 ##############################################
-# Summary Statistic in dependence of globe rating: POST-RECOVERY (24/08/2020 - 31/12/2020)
-##############################################
-
-#df_describe_prec = df_final[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "fund_flows", "normalized_flows", "weekly_tna",
-#                        "weekly_return", "prior_month_return", "rolling_12_months_return", "weekly_expense", "Age", "monthly_star",
-    #                    "monthly_sus", "monthly_env", "monthly_soc", "monthly_gov", "monthly_car"]].copy()
-
-# setting time frame
-#df_describe_prec["Date"] = df_describe_prec["Date"].astype("datetime64[ns]")
-#start_prec = pd.to_datetime("2020-08-24", format="%Y-%m-%d")
-#end_prec = pd.to_datetime("2020-12-31", format="%Y-%m-%d")
-#df_describe_prec = df_describe_prec[df_describe_prec["Date"].between(start_prec, end_prec)].reset_index()
-#df_describe_prec = df_describe_prec.drop(columns=["index"])
-
-# get statistics of dataframe
-#summary_prec = pd.DataFrame(df_describe_prec.groupby(["monthly_sus"])[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "fund_flows",
-#                                                               "normalized_flows", "weekly_tna",
-#                                                               "weekly_return", "prior_month_return",
-#                                                               "rolling_12_months_return", "weekly_expense", "Age", "monthly_star",
-#                                                               "monthly_env", "monthly_soc",
-#                                                               "monthly_gov", "monthly_car"]].describe().loc[:,(slice(None), ["count", "mean", "std"])])
-
-# rename columns
-#summary_prec = summary_prec.rename(columns={"fund_flows": "Net Flow (%)", "normalized_flows": "Normalized Net Flow",
-#                        "weekly_tna": "Total Net Assets (€ mio.)", "weekly_return": "Return (%)",
-#                        "prior_month_return": "Prior Month's Return (%)", "rolling_12_months_return": "Past 12 Months' Return (%)",
-#                        "weekly_expense": "Expense Ratio (%)", "Age": "Age (years)",
-#                        "monthly_star": "Star Rating", "monthly_env": "Environmental Risk Score",
-#                        "monthly_soc": "Social Risk Score", "monthly_gov": "Governance Risk Score",
-#                        "monthly_car": "Low Carbon Risk Score"})
-
-# rename indexes
-#summary_prec = summary_prec.rename(index={5.0: "High", 4.0: "Above Av.", 3.0: "Av.", 2.0: "Below Av.", 1.0: "Low"})
-
-# transpose
-#summary_prec = summary_prec.transpose()
-#summary_prec = summary_prec.reset_index()
-
-# calculate difference between 5 globes and 1 globe
-#summary_prec["High-Low"] = summary_prec.loc[summary_prec["level_1"] == "mean", "High"] - summary_prec.loc[summary_prec["level_1"] == "mean", "Low"]
-
-# calculate t-test (t-statistic and p-value)
-#t_test_prec = scipy.stats.ttest_ind_from_stats(summary_prec.loc[summary_prec["level_1"] == "mean", "High"],
-#                                          summary_prec.loc[summary_prec["level_1"] == "std", "High"],
-#                                          summary_prec.loc[summary_prec["level_1"] == "count", "High"],
-#                                          summary_prec.loc[summary_prec["level_1"] == "mean", "Low"],
-#                                          summary_prec.loc[summary_prec["level_1"] == "std", "Low"],
-#                                          summary_prec.loc[summary_prec["level_1"] == "count", "Low"])
-
-# drop std and count
-#summary_prec = summary_prec.groupby(["level_0", "level_1"]).filter(lambda x: (x["level_1"] == "mean").all())
-
-# rename and drop
-#summary_prec = summary_prec.drop(columns=["level_1"])
-#summary_prec = summary_prec.rename(columns={"level_0": "Variable"})
-#summary_prec = summary_prec.reset_index()
-#summary_prec = summary_prec.drop(columns=["index"])
-
-# prep t_test variable
-#data_prec = np.array([[t_test_prec[0]], [t_test_prec[1]]])
-#df_ttest_prec = pd.DataFrame(np.concatenate(data_prec))
-#df_ttest_prec = df_ttest_prec.transpose()
-
-# merge means and t-test results
-#summary_prec_fin = pd.merge(summary_prec, df_ttest_prec, left_index=True, right_index=True)
-
-# rename columns 0 and 1
-#summary_prec_fin = summary_prec_fin.rename(columns={0: "t-statistic", 1: "p-value"})
-
-# rounding
-#summary_prec_fin = summary_prec_fin.round(2)
-
-# to excel
-#summary_prec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\summary_stats\\summary_prec.xlsx", index=False)
-
-
-##############################################
 # Create bigger summary table
 ##############################################
 
@@ -603,13 +518,11 @@ summary_rec_fin.to_excel(r"C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\
 df_ttest = df_ttest.rename(columns={0: "t-statistic", 1: "p-value"})
 df_ttest_crsh = df_ttest_crsh.rename(columns={0: "t-statistic", 1: "p-value"})
 df_ttest_rec = df_ttest_rec.rename(columns={0: "t-statistic", 1: "p-value"})
-#df_ttest_prec = df_ttest_prec.rename(columns={0: "t-statistic", 1: "p-value"})
 
 # rounding
 df_ttest = df_ttest.round(2)
 df_ttest_crsh = df_ttest_crsh.round(2)
 df_ttest_rec = df_ttest_rec.round(2)
-#df_ttest_prec = df_ttest_prec.round(2)
 
 # merge all together
 summary_table = [summary_fin, df_ttest_crsh, df_ttest_rec]
@@ -628,7 +541,7 @@ f = pd.concat(d_2.values(), axis=1, keys=d_2.keys())
 summary_total = pd.merge(f, t_tests, right_index=True, left_index=True)
 
 # rename indexes
-summary_total = summary_total.rename(index={0: "Net Flow (%)", 1: "Normalized Net Flow",
+summary_total = summary_total.rename(index={0: "Net Flows (%)", 1: "Normalized Flows",
                         2: "Total Net Assets (€ mio.)", 3: "Return (%)", 4: "1 M. Return (%)",
                         5: "12 M. Return (%)", 6: "Net Expense Ratio (%)", 7: "Age (years)", 8: "Star Rating", 9: "Env. Risk Score",
                         10: "Soc. Risk Score", 11: "Gov. Risk Score", 12: "Low Carbon Risk Score"})

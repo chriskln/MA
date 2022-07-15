@@ -407,6 +407,7 @@ df_final_trimmed["Star_12M_RET_COV"] = df_final_trimmed["rolling_12_months_retur
 df_final_trimmed["Star_12M_RET"] = df_final_trimmed["rolling_12_months_return"] * df_final_trimmed["monthly_star"]
 
 
+
 ##############################################
 # 1. Model:
 # Diff in diff regression

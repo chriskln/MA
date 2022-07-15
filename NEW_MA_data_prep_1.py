@@ -8,8 +8,6 @@
 
 import numpy as np
 import pandas as pd
-from datetime import date
-from scipy.stats.mstats import winsorize
 
 ##############################################
 # Loading Data
@@ -33,26 +31,28 @@ df_car = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_
 ##############################################
 
 # initial look at all data
-#print(df_flow.head)
-#print(df_static.head)
-#print(df_tna.head)
-#print(df_return.head)
-#print(df_sus.head)
-#print(df_exp.head)
-#print(df_star.head)
+print(df_flow.head)
+print(df_static.head)
+print(df_tna.head)
+print(df_return.head)
+print(df_sus.head)
+print(df_star.head)
+print(df_env.head)
+print(df_soc.head)
+print(df_gov.head)
 
 # number of different ISIN's in dataset
-#print(df_static["ISIN"].nunique())
+print(df_static["ISIN"].nunique())
 # 5317
 
 # number of different funds in dataset
-#print(df_static["FundId"].nunique())
+print(df_static["FundId"].nunique())
 # 1119
 
 # number of share classes investing in different investment areas
 df_static["count"] = 1
 share_class_count = df_static.groupby("Investment Area")["count"].count()
-#print(share_class_count)
+print(share_class_count)
 #Austria                   20
 #Belgium                    4
 #Denmark                    6
@@ -75,7 +75,7 @@ share_class_count = df_static.groupby("Investment Area")["count"].count()
 # number of institutional share classes
 df_static["count"] = 1
 insti_count = df_static.groupby(["Institutional"])["count"].count()
-#print(insti_count)
+print(insti_count)
 df_static = df_static.drop(["count"], axis=1)
 #Institutional
 #No     4371
@@ -84,7 +84,7 @@ df_static = df_static.drop(["count"], axis=1)
 # number of share classes having a sustainability rating as of 12/2020
 df_sus["count"] = 1
 sus_count = df_sus.groupby(["Morningstar Sustainability Rating™ 2020-12"])["count"].count()
-#print(sus_count)
+print(sus_count)
 df_sus = df_sus.drop(["count"], axis=1)
 # Above Average    1076
 # Average          1707
@@ -129,7 +129,6 @@ df_return["daily_return"] = df_return["daily_return"].div(100)
 df_return["daily_return"] = df_return["daily_return"].add(1)
 df_return_weekly = df_return.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("W", on="Date").prod().reset_index()
 df_return_weekly["daily_return"] = df_return_weekly["daily_return"].sub(1)
-#df_return_weekly["daily_return"] = df_return_weekly["daily_return"].mul(100)
 df_return_weekly = df_return_weekly.rename(columns={"daily_return": "weekly_return"})
 
 

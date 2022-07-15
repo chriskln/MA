@@ -8,11 +8,7 @@
 
 import numpy as np
 import pandas as pd
-from sklearn import preprocessing
-import datetime
 from datetime import date
-from datetime import datetime
-from scipy.stats.mstats import winsorize
 from functools import reduce
 import math
 
@@ -25,7 +21,6 @@ df_return_weekly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Th
 df_tna_weekly = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_tna_weekly.csv", sep= ",")
 df_m_return = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\dataframes_prep_1\\df_m_return.csv", sep= ",")
 df_exp = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\expense_ratio.csv", sep= ";")
-df_tur = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\turnover.csv", sep= ";")
 df_sus = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\sustainability_rating.csv", sep= ";")
 df_env = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\environmental_risk_score.csv", sep= ";")
 df_soc = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Thesis\\csv_2\\data_raw\\social_risk_score.csv", sep= ";")
@@ -141,19 +136,6 @@ df_ind["real_estate"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "Se
 df_ind["technology"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["technology"].transform(lambda x: x.ffill())
 df_ind["utilities"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["utilities"].transform(lambda x: x.ffill())
 
-# backward fill future values into past
-#df_ind["basic_materials"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["basic_materials"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["communication_services"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["communication_services"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["consumer_cyclical"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["consumer_cyclical"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["energy"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["energy"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["consumer_defensive"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["consumer_defensive"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["financial_services"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["financial_services"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["healthcare"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["healthcare"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["industrials"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["industrials"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["real_estate"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["real_estate"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["technology"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["technology"].transform(lambda x: x.fillna(method="bfill"))
-#df_ind["utilities"] = df_ind.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["utilities"].transform(lambda x: x.fillna(method="bfill"))
-
 
 ################################
 # Investment Style Exposure
@@ -235,37 +217,16 @@ df_fixed["small"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecI
 df_fixed["large"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large"].transform(lambda x: x.ffill())
 df_fixed["mid"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid"].transform(lambda x: x.ffill())
 
-# backward fill future values into past
-#df_fixed["large_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_growth"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["large_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_value"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["large_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large_core"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["mid_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_growth"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["mid_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_value"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["mid_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid_core"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["small_growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_growth"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["small_value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_value"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["small_core"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small_core"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["growth"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["growth"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["value"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["value"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["small"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["small"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["mid"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["mid"].transform(lambda x: x.fillna(method="bfill"))
-#df_fixed["large"] = df_fixed.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["large"].transform(lambda x: x.fillna(method="bfill"))
-
 
 ################################
 # Past Returns
 ################################
-
-# prior week's return
-groupgroup = df_return_weekly.groupby(["ISIN"])
-df_return_weekly["prior_week_return"] = groupgroup["weekly_return"].shift(1)
 
 # prior month return
 df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].add(1)
 df_return_weekly["Date"] = df_return_weekly["Date"].astype("datetime64[ns]")
 df_return_monthly = df_return_weekly.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"]).resample("M", on="Date").prod().reset_index()
 df_return_monthly = df_return_monthly.rename(columns={"weekly_return": "monthly_return_calc"})
-df_return_monthly = df_return_monthly.drop(columns=["prior_week_return"])
 
 group1 = df_return_monthly.groupby(["ISIN"])
 df_return_monthly["prior_month_return"] = group1["monthly_return_calc"].shift(1)
@@ -286,7 +247,6 @@ df_return_monthly["rolling_12_months_return"] = df_return_monthly["rolling_12_mo
 df_return_monthly["monthly_return_calc"] = df_return_monthly["monthly_return_calc"].sub(1)
 df_return_monthly["prior_month_return"] = df_return_monthly["prior_month_return"].sub(1)
 df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].sub(1)
-df_return_weekly["prior_week_return"] = df_return_weekly["prior_week_return"].sub(1)
 
 # convert to % values
 df_return_monthly["rolling_12_months_return"] = df_return_monthly["rolling_12_months_return"].mul(100)
@@ -296,7 +256,6 @@ df_return_monthly["monthly_return"] = df_return_monthly["monthly_return"].mul(10
 df_return_monthly["prior_month_return"] = df_return_monthly["prior_month_return"].mul(100)
 df_return_monthly["prior_month_return_backup"] = df_return_monthly["prior_month_return_backup"].mul(100)
 df_return_weekly["weekly_return"] = df_return_weekly["weekly_return"].mul(100)
-df_return_weekly["prior_week_return"] = df_return_weekly["prior_week_return"].mul(100)
 
 df_return_monthly = df_return_monthly.rename(columns={"month_year": "Date"})
 
@@ -393,9 +352,6 @@ df_exp = df_exp.drop(columns=["Date", "yearly_expense"])
 # forward fill values from the past into future
 df_exp["weekly_expense"] = df_exp.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_expense"].transform(lambda x: x.ffill())
 
-# backward fill future values into past
-#df_exp["weekly_expense"] = df_exp.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["weekly_expense"].transform(lambda x: x.fillna(method="bfill"))
-
 
 ################################
 # Index Fund Check
@@ -434,7 +390,7 @@ df_div = df_div.drop(columns=["yearly_div"])
 
 
 ################################
-# Firm Name
+# Firm Name / Fund Provider
 ################################
 
 df_firm_name = df_static[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Firm Name"]].copy()
@@ -472,9 +428,6 @@ df_star["Date"] = pd.to_datetime(df_star["Date"], format="%Y-%m-%d")
 
 # forward fill values from the past into future
 df_star["monthly_star"] = df_star.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_star"].transform(lambda x: x.ffill())
-
-# backward fill future values into the past
-#df_star["monthly_star"] = df_star.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_star"].transform(lambda x: x.fillna(method="bfill"))
 
 
 ##############################################
@@ -524,13 +477,6 @@ df_car["monthly_car"] = df_car.groupby(["Name", "Fund Legal Name", "FundId", "Se
 df_env["monthly_env"] = df_env.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_env"].transform(lambda x: x.ffill())
 df_soc["monthly_soc"] = df_soc.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_soc"].transform(lambda x: x.ffill())
 df_gov["monthly_gov"] = df_gov.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_gov"].transform(lambda x: x.ffill())
-
-# backward fill future values into past
-#df_sus["monthly_sus"] = df_sus.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_sus"].transform(lambda x: x.fillna(method="bfill"))
-#df_car["monthly_car"] = df_car.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_car"].transform(lambda x: x.fillna(method="bfill"))
-#df_env["monthly_env"] = df_env.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_env"].transform(lambda x: x.fillna(method="bfill"))
-#df_soc["monthly_soc"] = df_soc.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_soc"].transform(lambda x: x.fillna(method="bfill"))
-#df_gov["monthly_gov"] = df_gov.groupby(["Name", "Fund Legal Name", "FundId", "SecId", "ISIN"])["monthly_gov"].transform(lambda x: x.fillna(method="bfill"))
 
 
 ##############################################
