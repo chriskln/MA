@@ -42,6 +42,18 @@ df_final_trimmed = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Th
 # delete unnamed columns
 df_final_trimmed = df_final_trimmed.loc[:, ~df_final_trimmed.columns.str.contains("^Unnamed")]
 
+# count of industry membership of five- and one-globe funds
+df_count_one = df_final_trimmed[(df_final_trimmed.monthly_sus == 1)]
+df_count_one["count"] = 1
+sus_count = df_count_one.groupby(["Global Category"])["count"].count()
+print(sus_count)
+df_count_one = df_count_one.drop(["count"], axis=1)
+
+df_count_two = df_final_trimmed[(df_final_trimmed.monthly_sus == 2)]
+df_count_two["count"] = 1
+sus_count = df_count_two.groupby(["Global Category"])["count"].count()
+print(sus_count)
+df_count_two = df_count_two.drop(["count"], axis=1)
 
 ##############################################
 # Dummy Variables
