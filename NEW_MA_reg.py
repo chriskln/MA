@@ -42,18 +42,57 @@ df_final_trimmed = pd.read_csv("C:\\Users\\klein\\OneDrive\\Dokumente\\Master Th
 # delete unnamed columns
 df_final_trimmed = df_final_trimmed.loc[:, ~df_final_trimmed.columns.str.contains("^Unnamed")]
 
-# count of industry membership of five- and one-globe funds
-df_count_one = df_final_trimmed[(df_final_trimmed.monthly_sus == 1)]
-df_count_one["count"] = 1
-sus_count = df_count_one.groupby(["Global Category"])["count"].count()
+##############################################
+# industry membership
+##############################################
+
+# industry membership based on exposure scores
+df_industry = df_final_trimmed[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "utilities", "industrials",
+                               "basic_materials", "consumer_cyclical", "real_estate", "technology", "healthcare",
+                               "consumer_defensive", "communication_services", "financial_services", "energy"]].copy()
+
+df_industry["Industry"] = df_industry[["utilities", "industrials", "basic_materials", "consumer_cyclical", "real_estate",
+                                      "technology", "healthcare", "consumer_defensive", "communication_services",
+                                      "financial_services", "energy"]].idxmax(axis=1)
+
+df_final_trimmed = pd.merge(df_final_trimmed, df_industry[["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date", "Industry"]], on=["Name", "Fund Legal Name", "FundId", "SecId", "ISIN", "Date"], how="left")
+
+# industry that most occurs among one-, two-, five-globe funds
+df_count = df_final_trimmed[["ISIN", "Date", "monthly_sus", "Industry"]]
+df_count = df_count[df_count.Date == "2019-12-29"]
+df_count_one = df_count[(df_count.monthly_sus == 1)]
+print(df_count_one)
+df_count_one["count"] = 0
+sus_count = df_count_one.groupby(["Industry"])["count"].count()
 print(sus_count)
 df_count_one = df_count_one.drop(["count"], axis=1)
 
-df_count_two = df_final_trimmed[(df_final_trimmed.monthly_sus == 2)]
-df_count_two["count"] = 1
-sus_count = df_count_two.groupby(["Global Category"])["count"].count()
-print(sus_count)
-df_count_two = df_count_two.drop(["count"], axis=1)
+# as of 23/02/2020
+# Industry                  FIVE-GLOBE FUNDS    ONE-GLOBE FUNDS     TWO-GLOBE FUNDS
+# consumer_cyclical                                                 13
+# communication_services     1
+# consumer_defensive        27                                      7
+# energy                     2
+# financial_services        33                  32                  232
+# healthcare                42                  21                  51
+# industrials               29                  6                   47
+# real_estate               13                                      4
+# technology                65                                      3
+# utilities                  1
+
+# as of 22/03/2020
+# Industry                  FIVE-GLOBE FUNDS    ONE-GLOBE FUNDS     TWO-GLOBE FUNDS
+# basic_materials                                                   7
+# consumer_cyclical                                                 6
+# communication_services     1
+# consumer_defensive        25                  1                   23
+# energy                     2
+# financial_services        13                  20                  156
+# healthcare                53                  35                  132
+# industrials               31                  7                   42
+# real_estate               13                                      4
+# technology                75                                      5
+# utilities                                                         2
 
 ##############################################
 # Dummy Variables
